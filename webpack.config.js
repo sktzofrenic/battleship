@@ -1,6 +1,10 @@
 const path = require('path');
 const webpack = require('webpack');
 
+function resolve (dir) {
+  return path.join(__dirname, '..', dir)
+}
+
 /*
  * Webpack Plugins
  */
@@ -34,6 +38,10 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js',
+      '@': resolve('assets/js'),
+    }
   },
   devtool: 'source-map',
   devServer: {
