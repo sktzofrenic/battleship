@@ -35,7 +35,7 @@ class DevConfig(Config):
     DEBUG = True
     DB_NAME = 'dev.db'
     SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://battleship:battleship@localhost:3306/battleship'
-    DEBUG_TB_ENABLED = True
+    DEBUG_TB_ENABLED = False
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
     WEBPACK_ASSETS_URL = "http://myground.org:5001/static/build/"
 

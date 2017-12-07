@@ -16,7 +16,13 @@ require('./script.js');
 import Vue from 'vue'
 import App from './App.vue'
 
+console.log('HELLO WORLD', Vue)
+
+// Vue.config.delimiters = ['[[', ']]']
+
 new Vue({
-    el: '#app',
-    components: { App }
+  el: '#app',
+  template: '<App/>',
+  render: h => h(App),
+  components: { App }
 })

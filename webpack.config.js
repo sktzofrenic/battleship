@@ -23,7 +23,7 @@ module.exports = {
   // configuration
   context: __dirname,
   entry: {
-    main_js: './assets/js/main',
+    main_js: './assets/js/main.js',
     main_css: [
       path.join(__dirname, 'node_modules', 'font-awesome', 'css', 'font-awesome.css'),
       path.join(__dirname, 'node_modules', 'bootstrap', 'dist', 'css', 'bootstrap.css'),
@@ -37,10 +37,10 @@ module.exports = {
     chunkFilename: '[id].[hash].js',
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.css'],
+    extensions: ['.js', '.jsx', '.css', '.vue'],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('assets/js'),
+      'vue$': 'vue/dist/vue.esm.js'
     }
   },
   devtool: 'source-map',
