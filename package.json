@@ -47,6 +47,7 @@
     "manifest-revision-webpack-plugin": "^0.4.0",
     "raw-loader": "^0.5.1",
     "style-loader": "^0.18.2",
+    "uglify-es": "github:mishoo/UglifyJS2#harmony",
     "url-loader": "^0.5.9",
     "vue-loader": "^13.5.0",
     "vue-template-compiler": "^2.5.9",
