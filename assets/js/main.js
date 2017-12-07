@@ -12,3 +12,12 @@ require('bootstrap');
 // Your own code
 require('./plugins.js');
 require('./script.js');
+
+import Vue from 'vue'
+
+new Vue({
+    el: 'body',
+    data: {
+        message: "Hello Vue"
+    }
+})
