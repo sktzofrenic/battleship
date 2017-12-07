@@ -11,7 +11,7 @@ const ManifestRevisionPlugin = require('manifest-revision-webpack-plugin');
 const debug = (process.env.NODE_ENV !== 'production');
 
 // Development asset host (webpack dev server)
-const publicHost = debug ? 'http://localhost:2992' : '';
+const publicHost = debug ? 'http://myground.org:5001' : '';
 
 const rootAssetPath = path.join(__dirname, 'assets');
 
@@ -48,7 +48,7 @@ module.exports = {
       { test: /\.(ttf|eot|svg|png|jpe?g|gif|ico)(\?.*)?$/i,
         loader: `file-loader?context=${rootAssetPath}&name=[path][name].[hash].[ext]` },
       { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader', query: { presets: ['env', "es2015", "stage-0"], cacheDirectory: true } },
-      { test: /\.vue$/, loader: 'vue' }
+      { test: /\.vue$/, loader: 'vue-loader' }
     ],
   },
   plugins: [
