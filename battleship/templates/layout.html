@@ -4,63 +4,78 @@
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <title>{% block page_title %}
 
-  <title>{% block page_title %}
+            Battleship
 
-    Battleship
-
-    {% endblock %}
-  </title>
-  <meta name="description" content="{% block meta_description %}{% endblock %}">
-  <meta name="author" content="{% block meta_author %}{% endblock %}">
-
-  <!-- Mobile viewport optimized: h5bp.com/viewport -->
-  <meta name="viewport" content="width=device-width">
-
-  {{ stylesheet_tag('main_css') | safe }}
-
-  {% block css %}{% endblock %}
-
-</head>
-<body class="{% block body_class %}{% endblock %}">
-{% block body %}
-{% with form=form  %}
-{% include "nav.html" %}
-{% endwith %}
-
-<header>{% block header %}{% endblock %}</header>
-<div class="{% block content_class %}container{% endblock content_class %}">
-
-  <div role="main">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="row">
-      <div class="col-md-12">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-          <a class="close" title="Close" href="#" data-dismiss="alert">&times;</a>
-         {{message}}
-        </div><!-- end .alert -->
-        {% endfor %}
-      </div><!-- end col-md -->
-    </div><!-- end row -->
-        {% endif %}
-    {% endwith %}
-
-    {% block content %}{% endblock %}
-  </div>
-
-</div><!-- end container -->
-
-{% include "footer.html" %}
-
-<!-- JavaScript at the bottom for fast page loading -->
-{{ javascript_tag('main_js') | safe }}
-{% block js %}{% endblock %}
-<!-- end scripts -->
-{% endblock %}
-</body>
+            {% endblock %}
+        </title>
+        <meta name="description" content="{% block meta_description %}{% endblock %}">
+        <meta name="author" content="{% block meta_author %}{% endblock %}">
+        <!-- Mobile viewport optimized: h5bp.com/viewport -->
+        <meta name="viewport" content="width=device-width">
+        {{ stylesheet_tag('main_css') | safe }}
+        {% block css %}{% endblock %}
+        <style type="text/css">
+            body {
+                background: url(/static/build/img/dark-background.90565d7a4aa3b588953fbf52a5850b5d.jpg) no-repeat center center fixed;
+                -webkit-background-size: cover;
+                -moz-background-size: cover;
+                -o-background-size: cover;
+                background-size: cover;
+                }
+            body > .grid {
+                height: 100%;
+            }
+            .image img {
+                width: 300px !important;
+            }
+            .column {
+                max-width: 450px;
+                margin-top: 80px;
+            }
+        </style>
+    </head>
+    <body class="{% block body_class %}{% endblock %}">
+        {% block content %}
+        <div class="ui container">
+            <div class="ui middle aligned center aligned grid">
+                  <div class="column">
+                    <h2 class="ui red image header">
+                      <img src="static/build/img/logo_large.765db5cc25acfe75849d2d1c854d650d.png" class="image">
+                    </h2>
+                    <form class="ui large form" action="/" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="ui stacked segment">
+                            {%if current_user.is_authenticated %}
+                                <p>{{ current_user.username }} has been logged in <a href="{{ url_for('public.logout') }}">Logout<i class="fa fa-sign-out"></i></a> </p>
+                            {% endif %}
+                            <div class="field">
+                                <div class="ui left icon input">
+                                    <i class="user icon"></i>
+                                    {{ form.username(placeholder="Username") }}
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui left icon input">
+                                    <i class="lock icon"></i>
+                                    {{ form.password(placeholder="Password") }}
+                                </div>
+                            </div>
+                            <button type="submit" class="ui fluid large red submit button">Login</button>
+                        </div>
+                        <div class="ui error message"></div>
+                    </form>
+                    <div class="ui message">
+                      New to us? <a href="{{ url_for('public.register') }}">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </body>
 </html>
