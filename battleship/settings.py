@@ -15,7 +15,7 @@ class Config(object):
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WEBPACK_MANIFEST_PATH = 'webpack/manifest.json'
-    WEBPACK_ASSETS_URL = "http://myground.org:5001/static/build/"
+    WEBPACK_ASSETS_URL = "/static/build/"
 
 
 class ProdConfig(Config):
@@ -25,7 +25,7 @@ class ProdConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/example'  # TODO: Change me
     DEBUG_TB_ENABLED = False  # Disable Debug toolbar
-    WEBPACK_ASSETS_URL = "http://myground.org:5001/static/build/"
+    WEBPACK_ASSETS_URL = "/static/build/"
 
 
 class DevConfig(Config):
