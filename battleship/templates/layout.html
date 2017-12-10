@@ -21,12 +21,16 @@
         {{ stylesheet_tag('main_css') | safe }}
         {% block css %}{% endblock %}
         <style type="text/css">
+            html {
+                overflow-y:hidden;
+            }
             body {
                 background: url(/static/build/img/dark-background.90565d7a4aa3b588953fbf52a5850b5d.jpg) no-repeat center center fixed;
                 -webkit-background-size: cover;
                 -moz-background-size: cover;
                 -o-background-size: cover;
                 background-size: cover;
+                overflow-y:hidden;
                 }
             body > .grid {
                 height: 100%;
