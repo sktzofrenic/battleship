@@ -15,7 +15,7 @@ const ManifestRevisionPlugin = require('manifest-revision-webpack-plugin');
 const debug = (process.env.NODE_ENV !== 'production');
 
 // Development asset host (webpack dev server)
-const publicHost = debug ? 'http://myground.org:5001' : '';
+const publicHost = debug ? '/' : '';
 
 const rootAssetPath = path.join(__dirname, 'assets');
 
