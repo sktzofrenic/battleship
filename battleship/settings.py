@@ -23,7 +23,7 @@ class ProdConfig(Config):
 
     ENV = 'prod'
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/example'  # TODO: Change me
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://pbrduvaycllboc:58f5665310dad4d9e76afb01890ae7357b9f893e24d5704b446d9afbf2decbeb@ec2-54-163-254-76.compute-1.amazonaws.com:5432/d2ivucmg473aun')
     DEBUG_TB_ENABLED = False  # Disable Debug toolbar
     WEBPACK_ASSETS_URL = "/static/build/"
 
@@ -34,7 +34,7 @@ class DevConfig(Config):
     ENV = 'dev'
     DEBUG = True
     DB_NAME = 'dev.db'
-    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://battleship:battleship@localhost:3306/battleship'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://pbrduvaycllboc:58f5665310dad4d9e76afb01890ae7357b9f893e24d5704b446d9afbf2decbeb@ec2-54-163-254-76.compute-1.amazonaws.com:5432/d2ivucmg473aun')
     DEBUG_TB_ENABLED = False
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
     WEBPACK_ASSETS_URL = "http://myground.org:5001/static/build/"
