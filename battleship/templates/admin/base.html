@@ -40,37 +40,15 @@
                 <div class="ui grid">
                     <div class="row">
                         <h1 class="ui red huge header">
-                            {% block title %} Games <div class="sub header">
-                                <button style="padding:10px;" class="ui labeled inverted icon button">
-                                  <i class="plus icon"></i>
-                                  Add New
-                                </button>
-                            </div> {% endblock %}
+                            {% block title %} Games  {% endblock %}
                         </h1>
                     </div>
                     <div class="ui divider"></div>
-                    <div class="row">
-                        {% block content %}
-                        <table class="ui single line striped selectable table">
-                            <thead>
-                                <tr>
-                                    <th> #</th>
-                                    <th>Name</th>
-                                    <th>Status</th>
-                                    <th>Players</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>4762</td>
-                                    <td>San Francisco</td>
-                                    <td>Waiting for players</td>
-                                    <td>1 of 2</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        {% endblock %}
+                    {% block content %}
+                    <div id="gameList">
+
                     </div>
+                    {% endblock %}
                 </div>
             </div>
         </div>

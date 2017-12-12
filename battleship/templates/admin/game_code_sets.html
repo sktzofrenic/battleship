@@ -2,36 +2,11 @@
 
 {% block title %}
 Game Code Sets
-<div class="sub header">
-    <button style="padding:10px;" class="ui labeled inverted icon button">
-      <i class="plus icon"></i>
-      Add New
-    </button>
-</div>
+
 {% endblock %}
 
 {% block content %}
 
-
-{% if game_code_set %}
-<table class="ui single line striped selectable table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Game Codes</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for game_code_set in game_codes %}
-        <tr>
-            <td>{{ game_code_set.id }}</td>
-            <td>{{ game_code_set.name }}</td>
-            <td>{{ game_code_set.game_codes | length }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% endif %}
-
+<div id="gameCodes">
+</div>
 {% endblock %}
