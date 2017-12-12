@@ -75,6 +75,20 @@ class User(UserMixin, SurrogatePK, Model):
             self.password = None
 
     @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'full_name': self.full_name,
+            'email': self.email,
+            'roles': self.display_roles,
+            'is_active': self.is_active,
+            'is_admin': self.is_admin
+        }
+
+    @property
     def display_roles(self):
         roles = ''
         for role in self.roles:
