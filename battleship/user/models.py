@@ -7,14 +7,38 @@ from flask_login import UserMixin
 from battleship.database import Column, Model, SurrogatePK, db, reference_col, relationship
 from battleship.extensions import bcrypt
 
+role_associations = db.Table('users_roles',
+                             db.Column('role_id', db.Integer, db.ForeignKey('roles.id')),
+                             db.Column('user_id', db.Integer, db.ForeignKey('users.id')))
+
+permission_associations = db.Table('permissions_roles',
+                                   db.Column('permission_id', db.Integer, db.ForeignKey('permissions.id')),
+                                   db.Column('role_id', db.Integer, db.ForeignKey('roles.id')))
+
+
+class Permission(SurrogatePK, Model):
+    """A permission for a role."""
+
+    __tablename__ = 'permissions'
+    permission = db.Column(db.String(50))
+
+    def __init__(self, **kwargs):
+        """Create instance."""
+        db.Model.__init__(self, **kwargs)
+
+    def __repr__(self):
+        """Represent instance as a unique string."""
+        return '<RolPermissione({id})>'.format(name=self.id)
+
 
 class Role(SurrogatePK, Model):
     """A role for a user."""
 
     __tablename__ = 'roles'
     name = Column(db.String(80), unique=True, nullable=False)
-    user_id = reference_col('users', nullable=True)
-    user = relationship('User', backref='roles')
+    permissions = relationship("Permission",
+                               secondary=permission_associations,
+                               backref="roles")
 
     def __init__(self, name, **kwargs):
         """Create instance."""
@@ -38,6 +62,9 @@ class User(UserMixin, SurrogatePK, Model):
     last_name = Column(db.String(30), nullable=True)
     active = Column(db.Boolean(), default=False)
     is_admin = Column(db.Boolean(), default=False)
+    roles = relationship("Role",
+                         secondary=role_associations,
+                         backref="users")
 
     def __init__(self, username, email, password=None, **kwargs):
         """Create instance."""

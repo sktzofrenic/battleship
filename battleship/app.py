@@ -2,9 +2,11 @@
 """The app module, containing the app factory function."""
 from flask import Flask, render_template
 
-from battleship import commands, public, user
+from battleship import commands, public, user, game
 from battleship.extensions import bcrypt, cache, csrf_protect, db, debug_toolbar, login_manager, migrate, webpack
 from battleship.settings import ProdConfig
+from battleship.game.models import (Game, GameEvent, ChatEvent, GameCodeSet,
+                                    GameCode, Action, GameParticipant, ComputerPlayer, ComputerPlayerEvents)
 
 
 def create_app(config_object=ProdConfig):
@@ -39,6 +41,7 @@ def register_blueprints(app):
     """Register Flask blueprints."""
     app.register_blueprint(public.views.blueprint)
     app.register_blueprint(user.views.blueprint)
+    app.register_blueprint(game.views.blueprint)
     return None
 
 
