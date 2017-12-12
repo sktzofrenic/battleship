@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block title %}
-Users
+Game Code Sets
 <div class="sub header">
     <button style="padding:10px;" class="ui labeled inverted icon button">
       <i class="plus icon"></i>
@@ -12,25 +12,26 @@ Users
 
 {% block content %}
 
+
+{% if game_code_set %}
 <table class="ui single line striped selectable table">
     <thead>
         <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Full Name</th>
-            <th>Roles</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Game Codes</th>
         </tr>
     </thead>
     <tbody>
-        {% for user in users%}
+        {% for game_code_set in game_codes %}
         <tr>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.full_name }}</td>
-            <td>{{ user.display_roles }}</td>
+            <td>{{ game_code_set.id }}</td>
+            <td>{{ game_code_set.name }}</td>
+            <td>{{ game_code_set.game_codes | length }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+{% endif %}
 
 {% endblock %}

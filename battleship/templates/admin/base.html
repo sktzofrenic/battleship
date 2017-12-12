@@ -30,7 +30,7 @@
             <div class="column" id="sidebar">
                 <div class="ui secondary vertical fluid menu">
                     <a href="{{url_for('dashboard.home')}}"  class="{% if request.url_rule.endpoint  == 'dashboard.home'%} active {% endif%}item">Games</a>
-                    <a class="item">Game Codes</a>
+                    <a href="{{url_for('dashboard.game_codes')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.game_codes'%} active {% endif%}">Game Codes</a>
                     <a class="item">Analytics</a>
                     <div class="ui hidden divider"></div>
                     <a href="{{url_for('dashboard.users')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.users'%} active {% endif%}">Users</a>
@@ -40,7 +40,12 @@
                 <div class="ui grid">
                     <div class="row">
                         <h1 class="ui red huge header">
-                            {% block title %} Games {% endblock %}
+                            {% block title %} Games <div class="sub header">
+                                <button style="padding:10px;" class="ui labeled inverted icon button">
+                                  <i class="plus icon"></i>
+                                  Add New
+                                </button>
+                            </div> {% endblock %}
                         </h1>
                     </div>
                     <div class="ui divider"></div>
