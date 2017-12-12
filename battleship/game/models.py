@@ -99,7 +99,7 @@ class ChatEvent(SurrogatePK, Model):
 
     __tablename__ = 'chat_events'
     created_on = Column(db.DateTime, default=dt.datetime.utcnow)
-    game = relationship('Game', backref='game_events')
+    game = relationship('Game', backref='chat_events')
     game_id = reference_col('games', nullable=True)
     sender = Column(db.String(255))
     message = Column(db.String(255))
@@ -155,7 +155,7 @@ class ComputerPlayerEvents(SurrogatePK, Model):
 
     __tablename__ = 'computer_player_events'
     executed_at = Column(db.Integer)  # Number of seconds elapsed on the game clock.
-    action = relationship('Action', backref='game_events')
+    action = relationship('Action', backref='computer_player_events')
     action_id = reference_col('actions', nullable=True)
     computer_player = relationship('ComputerPlayer', backref='computer_player_events')
     computer_player_id = reference_col('computer_players', nullable=True)

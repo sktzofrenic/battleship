@@ -74,6 +74,24 @@ class User(UserMixin, SurrogatePK, Model):
         else:
             self.password = None
 
+    @property
+    def display_roles(self):
+        roles = ''
+        for role in self.roles:
+            roles += role.name
+        return roles
+
+    def has_role(self, role):
+        user_roles = [x.name for x in self.roles]
+        return True if role in user_roles else False
+
+    def can(self, permission):
+        permissions = []
+        for role in self.roles:
+            for permission in role:
+                list(set(permissions.append(permission.permission)))
+        return True if permission in permissions else False
+
     def set_password(self, password):
         """Set password."""
         self.password = bcrypt.generate_password_hash(password)
