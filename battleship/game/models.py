@@ -37,6 +37,14 @@ class GameCodeSet(SurrogatePK, Model):
         """Represent instance as a unique string."""
         return '<GameCodeSet({id})>'.format(id=self.id)
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'game_codes': [x.serialize for x in self.game_codes]
+        }
+
 
 class GameCode(SurrogatePK, Model):
     """A game code and an associated action for that code."""
@@ -56,6 +64,14 @@ class GameCode(SurrogatePK, Model):
         """Represent instance as a unique string."""
         return '<GameCode({id})>'.format(id=self.id)
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'action': self.action.serialize
+        }
+
 
 class Action(SurrogatePK, Model):
     """An action model that represents anything that could happen in a game."""
@@ -71,6 +87,14 @@ class Action(SurrogatePK, Model):
     def __repr__(self):
         """Represent instance as a unique string."""
         return '<Action({id})>'.format(id=self.id)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type_': self.type_
+        }
 
 
 class GameEvent(SurrogatePK, Model):

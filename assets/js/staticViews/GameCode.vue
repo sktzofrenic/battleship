@@ -7,6 +7,9 @@
             </button>
         </div>
         <table class="ui single line striped selectable table">
+            <div class="ui inverted dimmer" :class="{'active': loading}">
+                <div class="ui centered inline loader">Loading</div>
+            </div>
             <thead>
                 <tr>
                     <th>ID</th>
@@ -15,10 +18,10 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td> game_code_set.id </td>
-                    <td> game_code_set.name </td>
-                    <td> game_code_set.game_codes </td>
+                <tr v-for="(gc, index) in gameCodeSets">
+                    <td> {{gc.id}} </td>
+                    <td> {{gc.name}} </td>
+                    <td> {{gc.game_codes.length}} </td>
                 </tr>
             </tbody>
         </table>
@@ -26,11 +29,27 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
     data () {
         return {
-            msg: 'Hello'
+            loading: false,
+            gameCodeSets: []
         }
+    },
+    methods: {
+        refreshGamecodes () {
+            var vm = this
+            vm.loading = true
+            axios.get('/api/v1/game_code_sets').then(function (response) {
+                vm.gameCodeSets = response.data.game_code_sets
+                vm.loading = false
+            })
+        }
+    },
+    mounted () {
+        var vm = this
+        vm.refreshGamecodes()
     }
 }
 </script>

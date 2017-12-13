@@ -1,7 +1,7 @@
 <template lang="html">
     <div class="row">
         <div class="sub header">
-            <button style="padding:10px;" class="ui labeled inverted icon button" @click="toggleModal">
+            <button style="padding:10px;" class="ui labeled inverted icon button" @click="toggleModal('Add')">
               <i class="plus icon"></i>
               Add New
             </button>
@@ -80,7 +80,7 @@
                 </form>
             </div>
             <div class="actions">
-                <div class="ui button" @click="toggleModal">Cancel</div>
+                <div class="ui button" @click="toggleModal('')">Cancel</div>
                 <div v-if="modalAction === 'Add'" class="ui button" :class="{'loading': buttonLoading}" @click="addUser">OK</div>
                 <div v-else class="ui button" :class="{'loading': buttonLoading}" @click="editUser('send')">OK</div>
             </div>
@@ -111,8 +111,18 @@ export default {
         }
     },
     methods: {
-        toggleModal () {
+        toggleModal (title) {
             this.showModal = !this.showModal
+            this.modalAction = title
+            this.newUser = {
+                id: '',
+                userName: '',
+                firstName: '',
+                lastName: '',
+                email: '',
+                password: '',
+                password2: ''
+            }
         },
         deleteUser (index) {
             var vm = this
@@ -136,9 +146,8 @@ export default {
                     password2: vm.newUser.password2
                 }).then(function (response) {
                     vm.refreshUsers()
-                    vm.toggleModal()
+                    vm.toggleModal('Add')
                     vm.buttonLoading = false
-                    vm.modalAction = 'Add'
                     vm.newUser = {
                         id: '',
                         userName: '',
@@ -150,8 +159,7 @@ export default {
                     }
                 })
             } else {
-                vm.toggleModal()
-                vm.modalAction = 'Edit'
+                vm.toggleModal('Edit')
                 vm.newUser = {
                     id: vm.users[index].id,
                     userName: vm.users[index].username,
@@ -175,7 +183,7 @@ export default {
                 password2: vm.newUser.password2
             }).then(function (response) {
                 vm.refreshUsers()
-                vm.toggleModal()
+                vm.toggleModal('Add')
                 vm.buttonLoading = false
                 vm.newUser = {
                     id: '',

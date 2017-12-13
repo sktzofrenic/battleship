@@ -1,8 +1,29 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import login_required, current_user
 from battleship.user.models import User
+from battleship.game.models import GameCode, GameCodeSet
 
 blueprint = Blueprint('api', __name__, url_prefix='/api/v1', static_folder='../static')
+
+
+@blueprint.route('/game_code_sets', methods=['GET', 'POST'])
+@blueprint.route('/game_code_sets/<int:game_code_set_id>', methods=['DELETE', 'PUT'])
+@login_required
+def game_code_sets(game_code_set_id=None):
+    if game_code_set_id:
+        game_code_set = GameCodeSet.query.filter_by(id=game_code_set_id).first()
+    if request.method == 'GET':
+        game_code_sets = GameCodeSet.query.all()
+        return jsonify({
+            'game_code_sets': [x.serialize for x in game_code_sets]
+        })
+
+
+@blueprint.route('/game_code_set/<int:game_code_set_id>/game_codes', methods=['GET', 'POST'])
+@blueprint.route('/game_code_set/<int:game_code_set_id>/game_codes/<int:game_code_id>', methods=['DELETE', 'PUT'])
+@login_required
+def game_codes(game_code_id=None):
+    return 'ok'
 
 
 @blueprint.route('/users', methods=['GET', 'POST'])
