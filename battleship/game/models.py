@@ -20,7 +20,7 @@ class Game(SurrogatePK, Model):
 
     def __repr__(self):
         """Represent instance as a unique string."""
-        return '<Game({id})>'.format(name=self.id)
+        return '<Game({id})>'.format(id=self.id)
 
 
 class GameCodeSet(SurrogatePK, Model):
@@ -29,7 +29,7 @@ class GameCodeSet(SurrogatePK, Model):
     __tablename__ = 'game_code_sets'
     name = Column(db.String(255))
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, **kwargs):
         """Create instance."""
         db.Model.__init__(self, **kwargs)
 

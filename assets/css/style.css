@@ -28,6 +28,10 @@ textarea {
   max-width: 700px;
 }
 
+.white-glow {
+    text-shadow: 2px 2px 5px white;
+}
+
 /* Forms */
 
 .navbar-form input[type="text"],

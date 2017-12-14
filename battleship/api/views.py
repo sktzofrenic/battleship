@@ -10,6 +10,7 @@ blueprint = Blueprint('api', __name__, url_prefix='/api/v1', static_folder='../s
 @blueprint.route('/game_code_sets/<int:game_code_set_id>', methods=['DELETE', 'PUT'])
 @login_required
 def game_code_sets(game_code_set_id=None):
+    request_data = request.get_json()
     if game_code_set_id:
         game_code_set = GameCodeSet.query.filter_by(id=game_code_set_id).first()
     if request.method == 'GET':
@@ -17,13 +18,36 @@ def game_code_sets(game_code_set_id=None):
         return jsonify({
             'game_code_sets': [x.serialize for x in game_code_sets]
         })
+    if request.method == 'POST':
+        print(request_data.get('name', None))
+
+        GameCodeSet.create(name=request_data.get('name', None))
+        return jsonify({
+            'result': 'ok'
+        })
+    if request.method == 'PUT':
+        game_code_set = GameCodeSet.query.filter_by(id=game_code_set_id).first()
+        game_code_set.name = request_data.get('name', None)
+        game_code_set.save()
+        return jsonify({
+            'result': 'ok'
+        })
+    if request.method == 'DELETE':
+        GameCodeSet.query.filter_by(id=game_code_set_id).first().delete()
+        return jsonify({
+            'result': 'ok'
+        })
 
 
 @blueprint.route('/game_code_set/<int:game_code_set_id>/game_codes', methods=['GET', 'POST'])
 @blueprint.route('/game_code_set/<int:game_code_set_id>/game_codes/<int:game_code_id>', methods=['DELETE', 'PUT'])
 @login_required
-def game_codes(game_code_id=None):
-    return 'ok'
+def game_codes(game_code_set_id=None, game_code_id=None):
+    if request.method == 'GET':
+        game_codes = GameCode.query.filter_by(game_code_set_id=game_code_set_id).all()
+        return jsonify({
+            'game_codes': [x.serialize for x in game_codes]
+        })
 
 
 @blueprint.route('/users', methods=['GET', 'POST'])
