@@ -1,9 +1,20 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import login_required, current_user
 from battleship.user.models import User
-from battleship.game.models import GameCode, GameCodeSet
+from battleship.game.models import GameCode, GameCodeSet, Action
 
 blueprint = Blueprint('api', __name__, url_prefix='/api/v1', static_folder='../static')
+
+
+@blueprint.route('/actions', methods=['GET', 'POST'])
+@blueprint.route('/action/<int:action_id>', methods=['DELETE', 'PUT'])
+@login_required
+def actions(action_id=None):
+    if request.method == 'GET':
+        actions = Action.query.all()
+        return jsonify({
+            'actions': [x.serialize for x in actions]
+        })
 
 
 @blueprint.route('/game_code_sets', methods=['GET', 'POST'])
@@ -19,8 +30,6 @@ def game_code_sets(game_code_set_id=None):
             'game_code_sets': [x.serialize for x in game_code_sets]
         })
     if request.method == 'POST':
-        print(request_data.get('name', None))
-
         GameCodeSet.create(name=request_data.get('name', None))
         return jsonify({
             'result': 'ok'
@@ -43,10 +52,23 @@ def game_code_sets(game_code_set_id=None):
 @blueprint.route('/game_code_set/<int:game_code_set_id>/game_codes/<int:game_code_id>', methods=['DELETE', 'PUT'])
 @login_required
 def game_codes(game_code_set_id=None, game_code_id=None):
+    request_data = request.get_json()
     if request.method == 'GET':
         game_codes = GameCode.query.filter_by(game_code_set_id=game_code_set_id).all()
         return jsonify({
             'game_codes': [x.serialize for x in game_codes]
+        })
+    if request.method == 'POST':
+        GameCode.create(name=request_data.get('code', None),
+                        action_id=request_data.get('actionId', None),
+                        game_code_set_id=game_code_set_id)
+        return jsonify({
+            'result': 'ok'
+        })
+    if request.method == 'DELETE':
+        GameCode.query.filter_by(id=game_code_id).first().delete()
+        return jsonify({
+            'result': 'ok'
         })
 
 

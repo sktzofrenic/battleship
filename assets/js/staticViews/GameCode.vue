@@ -22,7 +22,55 @@
                 <tr v-for="(gc, index) in gameCodeSets">
                     <td> {{ gc.id }} </td>
                     <td> {{ gc.name }} </td>
-                    <td> {{ gc.game_codes.length }} </td>
+                    <td class="game_code_cell">
+                        {{ gc.game_codes.length }}
+                        <a class="cursor" @click="viewIndex = index">Show</a>
+                        <div class="ui card game_code_box" v-if="viewIndex === index">
+                            <div class="content">
+                                <div class="header">
+                                    {{ gc.name }}
+                                    <a class="cursor" @click="viewIndex = undefined">
+                                        <i class="close icon" style="float:right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <h4 class="ui sub header">Codes</h4>
+                                <div class="ui small feed">
+                                    <div v-for="(code, i) in gc.game_codes" class="event">
+                                        <div class="content">
+                                            <div class="summary">
+                                                <a>{{ code.name }}</a> {{ code.action.name }} &nbsp;
+                                                <i class="trash icon cursor" @click="deleteGameCode(index, i)"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="extra content">
+                                <div class="ui form">
+                                    <div class="ui form">
+                                        <div class="two fields">
+                                            <div class="field">
+                                                <input v-model="newCode" type="text" placeholder="Code" class="input-width">
+                                            </div>
+                                            <div class="field">
+                                                <select v-model="newAction">
+                                                    <option value="">Action</option>
+                                                    <option v-for="action in actions" :value="action.id">
+                                                        <strong>{{ action.id }}</strong> {{ action.name }}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="ui icon button" @click="addGameCode(index)">
+                                        Add Code
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
                     <td>
                         <a class="cursor" @click="deleteGameCodeSet(index)"><i class="close icon"></i> Delete</a>
                         <a class="cursor" @click="toggleModal('Edit', index)"><i class="edit icon"></i> Edit</a>
@@ -68,7 +116,11 @@ export default {
             gameCodeSetName: '',
             showModal: false,
             modalAction: 'Add',
-            editIndex: undefined
+            editIndex: undefined,
+            actions: [],
+            viewIndex: undefined,
+            newCode: '',
+            newAction: ''
         }
     },
     methods: {
@@ -89,6 +141,12 @@ export default {
                 vm.loading = false
             })
         },
+        getActions () {
+            var vm = this
+            axios.get('/api/v1/actions').then(function (response) {
+                vm.actions = response.data.actions
+            })
+        },
         getGameCodes (index) {
             var vm = this
             axios.get(`/api/v1/game_code_set/${vm.gameCodeSets[index].id}/game_codes`).then(function (response) {
@@ -98,10 +156,21 @@ export default {
         addGameCode (index) {
             var vm = this
             axios.post(`/api/v1/game_code_set/${vm.gameCodeSets[index].id}/game_codes`, {
-
+                actionId: vm.newAction,
+                code: vm.newCode
             }).then(function (response) {
                 vm.getGameCodes(index)
+                vm.newAction = ''
+                vm.newCode = ''
             })
+        },
+        deleteGameCode (index, i) {
+            var vm = this
+            var gameCodeId = vm.gameCodeSets[index].game_codes[i].id
+            axios.delete(`/api/v1/game_code_set/${vm.gameCodeSets[index].id}/game_codes/${gameCodeId}`)
+                .then(function (response) {
+                    vm.getGameCodes(index)
+                })
         },
         addGameCodeSet () {
             var vm = this
@@ -131,6 +200,7 @@ export default {
     mounted () {
         var vm = this
         vm.getGameCodeSets()
+        vm.getActions()
     }
 }
 </script>
@@ -141,5 +211,17 @@ export default {
 }
 .cursor {
     cursor: pointer;
+}
+.game_code_cell {
+    position: relative;
+}
+.game_code_box {
+    position: absolute;
+    left: 80px;
+    top: -200px;
+    z-index: 2000;
+}
+.input-width {
+    width: 200px;
 }
 </style>
