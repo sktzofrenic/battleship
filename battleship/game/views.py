@@ -24,3 +24,9 @@ def users():
 def game_codes():
     game_code_sets = GameCodeSet.query.all()
     return render_template('admin/game_code_sets.html', game_code_sets=game_code_sets)
+
+
+@blueprint.route('/battleship')
+@login_required
+def battleship_game():
+    return render_template('app.html')

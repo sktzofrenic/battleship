@@ -2,8 +2,8 @@
 """The app module, containing the app factory function."""
 from flask import Flask, render_template
 
-from battleship import commands, public, user, game, api
-from battleship.extensions import bcrypt, cache, csrf_protect, db, debug_toolbar, login_manager, migrate, webpack
+from battleship import commands, public, user, game, api, sockets
+from battleship.extensions import bcrypt, cache, csrf_protect, db, debug_toolbar, login_manager, migrate, webpack, socketio
 from battleship.settings import ProdConfig
 from battleship.game.models import (Game, GameEvent, ChatEvent, GameCodeSet,
                                     GameCode, Action, GameParticipant, ComputerPlayer, ComputerPlayerEvents)
@@ -34,6 +34,7 @@ def register_extensions(app):
     debug_toolbar.init_app(app)
     migrate.init_app(app, db)
     webpack.init_app(app)
+    socketio.init_app(app)
     return None
 
 

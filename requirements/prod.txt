@@ -22,6 +22,7 @@ WTForms==2.1
 
 # Deployment
 gunicorn>=19.1.1
+eventlet==0.21.0
 
 # Webpack
 flask-webpack==0.1.0
@@ -35,3 +36,4 @@ Flask-Caching>=1.0.0
 
 # Debug toolbar
 Flask-DebugToolbar==0.10.1
+Flask-SocketIO==2.9.3

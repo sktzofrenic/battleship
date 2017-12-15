@@ -25,6 +25,7 @@
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
     "semantic-ui-css": "^2.2.12",
+    "socket.io": "^2.0.4",
     "vue": "^2.5.9",
     "vue-hot-reload-api": "^2.2.4",
     "vue-html-loader": "^1.2.4"
