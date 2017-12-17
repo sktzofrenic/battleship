@@ -1,13 +1,28 @@
 <template>
     <div id="app">
-        <div class="message">{{ msg }}</div>
-        <p>asdifasiudf</p>
-        <h2>Sent</h2>
-        <p v-for="msg in sent">{{ msg }}</p>
-        <h2>Received</h2>
-        <p v-for="msg in received">{{ msg }}</p>
-        <input type="text" name="" v-model="clientMessage">
-        <button type="button" name="button" @click="send">send</button>
+        <div class="ui huge inverted borderless fixed fluid menu game-header">
+            <img src="static/build/img/houston_logo_white.88f80812ce0c22e9475b88b716203ef3.png" class="game-header-image">
+            <div class="right menu">
+                <div class="vs-battleship item">
+                    <span style="color:#e22722">VS</span> <span style="color:#fff"> BATTLESHIP</span>
+                </div>
+            </div>
+        </div>
+        <div class="ui grid">
+            <div class="row">
+                <div class="column" id="content">
+                    <p>Content</p>
+                </div>
+                <div class="column" id="sidebar">
+                    <h2>Messages</h2>
+                    <span style="display:block" v-for="msg in received">{{ msg }}</span>
+                    <div class="ui inverted transparent icon input">
+                        <input type="text" placeholder="Chat..." v-model="clientMessage" @keyup.enter="send">
+                        <i class="search icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -18,7 +33,6 @@ export default {
     name: 'app',
     data () {
         return {
-            msg: 'Hello from vue-loader!',
             received: [],
             sent: [],
             clientMessage: '',
@@ -39,6 +53,7 @@ export default {
             vm.socket.emit('my event', {data: 'I\'m connected!'})
         })
         vm.socket.on('my event', function(msg) {
+            console.log(msg)
             vm.received.push(msg)
         })
     }
@@ -46,7 +61,50 @@ export default {
 </script>
 
 <style lang="css" scoped>
-.message {
-  color: blue;
+#content {
+  margin-right: 19%;
+  width: 81%;
+  margin-top: 3em;
+  padding-right: 3em;
+  padding-left: 3em;
+  float: left;
+}
+#sidebar {
+    position: fixed;
+    top: 51.8px;
+    right: 0;
+    bottom: 0;
+    width: 18%;
+    color: #fff;
+    padding-top: 25px !important;
+    background-color: rgba(245, 245, 245, .5);
+    padding: 0px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#242220+0,1f1e1c+27,312e2b+100 */
+    background: #242220; /* Old browsers */
+    background: -moz-linear-gradient(top, #242220 0%, #1f1e1c 27%, #312e2b 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #242220 0%,#1f1e1c 27%,#312e2b 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #242220 0%,#1f1e1c 27%,#312e2b 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#242220', endColorstr='#312e2b',GradientType=0 ); /* IE6-9 */
+}
+.vs-battleship {
+    font-family: 'Black Ops One', cursive;
+    font-size: 40px;
+}
+.game-header-image {
+    max-width: 179px;
+    max-height: 60px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    margin-left: 10px;
+}
+.game-header {
+    border-bottom: 3px solid #1d1c1a !important;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1d1c1a+0,1f1e1c+27,312e2b+100 */
+    background: #1d1c1a !important; /* Old browsers */
+    background: -moz-linear-gradient(left, #1d1c1a 0%, #1f1e1c 27%, #312e2b 100%) !important; /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #1d1c1a 0%,#1f1e1c 27%,#312e2b 100%) !important; /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #1d1c1a 0%,#1f1e1c 27%,#312e2b 100%) !important; /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1d1c1a', endColorstr='#312e2b',GradientType=1 ) !important; /* IE6-9 */
+    height: 80px;
 }
 </style>

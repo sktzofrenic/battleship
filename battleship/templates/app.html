@@ -2,12 +2,31 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title></title>
+        <title>VS Battleship</title>
          {{ stylesheet_tag('main_css') | safe }}
         <link href="https://fonts.googleapis.com/css?family=Luckiest+Guy|Source+Code+Pro|Titillium+Web:900" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Black+Ops+One" rel="stylesheet">
     </head>
     <body>
         <div id="app"></div>
         {{ javascript_tag('main_js') | safe }}
     </body>
+    <style media="screen">
+        html {
+            overflow-y:hidden;
+        }
+        body {
+            background-color: #312e2b;
+            display: relative;
+            background: url(/static/build/img/bg-game.827bbf2d0f8cba64ddfe6f915c8f4e48.png) no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            overflow-y:hidden;
+        }
+        body > .grid {
+            height: 100%;
+        }
+    </style>
 </html>
