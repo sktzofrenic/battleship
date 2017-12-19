@@ -22,6 +22,17 @@ class Game(SurrogatePK, Model):
         """Represent instance as a unique string."""
         return '<Game({id})>'.format(id=self.id)
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'game_code_set_id': self.game_code_set_id,
+            'started_on': self.started_on.isoformat(),
+            'created_on': self.created_on.isoformat(),
+            'is_offiste': self.is_offsite
+        }
+
 
 class GameCodeSet(SurrogatePK, Model):
     """A name for a set of Game Codes"""

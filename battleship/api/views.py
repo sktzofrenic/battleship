@@ -1,9 +1,31 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import login_required, current_user
 from battleship.user.models import User
-from battleship.game.models import GameCode, GameCodeSet, Action
+from battleship.game.models import GameCode, GameCodeSet, Action, Game
+from battleship.utils import try_parsing_date
 
 blueprint = Blueprint('api', __name__, url_prefix='/api/v1', static_folder='../static')
+
+
+@blueprint.route('/games', methods=['GET', 'POST'])
+@blueprint.route('/game/<int:game_id>', methods=['DELETE', 'PUT'])
+@login_required
+def games(game_id=None):
+    request_data = request.get_json()
+    if request.method == 'GET':
+        games = Game.query.all()
+        return jsonify({
+            'games': [x.serialize for x in games]
+        })
+    if request.method == 'POST':
+        game = Game.create(name=request_data.get('name', None),
+                           started_on=try_parsing_date(request_data.get('startedOn', None)),
+                           created_on=try_parsing_date(request_data.get('createdOn', None)),
+                           is_offsite=request_data.get('isOffsite', None),
+                           game_code_set_id=request_data.get('gameCodeSetID', None))
+        return jsonify({
+            'game': game.serialize
+        })
 
 
 @blueprint.route('/actions', methods=['GET', 'POST'])

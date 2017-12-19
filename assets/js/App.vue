@@ -11,7 +11,7 @@
         <div class="ui grid">
             <div class="row">
                 <div class="column" id="content">
-                    <p>Content</p>
+                    <GameList></GameList>
                 </div>
                 <div class="column" id="sidebar">
                     <Chat></Chat>
@@ -24,7 +24,8 @@
 <script>
 import {mapGetters, mapActions} from 'vuex'
 import io from 'socket.io-client'
-import Chat from '@/components/Chat.vue'
+import Chat from './components/Chat.vue'
+import GameList from './staticViews/GameList.vue'
 import axios from 'axios'
 
 export default {
@@ -34,18 +35,20 @@ export default {
         }
     },
     components: {
-        Chat
+        Chat,
+        GameList
     },
     methods: {
         ...mapActions([
             'changeClientName',
             'changeCurrentRoom',
-            'connectSocket'
+            'connectSocket',
+            'pushMessage'
         ]),
         getClientData () {
             var vm = this
-            axios.get('/api/v1/current_user').then(function (response) {
-                vm.changeClientName(response.data.user.full_name)
+            axios.get('/api/v1/users/current_user').then(function (response) {
+                vm.changeClientName([response.data.user.full_name])
             })
         }
     },
@@ -58,10 +61,15 @@ export default {
     },
     mounted () {
         var vm = this
-        vm.connectSocket(io.connect(location.protocol + '//' + document.domain + ':' + location.port))
+        vm.connectSocket([io.connect(location.protocol + '//' + document.domain + ':' + location.port)])
         vm.getClientData()
+        console.log('app', vm.socket)
         vm.socket.emit('join-room', {
             room: 'public'
+        })
+        vm.socket.on('chat', function(msg) {
+            console.log(msg)
+            vm.pushMessage([msg])
         })
     }
 }
@@ -71,7 +79,6 @@ export default {
 #content {
   margin-right: 19%;
   width: 81%;
-  margin-top: 3em;
   padding-right: 3em;
   padding-left: 3em;
   float: left;

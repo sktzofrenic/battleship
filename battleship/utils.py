@@ -7,6 +7,8 @@ from flask import request
 from flask_login import current_user
 from flask_socketio import disconnect
 
+import datetime as dt
+
 
 def flash_errors(form, category='warning'):
     """Flash all errors for a form."""
@@ -23,3 +25,14 @@ def authenticated_only(f):
         else:
             return f(*args, **kwargs)
     return wrapped
+
+
+def try_parsing_date(text):
+    if not text:
+        return None
+    for fmt in ('%Y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%-m/%-d/%Y', '%m/%d/%Y'):
+        try:
+            return dt.datetime.strptime(text, fmt)
+        except ValueError:
+            pass
+    raise ValueError('no valid date format found')

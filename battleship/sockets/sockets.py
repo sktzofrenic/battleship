@@ -12,7 +12,14 @@ def handle_message(message):
     print('received message: ' + message)
 
 
-@socketio.on('my event')
-def handle_my_custom_event(json):
+@socketio.on('join-room')
+def join_room(json):
     print('received json: ' + str(json))
-    emit('my event', json['data'], broadcast=True)
+    print(type(json))
+    join_room(json['room'])
+
+
+@socketio.on('chat')
+def chat(json):
+    print('received chat json: ' + str(json))
+    emit('chat', {'name': json['name'], 'message': json['message']}, broadcast=True)
