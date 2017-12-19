@@ -63,12 +63,10 @@ export default {
         var vm = this
         vm.connectSocket([io.connect(location.protocol + '//' + document.domain + ':' + location.port)])
         vm.getClientData()
-        console.log('app', vm.socket)
         vm.socket.emit('join-room', {
             room: 'public'
         })
         vm.socket.on('chat', function(msg) {
-            console.log(msg)
             vm.pushMessage([msg])
         })
     }

@@ -11,10 +11,12 @@ export function Game (gameData) {
 
     this.id = gameData['id'] || undefined
     this.name = gameData['name'] || ''
-    this.startedOn = gameData['startedOn'] || moment()
+    this.startedOn = gameData['startedOn'] || null
     this.createdOn = gameData['createdOn'] || moment()
     this.isOffsite = gameData['isOffsite'] || false
     this.gameCodeSetID = gameData['gameCodeSetID'] || undefined
+    this.status = gameData['status'] || 'Waiting for players...'
+    this.players = gameData['status'] || []
 
     Object.defineProperty(this, 'gameName', {
         get: function () {
@@ -32,8 +34,16 @@ export function Game (gameData) {
                 isOffsite: this.isOffsite,
                 gameCodeSetID: this.gameCodeSetID
             }).then(function (response) {
-                console.log(response)
                 that.id = response.data.game.id
+                callBack()
+            })
+        }
+    })
+
+    Object.defineProperty(this, 'end', {
+        value: function (callBack) {
+            var that = this
+            axios.delete(`/api/v1/game/${that.id}`).then(function (response) {
                 callBack()
             })
         }

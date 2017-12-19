@@ -13,6 +13,8 @@
                     <th>Name</th>
                     <th>Status</th>
                     <th>Players</th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +22,16 @@
                     <td>{{ game.id }}</td>
                     <td>{{ game.name }}</td>
                     <td>{{ game.status }}</td>
-                    <td>{{ game.players }}</td>
+                    <td>{{ game.players.length }}</td>
+                    <td><span v-if="game.isOffsite">Offsite</span></td>
+                    <td>
+                        <span v-if="game.players.length === 0">
+                            <button @click="endGame(index)" type="button" class="ui red button">End</button>
+                        </span>
+                        <span v-if="game.status === 'Waiting for players...'">
+                            <button type="button" class="ui green button">Join</button>
+                        </span>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -34,26 +45,25 @@
             <div class="content">
                 <form class="ui large form">
                     <div class="ui stacked segment">
-                        <div class="field">
-                            <div class="ui left icon input">
-                                <i class="flag icon"></i>
+                        <form class="ui form">
+                            <div class="field">
+                                <label>Game Name</label>
                                 <input type="text" v-model="gameName" placeholder="Name">
-                                <input type="text" v-model="gameCodeSetID" placeholder="Game Code Set">
-                                <label for="isOffsite">Offsite Game:</label>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" v-model="isOffsite" name="isOffsite" value="true" checked="" tabindex="0" class="hidden">
-                                        <label>Yes</label>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" v-model="isOffsite" name="isOffsite" value="false" tabindex="0" class="hidden">
-                                        <label>No</label>
-                                    </div>
+                            </div>
+                            <div class="field">
+                                <label>Game Code Set</label>
+                                <select class="ui dropdown" v-model="gameCodeSetID">
+                                    <option value=""></option>
+                                    <option :value="set.id" v-for="(set, index) in gameCodeSets">{{set.name}}</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <div class="ui slider checkbox">
+                                    <input v-model="isOffsite" type="checkbox" name="newsletter">
+                                    <label>Offsite Game</label>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                     <div class="ui error message"></div>
                 </form>
@@ -68,6 +78,7 @@
 
 <script>
 import {Game} from '../models/game.js'
+import axios from 'axios'
 
 export default {
     data () {
@@ -76,33 +87,59 @@ export default {
             loading: false,
             gameName: '',
             gameCodeSetID: '',
-            isOffsite: '',
-            games: [
-                {
-                    id: 1232,
-                    name: 'Offsite 14',
-                    status: 'Waiting for players',
-                    players: 2
-                }
-            ]
+            isOffsite: false,
+            gameCodeSets: [],
+            games: []
         }
     },
     methods: {
         toggleModal () {
             this.showModal = !this.showModal
         },
+        clearData () {
+            this.gameName = ''
+            this.gameCodeSetID = ''
+            this.isOffsite = false
+        },
         createGame () {
             var vm = this
             var game = new Game({
                 name: vm.gameName,
-                isOffsite: (vm.isOffsite == 'true'),
+                isOffsite: vm.isOffsite,
                 gameCodeSetID: vm.gameCodeSetID
             })
+            vm.loading = true
             game.start(function () {
-                console.log('Game Started')
                 vm.toggleModal()
+                vm.loading = false
+                vm.clearData()
+                vm.getGames()
+            })
+        },
+        getGameCodeSets () {
+            var vm = this
+            axios.get('/api/v1/game_code_sets').then(function (response) {
+                vm.gameCodeSets = response.data.game_code_sets
+            })
+        },
+        getGames () {
+            var vm = this
+            axios.get('/api/v1/games').then(function (response) {
+                vm.games = response.data.games.map(function (game) {
+                    return new Game(game)
+                })
+            })
+        },
+        endGame (index) {
+            var vm = this
+            vm.games[index].end(function () {
+                vm.getGames()
             })
         }
+    },
+    mounted () {
+        this.getGameCodeSets()
+        this.getGames()
     }
 }
 </script>

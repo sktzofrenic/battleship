@@ -26,6 +26,11 @@ def games(game_id=None):
         return jsonify({
             'game': game.serialize
         })
+    if request.method == 'DELETE':
+        Game.query.filter_by(id=game_id).first().delete()
+        return jsonify({
+            'result': 'ok'
+        })
 
 
 @blueprint.route('/actions', methods=['GET', 'POST'])

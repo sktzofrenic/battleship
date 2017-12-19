@@ -30,7 +30,7 @@ class Game(SurrogatePK, Model):
             'game_code_set_id': self.game_code_set_id,
             'started_on': self.started_on.isoformat(),
             'created_on': self.created_on.isoformat(),
-            'is_offiste': self.is_offsite
+            'is_offsite': self.is_offsite
         }
 
 
