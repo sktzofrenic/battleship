@@ -14,12 +14,7 @@
                     <p>Content</p>
                 </div>
                 <div class="column" id="sidebar">
-                    <h2>Messages</h2>
-                    <span style="display:block" v-for="msg in received">{{ msg }}</span>
-                    <div class="ui inverted transparent icon input">
-                        <input type="text" placeholder="Chat..." v-model="clientMessage" @keyup.enter="send">
-                        <i class="search icon"></i>
-                    </div>
+                    <Chat></Chat>
                 </div>
             </div>
         </div>
@@ -27,34 +22,46 @@
 </template>
 
 <script>
+import {mapGetters, mapActions} from 'vuex'
 import io from 'socket.io-client'
+import Chat from '@/components/Chat.vue'
+import axios from 'axios'
 
 export default {
     name: 'app',
     data () {
         return {
-            received: [],
-            sent: [],
-            clientMessage: '',
-            socket: undefined
         }
     },
+    components: {
+        Chat
+    },
     methods: {
-        send () {
-            this.socket.emit('my event', {data: this.clientMessage})
-            this.sent.push(this.clientMessage)
-            this.clientMessage = ''
+        ...mapActions([
+            'changeClientName',
+            'changeCurrentRoom',
+            'connectSocket'
+        ]),
+        getClientData () {
+            var vm = this
+            axios.get('/api/v1/current_user').then(function (response) {
+                vm.changeClientName(response.data.user.full_name)
+            })
         }
+    },
+    computed: {
+        ...mapGetters([
+            'currentRoom',
+            'clientName',
+            'socket'
+        ])
     },
     mounted () {
         var vm = this
-        vm.socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port)
-        vm.socket.on('connect', function() {
-            vm.socket.emit('my event', {data: 'I\'m connected!'})
-        })
-        vm.socket.on('my event', function(msg) {
-            console.log(msg)
-            vm.received.push(msg)
+        vm.connectSocket(io.connect(location.protocol + '//' + document.domain + ':' + location.port))
+        vm.getClientData()
+        vm.socket.emit('join-room', {
+            room: 'public'
         })
     }
 }

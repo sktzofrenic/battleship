@@ -72,8 +72,16 @@ def game_codes(game_code_set_id=None, game_code_id=None):
         })
 
 
+@blueprint.route('/users/current_user', methods=['GET'])
+@login_required
+def get_current_user():
+    return jsonify({
+        'user': current_user.serialize
+    })
+
+
 @blueprint.route('/users', methods=['GET', 'POST'])
-@blueprint.route('/users/<int:user_id>', methods=['DELETE', 'PUT'])
+@blueprint.route('/users/<int:user_id>', methods=['DELETE', 'PUT', 'GET'])
 @login_required
 def users(user_id=None):
     request_data = request.get_json()
@@ -110,7 +118,13 @@ def users(user_id=None):
         return jsonify({
             'result': 'ok'
         })
-    users = User.query.all()
-    return jsonify({
-        'users': [user.serialize for user in users]
-    })
+    if request.method == 'GET':
+        if user_id:
+            return jsonify({
+                'user': User.query.filter_by(id=user_id).first().serialize
+            })
+        else:
+            users = User.query.all()
+            return jsonify({
+                'users': [user.serialize for user in users]
+            })
