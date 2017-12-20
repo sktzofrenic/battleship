@@ -23,10 +23,10 @@
 
 <script>
 import {mapGetters, mapActions} from 'vuex'
-import io from 'socket.io-client'
 import Chat from './components/Chat.vue'
 import GameList from './staticViews/GameList.vue'
 import axios from 'axios'
+import {socket} from './socket.js'
 
 export default {
     name: 'app',
@@ -55,18 +55,16 @@ export default {
     computed: {
         ...mapGetters([
             'currentRoom',
-            'clientName',
-            'socket'
+            'clientName'
         ])
     },
     mounted () {
         var vm = this
-        vm.connectSocket([io.connect(location.protocol + '//' + document.domain + ':' + location.port)])
         vm.getClientData()
-        vm.socket.emit('join-room', {
+        socket.emit('join-room', {
             room: 'public'
         })
-        vm.socket.on('chat', function(msg) {
+        socket.on('chat', function(msg) {
             vm.pushMessage([msg])
         })
     }

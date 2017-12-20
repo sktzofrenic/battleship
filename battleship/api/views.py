@@ -15,11 +15,10 @@ def games(game_id=None):
     if request.method == 'GET':
         games = Game.query.all()
         return jsonify({
-            'games': [x.serialize for x in games]
+            'games': [x.serialize for x in games if not x.ended_on]
         })
     if request.method == 'POST':
         game = Game.create(name=request_data.get('name', None),
-                           started_on=try_parsing_date(request_data.get('startedOn', None)),
                            created_on=try_parsing_date(request_data.get('createdOn', None)),
                            is_offsite=request_data.get('isOffsite', None),
                            game_code_set_id=request_data.get('gameCodeSetID', None))

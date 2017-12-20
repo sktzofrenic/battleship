@@ -4,6 +4,8 @@ from flask import jsonify
 from battleship.extensions import socketio
 from battleship.utils import authenticated_only
 from flask_socketio import send, emit, join_room, leave_room
+from battleship.game.models import Game
+import datetime as dt
 
 
 @socketio.on('message')
@@ -23,3 +25,19 @@ def join_room(json):
 def chat(json):
     print('received chat json: ' + str(json))
     emit('chat', {'name': json['name'], 'message': json['message']}, broadcast=True)
+
+
+@socketio.on('end-game')
+def end_game(json):
+    print('received chat json: ' + str(json))
+    game = Game.query.filter_by(id=json['id']).first()
+    game.ended_on = dt.datetime.utcnow()
+    game.save()
+    emit('end-game', {'id': game.id}, broadcast=True)
+
+
+@socketio.on('create-game')
+def create_game(json):
+    print('received chat json: ' + str(json))
+    game = Game.query.filter_by(id=json['id']).first()
+    emit('create-game', {'game': game.serialize}, broadcast=True)

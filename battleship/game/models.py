@@ -9,6 +9,7 @@ class Game(SurrogatePK, Model):
     __tablename__ = 'games'
     started_on = Column(db.DateTime, default=dt.datetime.utcnow)
     created_on = Column(db.DateTime, default=dt.datetime.utcnow)
+    ended_on = Column(db.DateTime)
     is_offsite = Column(db.Boolean(), default=False)
     name = Column(db.String(255))
     game_code_set = relationship('GameCodeSet', backref='games')
@@ -28,8 +29,9 @@ class Game(SurrogatePK, Model):
             'id': self.id,
             'name': self.name,
             'game_code_set_id': self.game_code_set_id,
-            'started_on': self.started_on.isoformat(),
-            'created_on': self.created_on.isoformat(),
+            'started_on': self.started_on.isoformat() if self.started_on else None,
+            'ended_on': self.ended_on.isoformat() if self.ended_on else None,
+            'created_on': self.created_on.isoformat() if self.created_on else None,
             'is_offsite': self.is_offsite
         }
 

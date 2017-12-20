@@ -79,6 +79,7 @@
 <script>
 import {Game} from '../models/game.js'
 import axios from 'axios'
+import {socket} from '../socket.js'
 
 export default {
     data () {
@@ -113,7 +114,6 @@ export default {
                 vm.toggleModal()
                 vm.loading = false
                 vm.clearData()
-                vm.getGames()
             })
         },
         getGameCodeSets () {
@@ -132,14 +132,22 @@ export default {
         },
         endGame (index) {
             var vm = this
-            vm.games[index].end(function () {
-                vm.getGames()
-            })
+            vm.games[index].end()
         }
     },
     mounted () {
+        var vm = this
         this.getGameCodeSets()
         this.getGames()
+        socket.on('create-game', function (data) {
+            var newGame = new Game(data.game)
+            vm.games.push(newGame)
+        })
+        socket.on('end-game', function (data) {
+            vm.games = vm.games.filter(function (game) {
+                return game.id != data.id
+            })
+        })
     }
 }
 </script>

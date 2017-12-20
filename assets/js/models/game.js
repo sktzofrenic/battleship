@@ -1,5 +1,7 @@
 import moment from 'moment'
 import axios from 'axios'
+import {store} from '../store/store.js'
+import {socket} from '../socket.js'
 
 export function Game (gameData) {
     if (gameData === undefined) {
@@ -11,7 +13,7 @@ export function Game (gameData) {
 
     this.id = gameData['id'] || undefined
     this.name = gameData['name'] || ''
-    this.startedOn = gameData['startedOn'] || null
+    this.startedOn = gameData['startedOn'] || moment()
     this.createdOn = gameData['createdOn'] || moment()
     this.isOffsite = gameData['isOffsite'] || false
     this.gameCodeSetID = gameData['gameCodeSetID'] || undefined
@@ -30,12 +32,14 @@ export function Game (gameData) {
             axios.post(`/api/v1/games`, {
                 name: this.name,
                 createdOn: this.createdOn.format('YYYY-MM-DD HH:mm'),
-                startedOn: this.startedOn.format('YYYY-MM-DD HH:mm'),
                 isOffsite: this.isOffsite,
                 gameCodeSetID: this.gameCodeSetID
             }).then(function (response) {
                 that.id = response.data.game.id
                 callBack()
+                socket.emit('create-game', {
+                    id: that.id
+                })
             })
         }
     })
@@ -43,9 +47,19 @@ export function Game (gameData) {
     Object.defineProperty(this, 'end', {
         value: function (callBack) {
             var that = this
-            axios.delete(`/api/v1/game/${that.id}`).then(function (response) {
-                callBack()
-            })
+            socket.emit('end-game', {id: that.id})
+        }
+    })
+
+    Object.defineProperty(this, 'serialize', {
+        value: function () {
+            return {
+                name: this.name,
+                startedOn: this.startedOn,
+                createdOn: this.createdOn,
+                isOffsite: this.isOffsite,
+                gameCodeSetID: this.gameCodeSetID
+            }
         }
     })
 }

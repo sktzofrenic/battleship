@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import io from 'socket.io-client'
+import {socket} from '../socket.js'
 import {mapGetters} from 'vuex'
 
 export default {
@@ -25,7 +25,7 @@ export default {
     },
     methods: {
         send () {
-            this.socket.emit('chat', {
+            socket.emit('chat', {
                 message: this.clientMessage,
                 name: this.clientName,
                 room: this.currentRoom

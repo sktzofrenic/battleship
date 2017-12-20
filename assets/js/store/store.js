@@ -9,7 +9,6 @@ export const store = new Vuex.Store({
     state: {
         clientName: '',
         currentRoom: 'public',
-        socket: undefined,
         chatMessages: [],
         currentGame: new Game()
     },
@@ -19,9 +18,6 @@ export const store = new Vuex.Store({
         },
         currentRoom: state => {
             return state.currentRoom
-        },
-        socket: state => {
-            return state.socket
         },
         chatMessages: state => {
             return state.chatMessages
@@ -37,9 +33,6 @@ export const store = new Vuex.Store({
         changeCurrentRoom: (state, [data]) => {
             state.currentRoom = data
         },
-        connectSocket: (state, [data]) => {
-            state.socket = data
-        },
         pushMessage: (state, [data]) => {
             state.chatMessages.push(data)
         },
@@ -53,9 +46,6 @@ export const store = new Vuex.Store({
         },
         changeCurrentRoom: (context, payload) => {
             context.commit('changeCurrentRoom', payload)
-        },
-        connectSocket: (context, payload) => {
-            context.commit('connectSocket', payload)
         },
         pushMessage: (context, payload) => {
             context.commit('pushMessage', payload)
