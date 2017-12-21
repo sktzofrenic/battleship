@@ -110,7 +110,7 @@ export default {
                 gameCodeSetID: vm.gameCodeSetID
             })
             vm.loading = true
-            game.start(function () {
+            game.create(function () {
                 vm.toggleModal()
                 vm.loading = false
                 vm.clearData()

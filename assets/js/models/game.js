@@ -26,7 +26,7 @@ export function Game (gameData) {
         }
     })
 
-    Object.defineProperty(this, 'start', {
+    Object.defineProperty(this, 'create', {
         value: function (callBack) {
             var that = this
             axios.post(`/api/v1/games`, {

@@ -34,7 +34,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="content">
+                            <div class="content code-content">
                                 <h4 class="ui sub header">Codes</h4>
                                 <div class="ui small feed">
                                     <div v-for="(code, i) in gc.game_codes" class="event">
@@ -223,5 +223,10 @@ export default {
 }
 .input-width {
     width: 200px;
+}
+
+.code-content {
+    max-height: 300px;
+    overflow-y: scroll;
 }
 </style>

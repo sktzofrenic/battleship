@@ -12,6 +12,7 @@
             <div class="row">
                 <div class="column" id="content">
                     <GameList></GameList>
+                    <GameBoard></GameBoard>
                 </div>
                 <div class="column" id="sidebar">
                     <Chat></Chat>
@@ -25,6 +26,7 @@
 import {mapGetters, mapActions} from 'vuex'
 import Chat from './components/Chat.vue'
 import GameList from './staticViews/GameList.vue'
+import GameBoard from './components/GameBoard.vue'
 import axios from 'axios'
 import {socket} from './socket.js'
 
@@ -36,7 +38,8 @@ export default {
     },
     components: {
         Chat,
-        GameList
+        GameList,
+        GameBoard
     },
     methods: {
         ...mapActions([
@@ -63,9 +66,6 @@ export default {
         vm.getClientData()
         socket.emit('join-room', {
             room: 'public'
-        })
-        socket.on('chat', function(msg) {
-            vm.pushMessage([msg])
         })
     }
 }

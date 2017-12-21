@@ -15,7 +15,7 @@
 
 <script>
 import {socket} from '../socket.js'
-import {mapGetters} from 'vuex'
+import {mapGetters, mapActions} from 'vuex'
 
 export default {
     data () {
@@ -31,7 +31,10 @@ export default {
                 room: this.currentRoom
             })
             this.clientMessage = ''
-        }
+        },
+        ...mapActions([
+            'pushMessage'
+        ])
     },
     updated () {
         this.$refs.chatbox.scrollTop = this.$refs.chatbox.scrollHeight
@@ -40,9 +43,14 @@ export default {
         ...mapGetters([
             'currentRoom',
             'clientName',
-            'chatMessages',
-            'socket'
+            'chatMessages'
         ])
+    },
+    mounted () {
+        var vm = this
+        socket.on('chat', function(msg) {
+            vm.pushMessage([msg])
+        })
     }
 }
 </script>
