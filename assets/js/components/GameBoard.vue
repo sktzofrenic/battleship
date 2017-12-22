@@ -35,6 +35,38 @@
                         Radar
                     </div>
                 </div>
+                <div class="ui divider"></div>
+                <div class="item">
+                    <i class="anchor icon"></i>
+                    <div class="content arsenal-content" @click="selectItem('destroyer')" :class="{'highlight': selectedItem === 'destroyer'}">
+                        Destroyer
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="rocket icon"></i>
+                    <div class="content arsenal-content" @click="selectItem('cruiser')" :class="{'highlight': selectedItem === 'cruiser'}">
+                        Cruiser
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="bullseye icon"></i>
+                    <div class="content arsenal-content" @click="selectItem('carrier')" :class="{'highlight': selectedItem === 'carrier'}">
+                        Carrier
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="bullseye icon"></i>
+                    <div class="content arsenal-content" @click="selectItem('outpost')" :class="{'highlight': selectedItem === 'outpost'}">
+                        Outpost
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="bullseye icon"></i>
+                    <div class="content arsenal-content" @click="selectItem('submarine')" :class="{'highlight': selectedItem === 'submarine'}">
+                        Submarine
+                    </div>
+                </div>
+                <div class="ui divider"></div>
                 <div class="item" v-if="selectedItem">
                     <div class="content arsenal-content" @click="selectItem('cancel')">
                         Cancel
@@ -55,7 +87,19 @@ export default {
     	       return _.range(9)
             }),
             hoverGrid: [],
-            hoverShape: 'threeWide',
+            hoverShape: 'one',
+            hoverColor: '#fff',
+            hoverColorDict: {
+                destroyer: '#00b0f0',
+                cruiser: '#00b0f0',
+                carrier: '#00b0f0',
+                submarine: '#002060',
+                outpost:  '#00b050',
+                torpedo: '#ff0000',
+                missile: '#ff0000',
+                salvo: '#ff0000',
+                radar: '#fe9999',
+            },
             rotate: false,
             selectedItem: false
         }
@@ -68,7 +112,8 @@ export default {
               	i.map(function (j) {
                 	final.push({
                         style: {
-                            transform: `translate(${index * 42}px, ${j * 42}px)`
+                            transform: `translate(${index * 42}px, ${j * 42}px)`,
+                            background: vm.hoverColor
                         },
                         coords: {
                             i: index,
@@ -86,16 +131,22 @@ export default {
         selectItem (item) {
             if (item == 'cancel') {
                 this.selectedItem = false
+                this.hoverColor = '#fff'
                 this.hoverShape = 'one'
                 return
             }
+            this.hoverColor = this.hoverColorDict[item]
             this.selectedItem = item
-            if (item === 'salvo') {
+            if (item === 'salvo' || item === 'cruiser') {
                 this.hoverShape = 'threeWide'
-            } else if (item === 'missile' || item === 'torpedo') {
+            } else if (item === 'missile' || item === 'torpedo' || item === 'submarine' || item === 'outpost') {
                 this.hoverShape = 'one'
             } else if (item === 'radar') {
                 this.hoverShape = 'radar'
+            } else if (item === 'carrier') {
+                this.hoverShape = 'carrier'
+            } else if (item === 'destroyer') {
+                this.hoverShape = 'twoWide'
             }
         },
         areInvalid (coords) {
@@ -139,6 +190,30 @@ export default {
                 }
             } else if (vm.hoverShape === 'one') {
                 vm.hoverGrid.push({i: coords.i, j: coords.j})
+            } else if (vm.hoverShape === 'twoWide') {
+                if (vm.rotate) {
+                    vm.hoverGrid.push({i: coords.i, j: coords.j - 1})
+                    vm.hoverGrid.push({i: coords.i, j: coords.j})
+                } else {
+                    vm.hoverGrid.push({i: coords.i - 1, j: coords.j})
+                    vm.hoverGrid.push({i: coords.i, j: coords.j})
+                }
+            } else if (vm.hoverShape === 'carrier') {
+                if (vm.rotate) {
+                    vm.hoverGrid.push({i: coords.i, j: coords.j - 1})
+                    vm.hoverGrid.push({i: coords.i, j: coords.j})
+                    vm.hoverGrid.push({i: coords.i, j: coords.j + 1})
+                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j - 1})
+                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j})
+                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j + 1})
+                } else {
+                    vm.hoverGrid.push({i: coords.i - 1, j: coords.j})
+                    vm.hoverGrid.push({i: coords.i, j: coords.j})
+                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j})
+                    vm.hoverGrid.push({i: coords.i - 1, j: coords.j + 1})
+                    vm.hoverGrid.push({i: coords.i, j: coords.j + 1})
+                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j + 1})
+                }
             }
         }
     }
@@ -182,7 +257,7 @@ export default {
    height: 42px;
   width: 42px;
   position: absolute;
-  opacity: 0 important;
+  opacity: 0 !important;
 }
 .arsenal-content {
     cursor: pointer;
