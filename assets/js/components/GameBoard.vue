@@ -5,8 +5,15 @@
                 :class="[i.baseClass, {'square-hover': i.squareHover}]"
                 :style="i.style"
                 v-for="(i, index) in gb"
-                @mouseover="squareMouseOver(i.coords)" @contextmenu.prevent="squareMouseOver(i.coords, 'rotate')">
+                @click="boardClick($event)"
+                @mouseover="squareMouseOver(i.coords)"
+                @contextmenu.prevent="squareMouseOver(i.coords, 'rotate')">
             </x-square>
+            <x-board-object
+                class="board-object"
+                :style="o.style"
+                v-for="(o, index) in gameBoard.boardObjects">
+            </x-board-object>
         </div>
         <div class="arsenal">
             <h3>Arsenal</h3>
@@ -69,7 +76,18 @@
                 <div class="ui divider"></div>
                 <div class="item" v-if="selectedItem">
                     <div class="content arsenal-content" @click="selectItem('cancel')">
-                        Cancel
+                        Cancel (Right click to rotate)
+                    </div>
+                </div>
+                <div class="ui divider"></div>
+                <div class="item" v-if="gameBoard.boardObjects.length > 0">
+                    <div class="content arsenal-content" @click="gameBoard.boardObjects = []">
+                        Clear Board
+                    </div>
+                </div>
+                <div class="item" v-if="boardMessage">
+                    <div class="content arsenal-content" >
+                        {{ boardMessage }}
                     </div>
                 </div>
             </div>
@@ -79,27 +97,16 @@
 
 <script>
 import _ from 'lodash'
+import {GameBoard} from '../models/gameBoard.js'
 
 export default {
     data () {
         return {
-            gameBoard: _.range(17).map(function (item) {
-    	       return _.range(9)
-            }),
+            gameBoard: new GameBoard(),
             hoverGrid: [],
             hoverShape: 'one',
             hoverColor: '#fff',
-            hoverColorDict: {
-                destroyer: '#00b0f0',
-                cruiser: '#00b0f0',
-                carrier: '#00b0f0',
-                submarine: '#002060',
-                outpost:  '#00b050',
-                torpedo: '#ff0000',
-                missile: '#ff0000',
-                salvo: '#ff0000',
-                radar: '#fe9999',
-            },
+            boardMessage: '',
             rotate: false,
             selectedItem: false
         }
@@ -108,7 +115,7 @@ export default {
       	gb: function () {
         	var final = []
             var vm = this
-        	this.gameBoard.map(function (i, index) {
+        	vm.gameBoard.grid.map(function (i, index) {
               	i.map(function (j) {
                 	final.push({
                         style: {
@@ -128,14 +135,40 @@ export default {
         }
     },
     methods: {
+        boardClick (event) {
+            var vm = this
+            if (vm.selectedItem === 'cruiser') {
+                if (vm.gameBoard.areInvalid(vm.hoverGrid, vm.selectedItem)) {
+                    vm.boardMessage = 'Invalid placement'
+                    setTimeout(function () {
+                        vm.boardMessage = ''
+                    }, 1000)
+                } else if (!vm.gameBoard.shipLimitExceeded(vm.selectedItem, vm.hoverGrid)){
+                    vm.hoverGrid.map(function (square) {
+                        vm.gameBoard.boardObjects.push({
+                            type: 'cruiser',
+                            style: {
+                                transform: `translate(${square.i * 42}px, ${square.j * 42}px)`,
+                                background: vm.hoverColor
+                            },
+                            i: square.i,
+                            j: square.j
+                        })
+                    })
+                    console.log(vm.gameBoard.boardObjects)
+                }
+            }
+        },
         selectItem (item) {
             if (item == 'cancel') {
                 this.selectedItem = false
                 this.hoverColor = '#fff'
-                this.hoverShape = 'one'
+                this.hoverShape = 'one',
+                this.selectedItem = false
+                this.hoverGrid = []
                 return
             }
-            this.hoverColor = this.hoverColorDict[item]
+            this.hoverColor = this.gameBoard.colors[item]
             this.selectedItem = item
             if (item === 'salvo' || item === 'cruiser') {
                 this.hoverShape = 'threeWide'
@@ -149,78 +182,28 @@ export default {
                 this.hoverShape = 'twoWide'
             }
         },
-        areInvalid (coords) {
-            if (coords.j === 0 || coords.i === 0) {
-                return true
-            } else {
-                return false
-            }
-        },
         squareMouseOver (coords, rotate) {
-            if (this.areInvalid(coords)) {
-                var vm = this
-                vm.hoverGrid = []
+            if (this.gameBoard.areInvalid([coords])) {
+                this.hoverGrid = []
                 return
             }
             if (rotate) {
                 this.rotate = !this.rotate
             }
-            console.log(coords)
-            var vm = this
-            vm.hoverGrid = []
-            if (vm.hoverShape === 'radar') {
-                vm.hoverGrid.push({i: coords.i, j: coords.j})
-                vm.hoverGrid.push({i: coords.i + 1, j: coords.j + 1})
-                vm.hoverGrid.push({i: coords.i + 1, j: coords.j})
-                vm.hoverGrid.push({i: coords.i + 1, j: coords.j - 1})
-                vm.hoverGrid.push({i: coords.i, j: coords.j - 1})
-                vm.hoverGrid.push({i: coords.i, j: coords.j + 1})
-                vm.hoverGrid.push({i: coords.i - 1, j: coords.j + 1})
-                vm.hoverGrid.push({i: coords.i - 1, j: coords.j})
-                vm.hoverGrid.push({i: coords.i - 1, j: coords.j - 1})
-            } else if (vm.hoverShape === 'threeWide') {
-                if (vm.rotate) {
-                    vm.hoverGrid.push({i: coords.i, j: coords.j - 1})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j + 1})
-                } else {
-                    vm.hoverGrid.push({i: coords.i - 1, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j})
-                }
-            } else if (vm.hoverShape === 'one') {
-                vm.hoverGrid.push({i: coords.i, j: coords.j})
-            } else if (vm.hoverShape === 'twoWide') {
-                if (vm.rotate) {
-                    vm.hoverGrid.push({i: coords.i, j: coords.j - 1})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j})
-                } else {
-                    vm.hoverGrid.push({i: coords.i - 1, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j})
-                }
-            } else if (vm.hoverShape === 'carrier') {
-                if (vm.rotate) {
-                    vm.hoverGrid.push({i: coords.i, j: coords.j - 1})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j + 1})
-                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j - 1})
-                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j + 1})
-                } else {
-                    vm.hoverGrid.push({i: coords.i - 1, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j})
-                    vm.hoverGrid.push({i: coords.i - 1, j: coords.j + 1})
-                    vm.hoverGrid.push({i: coords.i, j: coords.j + 1})
-                    vm.hoverGrid.push({i: coords.i + 1, j: coords.j + 1})
-                }
-            }
+            this.hoverGrid = this.gameBoard.hoverGrid(this.hoverShape, this.rotate, coords)
         }
     }
 }
 </script>
 
 <style lang="css" scoped>
+.board-object {
+    position: absolute;
+    height: 42px;
+    width: 42px;
+    background: #fff;
+    opacity: 0.5
+}
 .highlight {
     color: #e22722
 }
@@ -250,7 +233,7 @@ export default {
   will-change: transform;
 }
 .square-hover {
-  opacity: 0.4
+  opacity: 0.6
 }
 
 .border-square, .border-square:hover {
