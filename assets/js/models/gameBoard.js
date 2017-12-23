@@ -45,11 +45,11 @@ export function GameBoard (GameBoardData) {
         {i: 10, j: 8}
     ]
     this.colors = GameBoardData['colors'] || {
-        destroyer: '#00b0f0',
-        cruiser: '#00b0f0',
+        destroyer: '#0044f0',
+        cruiser: '#00f0b5',
         carrier: '#00b0f0',
         submarine: '#002060',
-        outpost:  '#00b050',
+        outpost:  '#b05300',
         torpedo: '#ff0000',
         missile: '#ff0000',
         salvo: '#ff0000',
@@ -103,10 +103,14 @@ export function GameBoard (GameBoardData) {
                 })) {
                     return true
                 }
-                // cruisers are a 1x2 grid and can only be on water
-                if (selectedItem === 'cruiser' &&
+                // cruisers,destroyers, submarines, and carriers can only be on water
+                if (selectedItem != 'outpost' &&
                     _.some(that.landCoords, {i: coord.i, j: coord.j}) ||
                     _.some(that.boardObjects, {i: coord.i, j: coord.j})) {
+                    return true
+                } else if (selectedItem === 'outpost' &&
+                           !_.some(that.landCoords, {i: coord.i, j: coord.j}) ||
+                           _.some(that.boardObjects, {i: coord.i, j: coord.j})) {
                     return true
                 }
             })

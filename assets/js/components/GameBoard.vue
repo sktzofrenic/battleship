@@ -1,6 +1,12 @@
 <template lang="html">
     <div class="game-board-wrapper">
-        <div class="game-board">
+        <div class="game-board" @mouseleave="clearHoverGrid()">
+            <x-board-object
+                class="board-object"
+                :style="o.style"
+                @contextmenu.prevent=""
+                v-for="(o, index) in gameBoard.boardObjects">
+            </x-board-object>
             <x-square
                 :class="[i.baseClass, {'square-hover': i.squareHover}]"
                 :style="i.style"
@@ -9,11 +15,6 @@
                 @mouseover="squareMouseOver(i.coords)"
                 @contextmenu.prevent="squareMouseOver(i.coords, 'rotate')">
             </x-square>
-            <x-board-object
-                class="board-object"
-                :style="o.style"
-                v-for="(o, index) in gameBoard.boardObjects">
-            </x-board-object>
         </div>
         <div class="arsenal">
             <h3>Arsenal</h3>
@@ -137,27 +138,30 @@ export default {
     methods: {
         boardClick (event) {
             var vm = this
-            if (vm.selectedItem === 'cruiser') {
-                if (vm.gameBoard.areInvalid(vm.hoverGrid, vm.selectedItem)) {
-                    vm.boardMessage = 'Invalid placement'
-                    setTimeout(function () {
-                        vm.boardMessage = ''
-                    }, 1000)
-                } else if (!vm.gameBoard.shipLimitExceeded(vm.selectedItem, vm.hoverGrid)){
-                    vm.hoverGrid.map(function (square) {
-                        vm.gameBoard.boardObjects.push({
-                            type: 'cruiser',
-                            style: {
-                                transform: `translate(${square.i * 42}px, ${square.j * 42}px)`,
-                                background: vm.hoverColor
-                            },
-                            i: square.i,
-                            j: square.j
-                        })
-                    })
-                    console.log(vm.gameBoard.boardObjects)
-                }
+            if (_.includes(['torpedo', 'missile', 'salvo', 'radar'], vm.selectedItem)) {
+                return
             }
+            if (vm.gameBoard.areInvalid(vm.hoverGrid, vm.selectedItem)) {
+                vm.boardMessage = 'Invalid placement'
+                setTimeout(function () {
+                    vm.boardMessage = ''
+                }, 1000)
+            } else if (!vm.gameBoard.shipLimitExceeded(vm.selectedItem, vm.hoverGrid)){
+                vm.hoverGrid.map(function (square) {
+                    vm.gameBoard.boardObjects.push({
+                        type: vm.selectedItem,
+                        style: {
+                            transform: `translate(${square.i * 42}px, ${square.j * 42}px)`,
+                            background: vm.hoverColor
+                        },
+                        i: square.i,
+                        j: square.j
+                    })
+                })
+            }
+        },
+        clearHoverGrid () {
+            this.hoverGrid = []
         },
         selectItem (item) {
             if (item == 'cancel') {
@@ -183,10 +187,6 @@ export default {
             }
         },
         squareMouseOver (coords, rotate) {
-            if (this.gameBoard.areInvalid([coords])) {
-                this.hoverGrid = []
-                return
-            }
             if (rotate) {
                 this.rotate = !this.rotate
             }
