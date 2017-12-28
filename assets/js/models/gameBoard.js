@@ -18,6 +18,7 @@ export function GameBoard (GameBoardData) {
         outpost: 2
     }
     this.boardObjects = GameBoardData['boardObjects'] || []
+    this.hitMissGrid = GameBoardData['hitMissGrid'] || []
     this.landCoords = GameBoardData['landCoords'] || [
         {i: 4, j: 1},
         {i: 5, j: 1},
@@ -64,6 +65,35 @@ export function GameBoard (GameBoardData) {
         }
     })
 
+    Object.defineProperty(this, 'shipCount', {
+        value: function () {
+            let ships = {
+                playerOne: {
+                    destroyer: 0,
+                    cruiser: 0,
+                    carrier: 0,
+                    outpost: 0,
+                    submarine: 0
+                },
+                playerTwo: {
+                    destroyer: 0,
+                    cruiser: 0,
+                    carrier: 0,
+                    outpost: 0,
+                    submarine: 0
+                }
+            }
+            this.boardObjects.map(function (each) {
+                if (each.i < 9) {
+                    ships.playerOne[each.type] += 1
+                } else if (each.i > 8) {
+                    ships.playerTwo[each.type] += 1
+                }
+            })
+            return ships
+        }
+    })
+
     Object.defineProperty(this, 'shipLimitExceeded', {
         value: function (shipType, hoverGrid) {
             var side = hoverGrid[0].i < 9 ? 'left' : 'right'
@@ -86,9 +116,16 @@ export function GameBoard (GameBoardData) {
     })
 
     Object.defineProperty(this, 'areInvalid', {
-        value: function (coords, selectedItem) {
+        value: function (coords, selectedItem, participant) {
             var that = this
             return coords.some(function (coord) {
+                // Check to make sure players can only place ships on their sides
+                if (participant === 1 && coord.i > 8) {
+                    return true
+                }
+                if (participant === 2 && coord.i < 9) {
+                    return true
+                }
                 // Check to see if coords are outside the gameboard
                 if (coord.j === 0 || coord.i === 0 || coord.i > 16 || coord.j > 8) {
                     return true
