@@ -15,10 +15,6 @@
                 class="participant-two-mask"
                 v-if="participantType === 2">
             </x-mask>
-            <x-mask
-                class="participant-four-mask"
-                v-if="participantType === 4">
-            </x-mask>
             <x-hit-miss-object
                 :style="hm.style"
                 :class="[hm.type]"
@@ -32,6 +28,10 @@
                 @mouseover="squareMouseOver(i.coords)"
                 @contextmenu.prevent="squareMouseOver(i.coords, 'rotate')">
             </x-square>
+            <x-mask
+                class="participant-four-mask"
+                v-if="participantType > 3">
+            </x-mask>
         </div>
         <div class="arsenal">
             <h3>Arsenal</h3>
