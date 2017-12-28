@@ -123,12 +123,17 @@
                         Clear Board
                     </div>
                 </div>
-                <div class="item" v-if="boardMessage">
-                    <div class="content arsenal-content" >
-                        {{ boardMessage }}
-                    </div>
-                </div>
             </div>
+        </div>
+        <div class="ui action inverted huge input game-code">
+            <input type="text" :value="gameCode" maxlength="5" @input="gameCode = $event.target.value.toUpperCase()">
+            <button class="ui red huge labeled icon button" @click="verifyGameCode()">
+                <i class="crosshairs icon"></i>
+                Verify
+            </button>
+        </div>
+        <div class="board-message" v-if="boardMessage">
+            {{ boardMessage }}
         </div>
     </div>
 </template>
@@ -176,6 +181,7 @@ export default {
                     submarine: 0
                 }
             },
+            gameCode: '',
             selectedItem: false,
             participantType: 3 // 1 is player one, 2 is player two, 3 is game master, 4 is observer
         }
@@ -300,6 +306,10 @@ export default {
         clearHoverGrid () {
             this.hoverGrid = []
         },
+        verifyGameCode () {
+            console.log(this.gameCode)
+            this.gameCode = ''
+        },
         clearBoard () {
             this.gameBoard.boardObjects = []
             this.ships = this.gameBoard.shipCount()
@@ -338,6 +348,31 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.board-message {
+    position: absolute;
+    font-size: 30px;
+    color: red;
+    height: 80px;
+    width: 450px;
+    text-align: center;
+    top: 390px;
+    left: 450px;
+    line-height: 40px;
+}
+.game-code input {
+    padding: 20px !important;
+}
+.game-code button {
+    font-size: 30px !important;
+}
+.game-code {
+    font-size: 40px !important;
+    position: absolute;
+    height: 80px;
+    width: 200px;
+    top: 390px;
+    left: 0px;
+}
 .board-object {
     position: absolute;
     height: 42px;

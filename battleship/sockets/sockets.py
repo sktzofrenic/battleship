@@ -17,14 +17,19 @@ def handle_message(message):
 @socketio.on('join-room')
 def join_room(json):
     print('received json: ' + str(json))
-    print(type(json))
     join_room(json['room'])
+
+
+@socketio.on('join-game')
+def join_room(json):
+    print('received join json: ' + str(json))
+    emit('join-game', {'id': json['id']}, broadcast=True)
 
 
 @socketio.on('chat')
 def chat(json):
     print('received chat json: ' + str(json))
-    emit('chat', {'name': json['name'], 'message': json['message']}, broadcast=True)
+    emit('chat', {'name': json['name'], 'message': json['message'], 'room': json['room']}, broadcast=True)
 
 
 @socketio.on('end-game')

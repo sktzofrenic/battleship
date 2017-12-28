@@ -11,8 +11,8 @@
         <div class="ui grid">
             <div class="row">
                 <div class="column" id="content">
-                    <GameList></GameList>
-                    <GameBoard></GameBoard>
+                    <GameList v-if="currentView === 'main'"></GameList>
+                    <GameBoard v-if="currentView === 'game'"></GameBoard>
                 </div>
                 <div class="column" id="sidebar">
                     <Chat></Chat>
@@ -58,7 +58,8 @@ export default {
     computed: {
         ...mapGetters([
             'currentRoom',
-            'clientName'
+            'clientName',
+            'currentView'
         ])
     },
     mounted () {

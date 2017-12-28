@@ -13,12 +13,12 @@ export function Game (gameData) {
 
     this.id = gameData['id'] || undefined
     this.name = gameData['name'] || ''
-    this.startedOn = gameData['startedOn'] || moment()
-    this.createdOn = gameData['createdOn'] || moment()
-    this.isOffsite = gameData['isOffsite'] || false
-    this.gameCodeSetID = gameData['gameCodeSetID'] || undefined
+    this.startedOn = gameData['startedOn'] || gameData['started_on'] || moment()
+    this.createdOn = gameData['createdOn'] || gameData['created_on'] || moment()
+    this.isOffsite = gameData['isOffsite'] || gameData['is_offsite'] || false
+    this.gameCodeSetID = gameData['gameCodeSetID'] || gameData['game_code_set_id'] || undefined
     this.status = gameData['status'] || 'Waiting for players...'
-    this.players = gameData['status'] || []
+    this.players = gameData['players'] || []
 
     Object.defineProperty(this, 'gameName', {
         get: function () {
@@ -41,6 +41,16 @@ export function Game (gameData) {
                     id: that.id
                 })
             })
+        }
+    })
+
+    Object.defineProperty(this, 'joinGame', {
+        value: function (callBack) {
+            var that = this
+            socket.emit('join-game', {
+                id: that.id
+            })
+            callBack()
         }
     })
 

@@ -2,7 +2,7 @@
     <div class="">
         <h2 class="chat-title">Chat ({{ currentRoom }})</h2>
         <div class="chat-box" ref="chatbox" id="style-3">
-            <span v-for="msg in chatMessages" class="chat-message">
+            <span v-for="msg in chatMessages" class="chat-message" v-if="msg.room === currentRoom">
                 <strong>{{msg.name}}:</strong> {{msg.message}}
             </span>
         </div>

@@ -29,7 +29,7 @@
                             <button @click="endGame(index)" type="button" class="ui red button">End</button>
                         </span>
                         <span v-if="game.status === 'Waiting for players...'">
-                            <button type="button" class="ui green button">Join</button>
+                            <button type="button" class="ui green button" @click="joinGame(index)">Join</button>
                         </span>
                     </td>
                 </tr>
@@ -80,6 +80,7 @@
 import {Game} from '../models/game.js'
 import axios from 'axios'
 import {socket} from '../socket.js'
+import {mapActions} from 'vuex'
 
 export default {
     data () {
@@ -94,6 +95,10 @@ export default {
         }
     },
     methods: {
+        ...mapActions([
+            'changeView',
+            'changeCurrentRoom'
+        ]),
         toggleModal () {
             this.showModal = !this.showModal
         },
@@ -101,6 +106,14 @@ export default {
             this.gameName = ''
             this.gameCodeSetID = ''
             this.isOffsite = false
+        },
+        joinGame (index) {
+            let vm = this
+            let game = vm.games[index]
+            game.joinGame(function () {
+                vm.changeView(['game'])
+                vm.changeCurrentRoom([game.id])
+            })
         },
         createGame () {
             var vm = this
@@ -146,6 +159,16 @@ export default {
         socket.on('end-game', function (data) {
             vm.games = vm.games.filter(function (game) {
                 return game.id != data.id
+            })
+        })
+        socket.on('join-game', function (data) {
+            vm.games = vm.games.map(function (game) {
+                if (game.id === data.id) {
+                    game.players.push({
+
+                    })
+                }
+                return game
             })
         })
     }

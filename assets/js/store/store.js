@@ -9,6 +9,7 @@ export const store = new Vuex.Store({
     state: {
         clientName: '',
         currentRoom: 'public',
+        currentView: 'main',
         chatMessages: [],
         currentGame: new Game()
     },
@@ -23,7 +24,10 @@ export const store = new Vuex.Store({
             return state.chatMessages
         },
         currentGame: state => {
-            return this.currentGame
+            return state.currentGame
+        },
+        currentView: state => {
+            return state.currentView
         }
     },
     mutations: {
@@ -38,6 +42,9 @@ export const store = new Vuex.Store({
         },
         newGame: (state, [data]) => {
             state.currentGame = new Game()
+        },
+        changeView: (state, [data]) => {
+            state.currentView = data
         }
     },
     actions: {
@@ -52,6 +59,9 @@ export const store = new Vuex.Store({
         },
         newGame: (context, payload) => {
             context.commit('newGame', payload)
+        },
+        changeView: (context, payload) => {
+            context.commit('changeView', payload)
         }
     }
 })
