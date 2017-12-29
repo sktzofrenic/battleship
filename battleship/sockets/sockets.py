@@ -38,6 +38,12 @@ def chat(json):
     emit('ship-placed', json, broadcast=True)
 
 
+@socketio.on('weapon-fired')
+def chat(json):
+    print('received weapon fired json: ' + str(json))
+    emit('weapon-fired', json, broadcast=True)
+
+
 @socketio.on('end-game')
 def end_game(json):
     print('received chat json: ' + str(json))

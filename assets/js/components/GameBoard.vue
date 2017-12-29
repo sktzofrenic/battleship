@@ -298,26 +298,35 @@ export default {
                     if (weaponHit > -1 && _.findIndex(vm.gameBoard.hitMissGrid, function (o) {
                         return o.i === square.i && o.j === square.j
                     }) === -1) {
-                        vm.gameBoard.hitMissGrid.push({
+                        let hit ={
                             type: 'hit',
                             style: {
                                 transform: `translate(${square.i * 42}px, ${square.j * 42}px)`
                             },
                             i: square.i,
-                            j: square.j
-                        })
+                            j: square.j,
+                            gameId: vm.currentRoom,
+                            participantType: vm.participantType,
+                            spliceIndex: weaponHit
+                        }
+                        vm.gameBoard.hitMissGrid.push(hit)
+                        socket.emit('weapon-fired', hit)
                         vm.gameBoard.boardObjects.splice(weaponHit, 1)
                     } else if (weaponHit === -1 && _.findIndex(vm.gameBoard.hitMissGrid, function (o) {
                         return o.i === square.i && o.j === square.j
                     }) === -1) {
-                        vm.gameBoard.hitMissGrid.push({
+                        let miss = {
                             type: 'miss',
                             style: {
                                 transform: `translate(${square.i * 42}px, ${square.j * 42}px)`
                             },
                             i: square.i,
-                            j: square.j
-                        })
+                            j: square.j,
+                            gameId: vm.currentRoom,
+                            participantType: vm.participantType
+                        }
+                        vm.gameBoard.hitMissGrid.push(miss)
+                        socket.emit('weapon-fired', miss)
                     }
                 })
                 vm.ships = vm.gameBoard.shipCount()
@@ -398,9 +407,17 @@ export default {
     mounted () {
         var vm = this
         socket.on('ship-placed', function (data) {
-            console.log(data)
             if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
                 vm.gameBoard.boardObjects.push(data)
+                vm.ships = vm.gameBoard.shipCount()
+            }
+        })
+        socket.on('weapon-fired', function (data) {
+            if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
+                if (data.spliceIndex) {
+                    vm.gameBoard.boardObjects.splice(data.spliceIndex, 1)
+                }
+                vm.gameBoard.hitMissGrid.push(data)
                 vm.ships = vm.gameBoard.shipCount()
             }
         })
