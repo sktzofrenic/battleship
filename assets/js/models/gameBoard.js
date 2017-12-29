@@ -17,6 +17,7 @@ export function GameBoard (GameBoardData) {
         submarine: 2,
         outpost: 2
     }
+    this.gameState = GameBoardData['gameState'] || 'waiting'
     this.boardObjects = GameBoardData['boardObjects'] || []
     this.hitMissGrid = GameBoardData['hitMissGrid'] || []
     this.landCoords = GameBoardData['landCoords'] || [

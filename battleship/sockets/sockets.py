@@ -32,6 +32,12 @@ def chat(json):
     emit('chat', {'name': json['name'], 'message': json['message'], 'room': json['room']}, broadcast=True)
 
 
+@socketio.on('ship-placed')
+def chat(json):
+    print('received ship placed json: ' + str(json))
+    emit('ship-placed', json, broadcast=True)
+
+
 @socketio.on('end-game')
 def end_game(json):
     print('received chat json: ' + str(json))

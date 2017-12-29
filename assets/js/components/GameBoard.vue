@@ -1,139 +1,169 @@
 <template lang="html">
     <div class="game-board-wrapper">
-        <div class="game-board" @mouseleave="clearHoverGrid()">
-            <x-board-object
-                class="board-object"
-                :style="o.style"
-                @contextmenu.prevent=""
-                v-for="(o, index) in gameBoard.boardObjects">
-            </x-board-object>
-            <x-mask
-                class="participant-one-mask"
-                v-if="participantType === 1">
-            </x-mask>
-            <x-mask
-                class="participant-two-mask"
-                v-if="participantType === 2">
-            </x-mask>
-            <x-hit-miss-object
-                :style="hm.style"
-                :class="[hm.type]"
-                v-for="(hm, index) in gameBoard.hitMissGrid">
-            </x-hit-miss-object>
-            <x-square
-                :class="[i.baseClass, {'square-hover': i.squareHover}]"
-                :style="i.style"
-                v-for="(i, index) in gb"
-                @click="boardClick($event)"
-                @mouseover="squareMouseOver(i.coords)"
-                @contextmenu.prevent="squareMouseOver(i.coords, 'rotate')">
-            </x-square>
-            <x-mask
-                class="participant-four-mask"
-                v-if="participantType > 3">
-            </x-mask>
+        <div class="game-board-wrapper" v-if="gameBoard.gameState === 'waiting'">
+            <div class="ui inverted segment">
+                <div class="ui inverted form">
+                    <div class="two fields">
+                        <div class="field">
+                            <label>Team Name</label>
+                            <input v-model="selectedTeamName" type="text">
+                        </div>
+                        <div class="field">
+                            <label>Participant Type</label>
+                            <select class="ui dropdown" v-model.number="participantType">
+                                <option value="1">Player One</option>
+                                <option value="2">Player Two</option>
+                                <option value="3">Game Master</option>
+                                <option value="4">Observer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="inline field">
+                        <div class="ui checkbox">
+                            <input type="checkbox" tabindex="0" class="hidden">
+                            <label>I agree to have fun and follow the rules.</label>
+                        </div>
+                    </div>
+                <div class="ui submit button" @click="submitGameSettings()">Submit</div>
+              </div>
+            </div>
         </div>
-        <div class="arsenal">
-            <h3>Arsenal</h3>
-            <div class="ui list">
-                <div class="item">
-                    <i class="bomb icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('salvo')" :class="{'highlight': selectedItem === 'salvo'}">
-                        Salvo
-                        <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.salvo }} </span>
-                        <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.salvo }} </span>
+        <div class="game-board-wrapper" v-else>
+            <div class="game-board" @mouseleave="clearHoverGrid()">
+                <x-board-object
+                    class="board-object"
+                    :style="o.style"
+                    @contextmenu.prevent=""
+                    v-for="(o, index) in gameBoard.boardObjects">
+                </x-board-object>
+                <x-mask
+                    class="participant-one-mask"
+                    v-if="participantType === 1">
+                </x-mask>
+                <x-mask
+                    class="participant-two-mask"
+                    v-if="participantType === 2">
+                </x-mask>
+                <x-hit-miss-object
+                    :style="hm.style"
+                    :class="[hm.type]"
+                    v-for="(hm, index) in gameBoard.hitMissGrid">
+                </x-hit-miss-object>
+                <x-square
+                    :class="[i.baseClass, {'square-hover': i.squareHover}]"
+                    :style="i.style"
+                    v-for="(i, index) in gb"
+                    @click="boardClick($event)"
+                    @mouseover="squareMouseOver(i.coords)"
+                    @contextmenu.prevent="squareMouseOver(i.coords, 'rotate')">
+                </x-square>
+                <x-mask
+                    class="participant-four-mask"
+                    v-if="participantType > 3">
+                </x-mask>
+            </div>
+            <div class="arsenal">
+                <h3>Arsenal</h3>
+                <div class="ui list">
+                    <div class="item">
+                        <i class="bomb icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('salvo')" :class="{'highlight': selectedItem === 'salvo'}">
+                            Salvo
+                            <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.salvo }} </span>
+                            <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.salvo }} </span>
+                        </div>
                     </div>
-                </div>
-                <div class="item">
-                    <i class="anchor icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('torpedo')" :class="{'highlight': selectedItem === 'torpedo'}">
-                        Torpedo
-                        <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.torpedo }} </span>
-                        <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.torpedo }} </span>
+                    <div class="item">
+                        <i class="anchor icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('torpedo')" :class="{'highlight': selectedItem === 'torpedo'}">
+                            Torpedo
+                            <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.torpedo }} </span>
+                            <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.torpedo }} </span>
+                        </div>
                     </div>
-                </div>
-                <div class="item">
-                    <i class="rocket icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('missile')" :class="{'highlight': selectedItem === 'missile'}">
-                        Missile
-                        <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.missile }} </span>
-                        <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.missile }} </span>
+                    <div class="item">
+                        <i class="rocket icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('missile')" :class="{'highlight': selectedItem === 'missile'}">
+                            Missile
+                            <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.missile }} </span>
+                            <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.missile }} </span>
+                        </div>
                     </div>
-                </div>
-                <div class="item">
-                    <i class="bullseye icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('radar')" :class="{'highlight': selectedItem === 'radar'}">
-                        Radar
-                        <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.radar }} </span>
-                        <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.radar }} </span>
+                    <div class="item">
+                        <i class="bullseye icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('radar')" :class="{'highlight': selectedItem === 'radar'}">
+                            Radar
+                            <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.radar }} </span>
+                            <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.radar }} </span>
+                        </div>
                     </div>
-                </div>
-                <div class="ui divider"></div>
-                <div class="item">
-                    <i class="anchor icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('destroyer')" :class="{'highlight': selectedItem === 'destroyer'}">
-                        Destroyer
-                        ({{ Math.ceil(ships.playerOne.destroyer / 2 )}} of {{ this.gameBoard.shipLimits.destroyer / 2 }})
-                        ({{ Math.ceil(ships.playerTwo.destroyer / 2) }} of {{ this.gameBoard.shipLimits.destroyer / 2 }})
+                    <div class="ui divider"></div>
+                    <div class="item">
+                        <i class="anchor icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('destroyer')" :class="{'highlight': selectedItem === 'destroyer'}">
+                            Destroyer
+                            ({{ Math.ceil(ships.playerOne.destroyer / 2 )}} of {{ this.gameBoard.shipLimits.destroyer / 2 }})
+                            ({{ Math.ceil(ships.playerTwo.destroyer / 2) }} of {{ this.gameBoard.shipLimits.destroyer / 2 }})
+                        </div>
                     </div>
-                </div>
-                <div class="item">
-                    <i class="rocket icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('cruiser')" :class="{'highlight': selectedItem === 'cruiser'}">
-                        Cruiser
-                        ({{ Math.ceil(ships.playerOne.cruiser / 3) }} of {{ this.gameBoard.shipLimits.cruiser / 3 }})
-                        ({{ Math.ceil(ships.playerTwo.cruiser / 3) }} of {{ this.gameBoard.shipLimits.cruiser / 3 }})
+                    <div class="item">
+                        <i class="rocket icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('cruiser')" :class="{'highlight': selectedItem === 'cruiser'}">
+                            Cruiser
+                            ({{ Math.ceil(ships.playerOne.cruiser / 3) }} of {{ this.gameBoard.shipLimits.cruiser / 3 }})
+                            ({{ Math.ceil(ships.playerTwo.cruiser / 3) }} of {{ this.gameBoard.shipLimits.cruiser / 3 }})
+                        </div>
                     </div>
-                </div>
-                <div class="item">
-                    <i class="bullseye icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('carrier')" :class="{'highlight': selectedItem === 'carrier'}">
-                        Carrier
-                        ({{ Math.ceil(ships.playerOne.carrier / 6) }} of {{ this.gameBoard.shipLimits.carrier / 6 }})
-                        ({{ Math.ceil(ships.playerTwo.carrier / 6 )}} of {{ this.gameBoard.shipLimits.carrier / 6 }})
+                    <div class="item">
+                        <i class="bullseye icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('carrier')" :class="{'highlight': selectedItem === 'carrier'}">
+                            Carrier
+                            ({{ Math.ceil(ships.playerOne.carrier / 6) }} of {{ this.gameBoard.shipLimits.carrier / 6 }})
+                            ({{ Math.ceil(ships.playerTwo.carrier / 6 )}} of {{ this.gameBoard.shipLimits.carrier / 6 }})
+                        </div>
                     </div>
-                </div>
-                <div class="item">
-                    <i class="bullseye icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('outpost')" :class="{'highlight': selectedItem === 'outpost'}">
-                        Outpost
-                        ({{ ships.playerOne.outpost }} of {{ this.gameBoard.shipLimits.outpost }})
-                        ({{ ships.playerTwo.outpost }} of {{ this.gameBoard.shipLimits.outpost }})
+                    <div class="item">
+                        <i class="bullseye icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('outpost')" :class="{'highlight': selectedItem === 'outpost'}">
+                            Outpost
+                            ({{ ships.playerOne.outpost }} of {{ this.gameBoard.shipLimits.outpost }})
+                            ({{ ships.playerTwo.outpost }} of {{ this.gameBoard.shipLimits.outpost }})
+                        </div>
                     </div>
-                </div>
-                <div class="item">
-                    <i class="bullseye icon"></i>
-                    <div class="content arsenal-content" @click="selectItem('submarine')" :class="{'highlight': selectedItem === 'submarine'}">
-                        Submarine
-                        ({{ ships.playerOne.submarine }} of {{ this.gameBoard.shipLimits.submarine }})
-                        ({{ ships.playerTwo.submarine }} of {{ this.gameBoard.shipLimits.submarine }})
+                    <div class="item">
+                        <i class="bullseye icon"></i>
+                        <div class="content arsenal-content" @click="selectItem('submarine')" :class="{'highlight': selectedItem === 'submarine'}">
+                            Submarine
+                            ({{ ships.playerOne.submarine }} of {{ this.gameBoard.shipLimits.submarine }})
+                            ({{ ships.playerTwo.submarine }} of {{ this.gameBoard.shipLimits.submarine }})
+                        </div>
                     </div>
-                </div>
-                <div class="ui divider"></div>
-                <div class="item ui input">
-                    <input type="text" name="" v-model.number="participantType">
-                </div>
-                <div class="item" v-if="selectedItem">
-                    <div class="content arsenal-content" @click="selectItem('cancel')">
-                        Cancel (Right click to rotate)
+                    <div class="ui divider"></div>
+                    <div class="item ui input">
+                        <input type="text" name="" v-model.number="participantType">
                     </div>
-                </div>
-                <div class="item" v-if="gameBoard.boardObjects.length > 0">
-                    <div class="content arsenal-content" @click="clearBoard()">
-                        Clear Board
+                    <div class="item" v-if="selectedItem">
+                        <div class="content arsenal-content" @click="selectItem('cancel')">
+                            Cancel (Right click to rotate)
+                        </div>
+                    </div>
+                    <div class="item" v-if="gameBoard.boardObjects.length > 0">
+                        <div class="content arsenal-content" @click="clearBoard()">
+                            Clear Board
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="ui action inverted huge input game-code">
-            <input type="text" :value="gameCode" maxlength="5" @input="gameCode = $event.target.value.toUpperCase()">
-            <button class="ui red huge labeled icon button" @click="verifyGameCode()">
-                <i class="crosshairs icon"></i>
-                Verify
-            </button>
-        </div>
-        <div class="board-message" v-if="boardMessage">
-            {{ boardMessage }}
+            <div class="ui action inverted huge input game-code">
+                <input type="text" :value="gameCode" maxlength="5" @input="gameCode = $event.target.value.toUpperCase()">
+                <button class="ui red huge labeled icon button" @click="verifyGameCode()">
+                    <i class="crosshairs icon"></i>
+                    Verify
+                </button>
+            </div>
+            <div class="board-message" v-if="boardMessage">
+                {{ boardMessage }}
+            </div>
         </div>
     </div>
 </template>
@@ -141,6 +171,8 @@
 <script>
 import _ from 'lodash'
 import {GameBoard} from '../models/gameBoard.js'
+import {mapGetters, mapActions} from 'vuex'
+import {socket} from '../socket.js'
 
 export default {
     data () {
@@ -150,6 +182,7 @@ export default {
             hoverShape: 'one',
             hoverColor: '#fff',
             boardMessage: '',
+            selectedTeamName: '',
             rotate: false,
             arsenals: {
                 playerOne: {
@@ -207,9 +240,19 @@ export default {
                 })
             })
             return final
-        }
+        },
+        ...mapGetters([
+            'currentRoom',
+            'clientName'
+        ])
     },
     methods: {
+        ...mapActions([
+            'changeClientName',
+            'changeCurrentRoom',
+            'connectSocket',
+            'pushMessage'
+        ]),
         boardClick (event) {
             var vm = this
             if (vm.selectedItem === 'radar') {
@@ -290,15 +333,19 @@ export default {
                 }, 1000)
             } else if (!vm.gameBoard.shipLimitExceeded(vm.selectedItem, vm.hoverGrid)){
                 vm.hoverGrid.map(function (square) {
-                    vm.gameBoard.boardObjects.push({
+                    let ship = {
                         type: vm.selectedItem,
                         style: {
                             transform: `translate(${square.i * 42}px, ${square.j * 42}px)`,
                             background: vm.hoverColor
                         },
                         i: square.i,
-                        j: square.j
-                    })
+                        j: square.j,
+                        gameId: vm.currentRoom,
+                        participantType: vm.participantType
+                    }
+                    vm.gameBoard.boardObjects.push(ship)
+                    socket.emit('ship-placed', ship)
                 })
             }
             vm.ships = vm.gameBoard.shipCount()
@@ -306,8 +353,12 @@ export default {
         clearHoverGrid () {
             this.hoverGrid = []
         },
+        submitGameSettings () {
+            var vm = this
+            vm.changeClientName([vm.selectedTeamName])
+            vm.gameBoard.gameState = 'setup'
+        },
         verifyGameCode () {
-            console.log(this.gameCode)
             this.gameCode = ''
         },
         clearBoard () {
@@ -343,6 +394,16 @@ export default {
             }
             this.hoverGrid = this.gameBoard.hoverGrid(this.hoverShape, this.rotate, coords)
         }
+    },
+    mounted () {
+        var vm = this
+        socket.on('ship-placed', function (data) {
+            console.log(data)
+            if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
+                vm.gameBoard.boardObjects.push(data)
+                vm.ships = vm.gameBoard.shipCount()
+            }
+        })
     }
 }
 </script>
