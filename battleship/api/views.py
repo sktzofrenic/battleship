@@ -8,11 +8,18 @@ blueprint = Blueprint('api', __name__, url_prefix='/api/v1', static_folder='../s
 
 
 @blueprint.route('/games', methods=['GET', 'POST'])
-@blueprint.route('/game/<int:game_id>', methods=['DELETE', 'PUT'])
+@blueprint.route('/game/<int:game_id>', methods=['DELETE', 'PUT', 'GET'])
 @login_required
 def games(game_id=None):
     request_data = request.get_json()
     if request.method == 'GET':
+        if game_id:
+            game = Game.query.filter_by(id=game_id).first()
+            game_codes = [x.serialize for x in game.game_code_set.game_codes]
+            return jsonify({
+                'game': game.serialize,
+                'game_codes': game_codes
+            })
         games = Game.query.all()
         return jsonify({
             'games': [x.serialize for x in games if not x.ended_on]

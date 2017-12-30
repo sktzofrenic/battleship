@@ -20,6 +20,8 @@ export function GameBoard (GameBoardData) {
     this.timerDisplay = GameBoardData['timerDisplay'] || '05:00'
     this.gameState = GameBoardData['gameState'] || 'waiting' // waiting, setup, playing, ended
     this.boardObjects = GameBoardData['boardObjects'] || []
+    this.usedGameCodes = GameBoardData['usedGameCodes'] || []
+    this.badGuesses = GameBoardData['badGuesses'] || 0
     this.hitMissGrid = GameBoardData['hitMissGrid'] || []
     this.landCoords = GameBoardData['landCoords'] || [
         {i: 4, j: 1},

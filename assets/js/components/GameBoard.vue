@@ -210,7 +210,7 @@
                 <span class="highlight">P2:</span> {{ playerTwoName }}
             </div>
             <div class="ui action inverted huge input game-code">
-                <input type="text" :value="gameCode" maxlength="5" @input="gameCode = $event.target.value.toUpperCase()">
+                <input type="text" :value="gameCode" maxlength="6" @input="gameCode = $event.target.value.toUpperCase()">
                 <button class="ui red huge labeled icon button" @click="verifyGameCode()">
                     <i class="crosshairs icon"></i>
                     Verify
@@ -229,6 +229,7 @@ import {GameBoard} from '../models/gameBoard.js'
 import {mapGetters, mapActions} from 'vuex'
 import {socket} from '../socket.js'
 import Timer from 'timer.js'
+import axios from 'axios'
 
 export default {
     data () {
@@ -242,6 +243,7 @@ export default {
             selectedTeamName: '',
             playerOneName: '',
             playerTwoName: '',
+            gameCodes: [],
             opponentName: '',
             rotate: false,
             arsenals: {
@@ -316,7 +318,11 @@ export default {
         ]),
         boardClick (event) {
             var vm = this
+            let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
             if (vm.selectedItem === 'radar') {
+                if (!vm.arsenals[player][vm.selectedItem]) {
+                    return
+                }
                 let shipCount = 0
                 vm.hoverGrid.map(function (square, index) {
                     if (vm.gameBoard.boardObjects.some(function (each) {
@@ -329,9 +335,13 @@ export default {
                 setTimeout(function () {
                     vm.boardMessage = ''
                 }, 5000)
+                vm.arsenals[player][vm.selectedItem] -= 1
                 return
             }
             if (_.includes(['salvo', 'missile', 'torpedo'], vm.selectedItem)) {
+                if (!vm.arsenals[player][vm.selectedItem]) {
+                    return
+                }
                 vm.hoverGrid.map(function (square, index) {
                     // Check to see if salvo falls off the grid
                     if (square.j === 0 || square.i === 0 || square.i > 16 || square.j > 8){
@@ -371,6 +381,7 @@ export default {
                             spliceIndex: weaponHit
                         }
                         vm.gameBoard.hitMissGrid.push(hit)
+                        vm.arsenals[player][vm.selectedItem] -= 1
                         socket.emit('weapon-fired', hit)
                         vm.gameBoard.boardObjects.splice(weaponHit, 1)
                     } else if (weaponHit === -1 && _.findIndex(vm.gameBoard.hitMissGrid, function (o) {
@@ -387,6 +398,7 @@ export default {
                             participantType: vm.participantType
                         }
                         vm.gameBoard.hitMissGrid.push(miss)
+                        vm.arsenals[player][vm.selectedItem] -= 1
                         socket.emit('weapon-fired', miss)
                     }
                 })
@@ -435,7 +447,58 @@ export default {
             })
         },
         verifyGameCode () {
-            this.gameCode = ''
+            var vm = this
+            let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
+            let gcIndex = _.findIndex(vm.gameCodes, function(gCode) {
+                if (gCode.name === vm.gameCode) {
+                    return true
+                }
+            })
+            if (gcIndex > -1 && !_.includes(vm.gameBoard.usedGameCodes, vm.gameCode)) {
+                // game code is valid and we haven't used it yet
+                var item = ''
+                if (vm.gameCodes[gcIndex].action.type_ == 5) {
+                    vm.arsenals[player].torpedo += 1
+                    item = 'torpedo'
+                } else if (vm.gameCodes[gcIndex].action.type_ == 3) {
+                    vm.arsenals[player].missile += 1
+                    item = 'missile'
+                } else if (vm.gameCodes[gcIndex].action.type_ == 4) {
+                    vm.arsenals[player].salvo += 1
+                    item = 'salvo'
+                } else if (vm.gameCodes[gcIndex].action.type_ == 4) {
+                    vm.arsenals[player].radar += 1
+                    item = 'radar'
+                }
+                vm.boardMessage =`One ${item} added to your arsenal!`
+                setTimeout(function () {
+                    vm.boardMessage = ''
+                }, 2000)
+                vm.gameBoard.usedGameCodes.push(vm.gameCode)
+            } else if (_.includes(vm.gameBoard.usedGameCodes, vm.gameCode)) {
+                // game code is valid but has already been used
+                vm.boardMessage = 'You already used that game code!'
+                setTimeout(function () {
+                    vm.boardMessage = ''
+                }, 2000)
+            } else {
+                // game code is not valid
+                if (vm.gameBoard.badGuesses < 2) {
+                    vm.boardMessage = 'Bad Code! Incorrect codes will give the enemy free arsenal items...'
+                    vm.gameBoard.badGuesses += 1
+                    setTimeout(function () {
+                        vm.boardMessage = ''
+                    }, 2000)
+                } else {
+                    let freeItem = vm.gameBoard.badGuesses % 2 ? 'torpedo' : 'missile'
+                    vm.boardMessage = `Bad Code! You just gave the enemy a free ${freeItem}`
+                    vm.gameBoard.badGuesses += 1
+                    setTimeout(function () {
+                        vm.boardMessage = ''
+                    }, 2000)
+                }
+            }
+            vm.gameCode = ''
         },
         selectItem (item) {
             if (item == 'cancel') {
@@ -475,6 +538,9 @@ export default {
     },
     mounted () {
         var vm = this
+        axios.get(`/api/v1/game/${vm.currentRoom}`).then(function (response) {
+            vm.gameCodes = response.data.game_codes
+        })
         socket.on('ship-placed', function (data) {
             if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
                 vm.gameBoard.boardObjects.push(data)
@@ -523,6 +589,7 @@ export default {
                 vm.gameTimer.stop()
                 vm.gameBoard.timerDisplay = '05:00'
                 vm.selectedItem = false
+                vm.ships = vm.gameBoard.shipCount()
             }
         })
         socket.on('add-minute', function (data) {
@@ -585,7 +652,7 @@ export default {
     font-size: 40px !important;
     position: absolute;
     height: 80px;
-    width: 200px;
+    width: 220px;
     top: 430px;
     left: 0px;
 }
