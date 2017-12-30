@@ -11,7 +11,8 @@ export const store = new Vuex.Store({
         currentRoom: 'public',
         currentView: 'main',
         chatMessages: [],
-        currentGame: new Game()
+        currentGame: new Game(),
+        participantType: 0
     },
     getters: {
         clientName: state => {
@@ -28,6 +29,9 @@ export const store = new Vuex.Store({
         },
         currentView: state => {
             return state.currentView
+        },
+        participantType: state => {
+            return state.participantType
         }
     },
     mutations: {
@@ -45,6 +49,9 @@ export const store = new Vuex.Store({
         },
         changeView: (state, [data]) => {
             state.currentView = data
+        },
+        setParticipantType: (state, [data]) => {
+            state.participantType = data
         }
     },
     actions: {
@@ -62,6 +69,9 @@ export const store = new Vuex.Store({
         },
         changeView: (context, payload) => {
             context.commit('changeView', payload)
+        },
+        setParticipantType: (context, payload) => {
+            context.commit('setParticipantType', payload)
         }
     }
 })

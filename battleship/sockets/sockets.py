@@ -21,7 +21,7 @@ def join_room(json):
 
 
 @socketio.on('join-game')
-def join_room(json):
+def join_game(json):
     print('received join json: ' + str(json))
     emit('join-game', {'id': json['id']}, broadcast=True)
 
@@ -33,13 +33,50 @@ def chat(json):
 
 
 @socketio.on('ship-placed')
-def chat(json):
+def ship_placed(json):
     print('received ship placed json: ' + str(json))
     emit('ship-placed', json, broadcast=True)
 
 
+@socketio.on('restart-game')
+def restart_game(json):
+    emit('restart-game', json, broadcast=True)
+
+
+@socketio.on('end-game')
+def end_game(json):
+    emit('end-game', json, broadcast=True)
+
+
+@socketio.on('start-game')
+def start_game(json):
+    emit('start-game', json, broadcast=True)
+
+
+@socketio.on('add-minute')
+def add_minute(json):
+    emit('add-minute', json, broadcast=True)
+
+
+@socketio.on('start-timer')
+def start_timer(json):
+    print('received ship placed json')
+    emit('start-timer', json, broadcast=True)
+
+
+@socketio.on('player-name')
+def player_name(json):
+    emit('player-name', json, broadcast=True)
+
+
+@socketio.on('pause-timer')
+def pause_timer(json):
+    print('received ship placed json')
+    emit('pause-timer', json, broadcast=True)
+
+
 @socketio.on('weapon-fired')
-def chat(json):
+def weapon_fired(json):
     print('received weapon fired json: ' + str(json))
     emit('weapon-fired', json, broadcast=True)
 

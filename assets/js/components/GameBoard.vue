@@ -62,97 +62,152 @@
                     v-if="participantType > 3">
                 </x-mask>
             </div>
-            <div class="arsenal">
-                <h3>Arsenal</h3>
-                <div class="ui list">
-                    <div class="item">
-                        <i class="bomb icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('salvo')" :class="{'highlight': selectedItem === 'salvo'}">
-                            Salvo
-                            <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.salvo }} </span>
-                            <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.salvo }} </span>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <i class="anchor icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('torpedo')" :class="{'highlight': selectedItem === 'torpedo'}">
-                            Torpedo
-                            <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.torpedo }} </span>
-                            <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.torpedo }} </span>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <i class="rocket icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('missile')" :class="{'highlight': selectedItem === 'missile'}">
-                            Missile
-                            <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.missile }} </span>
-                            <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.missile }} </span>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <i class="bullseye icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('radar')" :class="{'highlight': selectedItem === 'radar'}">
-                            Radar
-                            <span v-if="participantType === 1 || participantType > 2">  x{{ arsenals.playerOne.radar }} </span>
-                            <span v-if="participantType === 2 || participantType > 2">  x{{ arsenals.playerTwo.radar }} </span>
-                        </div>
-                    </div>
-                    <div class="ui divider"></div>
-                    <div class="item">
-                        <i class="anchor icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('destroyer')" :class="{'highlight': selectedItem === 'destroyer'}">
-                            Destroyer
-                            ({{ Math.ceil(ships.playerOne.destroyer / 2 )}} of {{ this.gameBoard.shipLimits.destroyer / 2 }})
-                            ({{ Math.ceil(ships.playerTwo.destroyer / 2) }} of {{ this.gameBoard.shipLimits.destroyer / 2 }})
-                        </div>
-                    </div>
-                    <div class="item">
-                        <i class="rocket icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('cruiser')" :class="{'highlight': selectedItem === 'cruiser'}">
-                            Cruiser
-                            ({{ Math.ceil(ships.playerOne.cruiser / 3) }} of {{ this.gameBoard.shipLimits.cruiser / 3 }})
-                            ({{ Math.ceil(ships.playerTwo.cruiser / 3) }} of {{ this.gameBoard.shipLimits.cruiser / 3 }})
-                        </div>
-                    </div>
-                    <div class="item">
-                        <i class="bullseye icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('carrier')" :class="{'highlight': selectedItem === 'carrier'}">
-                            Carrier
-                            ({{ Math.ceil(ships.playerOne.carrier / 6) }} of {{ this.gameBoard.shipLimits.carrier / 6 }})
-                            ({{ Math.ceil(ships.playerTwo.carrier / 6 )}} of {{ this.gameBoard.shipLimits.carrier / 6 }})
-                        </div>
-                    </div>
-                    <div class="item">
-                        <i class="bullseye icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('outpost')" :class="{'highlight': selectedItem === 'outpost'}">
-                            Outpost
-                            ({{ ships.playerOne.outpost }} of {{ this.gameBoard.shipLimits.outpost }})
-                            ({{ ships.playerTwo.outpost }} of {{ this.gameBoard.shipLimits.outpost }})
-                        </div>
-                    </div>
-                    <div class="item">
-                        <i class="bullseye icon"></i>
-                        <div class="content arsenal-content" @click="selectItem('submarine')" :class="{'highlight': selectedItem === 'submarine'}">
-                            Submarine
-                            ({{ ships.playerOne.submarine }} of {{ this.gameBoard.shipLimits.submarine }})
-                            ({{ ships.playerTwo.submarine }} of {{ this.gameBoard.shipLimits.submarine }})
-                        </div>
-                    </div>
-                    <div class="ui divider"></div>
-                    <div class="item ui input">
-                        <input type="text" name="" v-model.number="participantType">
-                    </div>
-                    <div class="item" v-if="selectedItem">
-                        <div class="content arsenal-content" @click="selectItem('cancel')">
-                            Cancel (Right click to rotate)
-                        </div>
-                    </div>
-                    <div class="item" v-if="gameBoard.boardObjects.length > 0">
-                        <div class="content arsenal-content" @click="clearBoard()">
-                            Clear Board
-                        </div>
-                    </div>
+            <div class="ship-inventory">
+                <h3 class="highlight title" v-if="gameBoard.gameState === 'setup'">Place Your Ships</h3>
+                <h3 class="highlight title" v-else>Remaining Ships</h3>
+                <div class="ship-count">
+                    <table class="ui selectable compact inverted table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="content arsenal-content" @click="selectItem('cancel')" v-if="selectedItem">
+                                    Cancel
+                                    <span v-if="selectedItem === 'destroyer' || selectedItem ==='cruiser' || selectedItem === 'carrier'"><img style="height: 18px; margin-left: 10px; position: absolute;" src="/static/build/img/rclickicon.bdeff0be54bbcfcb0db2759d7a8d1aee.png" alt=""> </span>
+                                    </div>
+                                </th>
+                                <th>P1</th>
+                                <th>P2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="arsenal-content" @click="selectItem('destroyer')" :class="{'highlight': selectedItem === 'destroyer'}">
+                                    Destroyer x{{ this.gameBoard.shipLimits.destroyer / 2 }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerOne.destroyer / 2) === 0}">
+                                    {{ Math.ceil(ships.playerOne.destroyer / 2)}}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerTwo.destroyer / 2) === 0}">
+                                    {{ Math.ceil(ships.playerTwo.destroyer / 2) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="arsenal-content" @click="selectItem('cruiser')" :class="{'highlight': selectedItem === 'cruiser'}">
+                                    Cruiser x{{ this.gameBoard.shipLimits.cruiser / 3 }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerOne.cruiser / 3) === 0}">
+                                    {{ Math.ceil(ships.playerOne.cruiser / 3) }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerTwo.cruiser / 3) === 0}">
+                                    {{ Math.ceil(ships.playerTwo.cruiser / 3) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="arsenal-content" @click="selectItem('carrier')" :class="{'highlight': selectedItem === 'carrier'}">
+                                    Carrier x{{ this.gameBoard.shipLimits.carrier / 6 }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerOne.carrier / 6) === 0}">
+                                    {{ Math.ceil(ships.playerOne.carrier / 6) }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerTwo.carrier / 6) === 0}">
+                                    {{ Math.ceil(ships.playerTwo.carrier / 6) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="arsenal-content" @click="selectItem('outpost')" :class="{'highlight': selectedItem === 'outpost'}">
+                                    Outpost x{{ this.gameBoard.shipLimits.outpost }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerOne.outpost) === 0}">
+                                    {{ Math.ceil(ships.playerOne.outpost) }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerTwo.outpost) === 0}">
+                                    {{ Math.ceil(ships.playerTwo.outpost) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="arsenal-content" @click="selectItem('submarine')" :class="{'highlight': selectedItem === 'submarine'}">
+                                    Submarine x{{ this.gameBoard.shipLimits.submarine }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerOne.submarine) === 0}">
+                                    {{ Math.ceil(ships.playerOne.submarine) }}
+                                </td>
+                                <td :class="{'highlight': Math.ceil(ships.playerTwo.submarine) === 0}">
+                                    {{ Math.ceil(ships.playerTwo.submarine) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+                <div class="ship-timer highlight">
+                    {{ gameBoard.timerDisplay }} <br>
+                    <span style="color:#fff; margin-bottom: 10px; font-size:11px" v-if="gameBoard.gameState === 'setup'">
+                        Place your ships!
+                    </span>
+                </div>
+            </div>
+            <div class="arsenal">
+                <h3 class="highlight title">Arsenal</h3>
+                <table class="ui selectable compact inverted table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="content arsenal-content" @click="selectItem('cancel')" v-if="selectedItem">
+                                Cancel
+                                <span v-if="selectedItem === 'salvo'"><img style="height: 18px; margin-left: 10px; position: absolute;" src="/static/build/img/rclickicon.bdeff0be54bbcfcb0db2759d7a8d1aee.png" alt=""> </span>
+                                </div>
+                            </th>
+                            <th>P1</th>
+                            <th>P2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="arsenal-content" @click="selectItem('salvo')" :class="{'highlight': selectedItem === 'salvo'}">Salvo</td>
+                            <td>
+                                <span v-if="participantType === 1 || participantType > 2">  {{ arsenals.playerOne.salvo }} </span>
+                            </td>
+                            <td>
+                                <span v-if="participantType === 2 || participantType > 2">  {{ arsenals.playerTwo.salvo }} </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="arsenal-content" @click="selectItem('torpedo')" :class="{'highlight': selectedItem === 'torpedo'}">Torpedo</td>
+                            <td>
+                                <span v-if="participantType === 1 || participantType > 2">  {{ arsenals.playerOne.torpedo }} </span>
+                            </td>
+                            <td>
+                                <span v-if="participantType === 2 || participantType > 2">  {{ arsenals.playerTwo.torpedo }} </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="arsenal-content" @click="selectItem('missile')" :class="{'highlight': selectedItem === 'missile'}">Missile</td>
+                            <td>
+                                <span v-if="participantType === 1 || participantType > 2">  {{ arsenals.playerOne.missile }} </span>
+                            </td>
+                            <td>
+                                <span v-if="participantType === 2 || participantType > 2">  {{ arsenals.playerTwo.missile }} </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="arsenal-content" @click="selectItem('radar')" :class="{'highlight': selectedItem === 'radar'}">Radar</td>
+                            <td>
+                                <span v-if="participantType === 1 || participantType > 2">  {{ arsenals.playerOne.radar }} </span>
+                            </td>
+                            <td>
+                                <span v-if="participantType === 2 || participantType > 2">  {{ arsenals.playerTwo.radar }} </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="player-one-name">
+                <span class="highlight">P1:</span> {{ playerOneName }}
+            </div>
+            <div class="versus">
+                VS
+            </div>
+            <div class="player-two-name">
+                <span class="highlight">P2:</span> {{ playerTwoName }}
             </div>
             <div class="ui action inverted huge input game-code">
                 <input type="text" :value="gameCode" maxlength="5" @input="gameCode = $event.target.value.toUpperCase()">
@@ -173,6 +228,7 @@ import _ from 'lodash'
 import {GameBoard} from '../models/gameBoard.js'
 import {mapGetters, mapActions} from 'vuex'
 import {socket} from '../socket.js'
+import Timer from 'timer.js'
 
 export default {
     data () {
@@ -182,20 +238,24 @@ export default {
             hoverShape: 'one',
             hoverColor: '#fff',
             boardMessage: '',
+            gameTimer: new Timer(),
             selectedTeamName: '',
+            playerOneName: '',
+            playerTwoName: '',
+            opponentName: '',
             rotate: false,
             arsenals: {
                 playerOne: {
-                    salvo: '∞',
-                    torpedo: '∞',
-                    missile: '∞',
-                    radar: '∞'
+                    salvo: 0,
+                    torpedo: 0,
+                    missile: 0,
+                    radar: 0
                 },
                 playerTwo: {
-                    salvo: '∞',
-                    torpedo: '∞',
-                    missile: '∞',
-                    radar: '∞'
+                    salvo: 0,
+                    torpedo: 0,
+                    missile: 0,
+                    radar: 0
                 }
             },
             ships: {
@@ -251,7 +311,8 @@ export default {
             'changeClientName',
             'changeCurrentRoom',
             'connectSocket',
-            'pushMessage'
+            'pushMessage',
+            'setParticipantType'
         ]),
         boardClick (event) {
             var vm = this
@@ -366,13 +427,15 @@ export default {
             var vm = this
             vm.changeClientName([vm.selectedTeamName])
             vm.gameBoard.gameState = 'setup'
+            vm.setParticipantType([vm.participantType])
+            socket.emit('player-name', {
+                p1: vm.participantType === 1 ? vm.clientName : false,
+                p2: vm.participantType === 2 ? vm.clientName : false,
+                gameId: vm.currentRoom
+            })
         },
         verifyGameCode () {
             this.gameCode = ''
-        },
-        clearBoard () {
-            this.gameBoard.boardObjects = []
-            this.ships = this.gameBoard.shipCount()
         },
         selectItem (item) {
             if (item == 'cancel') {
@@ -381,6 +444,12 @@ export default {
                 this.hoverShape = 'one',
                 this.selectedItem = false
                 this.hoverGrid = []
+                return
+            }
+            if (_.includes(['salvo', 'torpedo', 'missile', 'radar'], item) && this.gameBoard.gameState === 'setup' && this.participantType < 3) {
+                return
+            }
+            if (_.includes(['destroyer', 'cruiser', 'outpost', 'carrier', 'submarine'], item) && this.gameBoard.gameState === 'playing' && this.participantType < 3) {
                 return
             }
             this.hoverColor = this.gameBoard.colors[item]
@@ -421,6 +490,75 @@ export default {
                 vm.ships = vm.gameBoard.shipCount()
             }
         })
+        socket.on('start-timer', function (data) {
+            if (vm.gameBoard.gameState === 'setup') {
+                var duration = 5*60
+            } else {
+                var duration = 60*60
+            }
+            if (data.id == vm.currentRoom) {
+                vm.gameTimer.start(duration)
+            }
+        })
+        socket.on('pause-timer', function (data) {
+            if (data.id == vm.currentRoom) {
+                vm.gameTimer.pause()
+            }
+        })
+        socket.on('start-game', function (data) {
+            if (data.id == vm.currentRoom) {
+                vm.gameBoard.gameState = 'playing'
+                vm.gameTimer.stop()
+                vm.gameBoard.timerDisplay = '60:00'
+            }
+        })
+        socket.on('end-game', function (data) {
+            if (data.id == vm.currentRoom) {
+                vm.gameBoard.gameState = 'ended'
+            }
+        })
+        socket.on('restart-game', function (data) {
+            if (data.id == vm.currentRoom) {
+                vm.gameBoard = new GameBoard()
+                vm.gameTimer.stop()
+                vm.gameBoard.timerDisplay = '05:00'
+                vm.selectedItem = false
+            }
+        })
+        socket.on('add-minute', function (data) {
+            if (data.id == vm.currentRoom) {
+                vm.gameTimer.pause()
+                vm.gameTimer.start((vm.gameTimer.getDuration() / 1000) + 60)
+            }
+        })
+        socket.on('player-name', function (data) {
+            if (data.gameId == vm.currentRoom) {
+                if (data.p1) {
+                    vm.playerOneName = data.p1
+                }
+                if (data.p2) {
+                    vm.playerTwoName = data.p2
+                }
+            }
+        })
+        socket.on('join-game', function (data) {
+            socket.emit('player-name', {
+                p1: vm.participantType === 1 ? vm.clientName : false,
+                p2: vm.participantType === 2 ? vm.clientName : false,
+                gameId: vm.currentRoom
+            })
+        })
+        vm.gameTimer.on('tick', function (duration) {
+            var milliseconds = parseInt((duration%1000)/100)
+                , seconds = parseInt(Math.round(duration/1000)%60)
+                , minutes = parseInt((duration/(1000*60))%60)
+                , hours = parseInt((duration/(1000*60*60))%24);
+
+            hours = (hours < 10) ? "0" + hours : hours
+            minutes = (minutes < 10) ? "0" + minutes : minutes
+            seconds = (seconds < 10) ? "0" + seconds : seconds
+            vm.gameBoard.timerDisplay = minutes + ":" + seconds
+        })
     }
 }
 </script>
@@ -433,7 +571,7 @@ export default {
     height: 80px;
     width: 450px;
     text-align: center;
-    top: 390px;
+    top: 430px;
     left: 450px;
     line-height: 40px;
 }
@@ -448,7 +586,7 @@ export default {
     position: absolute;
     height: 80px;
     width: 200px;
-    top: 390px;
+    top: 430px;
     left: 0px;
 }
 .board-object {
@@ -501,7 +639,7 @@ export default {
     height: 378px;
 }
 .highlight {
-    color: #e22722
+    color: #e22722 !important;
 }
 .game-board-wrapper {
     width: 100%;
@@ -509,8 +647,8 @@ export default {
 }
 .game-board {
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 40px;
+    left: 220px;
     background: url(/static/build/img/game-map-small.c27ec7300208ac92eacdfa6c4e2fa594.png);
     overflow:hidden;
     width: 714px;
@@ -543,6 +681,27 @@ export default {
 }
 
 .arsenal {
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background: #1b1b1b;
+    width: 220px;
+    position: absolute;
+    left: 0px;
+    padding: 10px;
+    border-right: solid 2px #c1c1c1;
+    color: #fff;
+    height: 378px;
+    font-family: 'Black Ops One', cursive;
+    text-align: center;
+    top: 40px;
+}
+
+.ship-inventory {
+    text-align: center;
     -webkit-border-top-right-radius: 10px;
     -webkit-border-bottom-right-radius: 10px;
     -moz-border-radius-topright: 10px;
@@ -552,10 +711,56 @@ export default {
     background: #1b1b1b;
     width: 240px;
     position: absolute;
-    left: 714px;
+    left: 934px;
     padding: 10px;
     border-left: solid 2px #c1c1c1;
     color: #fff;
     height: 378px;
+    top: 40px;
+}
+.ship-count {
+    color: #fff;
+    font-family: 'Black Ops One', cursive;
+    text-align: center;
+}
+
+.title {
+    font-family: 'Black Ops One', cursive !important;
+}
+.ship-timer {
+    font-family: 'Black Ops One', cursive !important;
+    font-size: 35px;
+    padding: 20px;
+    text-align: center;
+}
+.player-one-name {
+    position: absolute;
+    top: 0px;
+    font-family: 'Black Ops One', cursive !important;
+    font-size: 25px;
+    color: #fff;
+    left: 230px;
+    height: 55px;
+    width: 300px;
+    text-align: right;
+}
+
+.player-two-name {
+    position: absolute;
+    top: 0px;
+    font-family: 'Black Ops One', cursive !important;
+    font-size: 25px;
+    color: #fff;
+    left: 660px;
+    height: 55px;
+}
+.versus {
+    position: absolute;
+    top: 0px;
+    font-family: 'Black Ops One', cursive !important;
+    font-size: 40px;
+    color: #e22722;
+    left: 570px;
+    height: 55px;
 }
 </style>

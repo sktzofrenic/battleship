@@ -17,7 +17,8 @@ export function GameBoard (GameBoardData) {
         submarine: 2,
         outpost: 2
     }
-    this.gameState = GameBoardData['gameState'] || 'waiting'
+    this.timerDisplay = GameBoardData['timerDisplay'] || '05:00'
+    this.gameState = GameBoardData['gameState'] || 'waiting' // waiting, setup, playing, ended
     this.boardObjects = GameBoardData['boardObjects'] || []
     this.hitMissGrid = GameBoardData['hitMissGrid'] || []
     this.landCoords = GameBoardData['landCoords'] || [
@@ -55,7 +56,7 @@ export function GameBoard (GameBoardData) {
         torpedo: '#ff0000',
         missile: '#ff0000',
         salvo: '#ff0000',
-        radar: '#fe9999',
+        radar: '#fe9999'
     }
 
     Object.defineProperty(this, 'grid', {

@@ -10,6 +10,16 @@
             <input type="text" placeholder="Chat..." v-model="clientMessage" @keyup.enter="send">
             <i class="comment outline icon"></i>
         </div>
+        <div class="gm-controls" v-if="participantType === 3">
+            <h2 class="chat-title">GM Controls</h2>
+            <button class="ui red tiny inverted button" name="button" @click="startGame()">Start Game</button>
+            <button class="ui red tiny inverted button" name="button" @click="startTimer()">Start Timer</button>
+            <button class="ui red tiny inverted button" name="button" @click="pauseTimer()">Pause Timer</button>
+            <button class="ui red tiny inverted button" name="button" @click="endGame()">End Game</button>
+            <button class="ui red tiny inverted button" name="button" @click="restartGame()">Restart Game</button>
+            <button class="ui red tiny inverted button" name="button" @click="addOneMinute()">Add Minute</button>
+
+        </div>
     </div>
 </template>
 
@@ -24,6 +34,36 @@ export default {
         }
     },
     methods: {
+        startGame () {
+            socket.emit('start-game', {
+                id: this.currentRoom
+            })
+        },
+        addOneMinute () {
+            socket.emit('add-minute', {
+                id: this.currentRoom
+            })
+        },
+        startTimer () {
+            socket.emit('start-timer', {
+                id: this.currentRoom
+            })
+        },
+        pauseTimer () {
+            socket.emit('pause-timer', {
+                id: this.currentRoom
+            })
+        },
+        endGame () {
+            socket.emit('end-game', {
+                id: this.currentRoom
+            })
+        },
+        restartGame () {
+            socket.emit('restart-game', {
+                id: this.currentRoom
+            })
+        },
         send () {
             socket.emit('chat', {
                 message: this.clientMessage,
@@ -43,7 +83,8 @@ export default {
         ...mapGetters([
             'currentRoom',
             'clientName',
-            'chatMessages'
+            'chatMessages',
+            'participantType'
         ])
     },
     mounted () {
