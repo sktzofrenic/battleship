@@ -378,7 +378,9 @@ export default {
                             j: square.j,
                             gameId: vm.currentRoom,
                             participantType: vm.participantType,
-                            spliceIndex: weaponHit
+                            spliceIndex: weaponHit,
+                            item: vm.selectedItem,
+                            player: player
                         }
                         vm.gameBoard.hitMissGrid.push(hit)
                         vm.arsenals[player][vm.selectedItem] -= 1
@@ -395,7 +397,9 @@ export default {
                             i: square.i,
                             j: square.j,
                             gameId: vm.currentRoom,
-                            participantType: vm.participantType
+                            participantType: vm.participantType,
+                            item: vm.selectedItem,
+                            player: player
                         }
                         vm.gameBoard.hitMissGrid.push(miss)
                         vm.arsenals[player][vm.selectedItem] -= 1
@@ -470,6 +474,12 @@ export default {
                     vm.arsenals[player].radar += 1
                     item = 'radar'
                 }
+                socket.emit('successful-game-code', {
+                    gameId: vm.currentRoom,
+                    player: player,
+                    item: item,
+                    participantType: vm.participantType
+                })
                 vm.boardMessage =`One ${item} added to your arsenal!`
                 setTimeout(function () {
                     vm.boardMessage = ''
@@ -493,6 +503,12 @@ export default {
                     let freeItem = vm.gameBoard.badGuesses % 2 ? 'torpedo' : 'missile'
                     vm.boardMessage = `Bad Code! You just gave the enemy a free ${freeItem}`
                     vm.gameBoard.badGuesses += 1
+                    socket.emit('bad-game-code', {
+                        gameId: vm.currentRoom,
+                        player: player === 'playerOne' ? 'playerTwo' : 'playerOne',
+                        item: freeItem,
+                        participantType: vm.participantType
+                    })
                     setTimeout(function () {
                         vm.boardMessage = ''
                     }, 2000)
@@ -554,6 +570,7 @@ export default {
                 }
                 vm.gameBoard.hitMissGrid.push(data)
                 vm.ships = vm.gameBoard.shipCount()
+                vm.arsenals[data.player][data.item] -= 1
             }
         })
         socket.on('start-timer', function (data) {
@@ -606,6 +623,16 @@ export default {
                 if (data.p2) {
                     vm.playerTwoName = data.p2
                 }
+            }
+        })
+        socket.on('successful-game-code', function (data) {
+            if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
+                vm.arsenals[data.player][data.item] += 1
+            }
+        })
+        socket.on('bad-game-code', function (data) {
+            if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
+                vm.arsenals[data.player][data.item] += 1
             }
         })
         socket.on('join-game', function (data) {

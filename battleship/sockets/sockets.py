@@ -71,14 +71,22 @@ def player_name(json):
 
 @socketio.on('pause-timer')
 def pause_timer(json):
-    print('received ship placed json')
     emit('pause-timer', json, broadcast=True)
 
 
 @socketio.on('weapon-fired')
 def weapon_fired(json):
-    print('received weapon fired json: ' + str(json))
     emit('weapon-fired', json, broadcast=True)
+
+
+@socketio.on('successful-game-code')
+def successful_game_code(json):
+    emit('successful-game-code', json, broadcast=True)
+
+
+@socketio.on('bad-game-code')
+def bad_game_code(json):
+    emit('bad-game-code', json, broadcast=True)
 
 
 @socketio.on('end-game')
