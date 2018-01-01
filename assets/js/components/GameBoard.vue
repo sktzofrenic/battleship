@@ -472,8 +472,6 @@ export default {
                             item: vm.selectedItem,
                             player: player
                         }
-                        vm.gameBoard.hitMissGrid.push(miss)
-                        vm.arsenals[player][vm.selectedItem] -= 1
                         socket.emit('weapon-miss', miss)
                     }
                 })
