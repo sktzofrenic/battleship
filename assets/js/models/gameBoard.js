@@ -23,6 +23,22 @@ export function GameBoard (GameBoardData) {
     this.usedGameCodes = GameBoardData['usedGameCodes'] || []
     this.badGuesses = GameBoardData['badGuesses'] || 0
     this.hitMissGrid = GameBoardData['hitMissGrid'] || []
+    this.originalShips = GameBoardData['hitMissGrid'] || {
+        playerOne: {
+            destroyer: [],
+            cruiser: [],
+            carrier: [],
+            outpost: [],
+            submarine: []
+        },
+        playerTwo: {
+            destroyer: [],
+            cruiser: [],
+            carrier: [],
+            outpost: [],
+            submarine: []
+        }
+    }
     this.landCoords = GameBoardData['landCoords'] || [
         {i: 4, j: 1},
         {i: 5, j: 1},
@@ -50,11 +66,11 @@ export function GameBoard (GameBoardData) {
         {i: 10, j: 8}
     ]
     this.colors = GameBoardData['colors'] || {
-        destroyer: '#0044f0',
-        cruiser: '#00f0b5',
-        carrier: '#00b0f0',
-        submarine: '#002060',
-        outpost:  '#b05300',
+        destroyer: 'rgba(0, 68, 240, 0.5)',
+        cruiser: 'rgba(0, 240, 181, 0.5)',
+        carrier: 'rgba(0, 176, 240, 0.5)',
+        submarine: 'rgba(0, 32, 96, 0.5)',
+        outpost:  'rgba(176, 83, 0, 0.5)',
         torpedo: '#ff0000',
         missile: '#ff0000',
         salvo: '#ff0000',
@@ -69,31 +85,79 @@ export function GameBoard (GameBoardData) {
         }
     })
 
-    Object.defineProperty(this, 'shipCount', {
-        value: function () {
-            let ships = {
-                playerOne: {
-                    destroyer: 0,
-                    cruiser: 0,
-                    carrier: 0,
-                    outpost: 0,
-                    submarine: 0
-                },
-                playerTwo: {
-                    destroyer: 0,
-                    cruiser: 0,
-                    carrier: 0,
-                    outpost: 0,
-                    submarine: 0
-                }
-            }
-            this.boardObjects.map(function (each) {
-                if (each.i < 9) {
-                    ships.playerOne[each.type] += 1
-                } else if (each.i > 8) {
-                    ships.playerTwo[each.type] += 1
+    Object.defineProperty(this, 'removeShipPiece', {
+        value: function (hit, hitSquare) {
+            let that = this
+            let player = hit.i > 8 ? 'playerTwo' : 'playerOne'
+            that.originalShips[player][hitSquare.type].map(function (ship) {
+                ship.map(function (shipPiece, index) {
+                    if (shipPiece.i === hitSquare.i && shipPiece.j === hitSquare.j) {
+                        ship.splice(index, 1)
+                    }
+                })
+            })
+            that.originalShips[player][hitSquare.type].map(function (ship, index) {
+                if (ship.length === 0) {
+                    that.originalShips[player][hitSquare.type].splice(index, 1)
                 }
             })
+        }
+    })
+
+    Object.defineProperty(this, 'checkVictoryConditions', {
+        value: function () {
+            let that = this
+            let playerOneTotal = 0
+            let playerTwoTotal = 0
+            that.originalShips.playerOne.map(function (shipType) {
+                playerOneTotal += shipType.length
+            })
+            that.originalShips.playerTwo.map(function (shipType) {
+                playerTwoTotal += shipType.length
+            })
+            if (playerOneTotal === 0 && playerTwoTotal > 0) {
+                return 'playerTwo'
+            } else if (playerOneTotal > 0 && playerTwoTotal === 0) {
+                return 'playerOne'
+            } else if (playerOneTotal === playerTwoTotal && playerTwoTotal === 0) {
+                return 'tie'
+            } else {
+                return false
+            }
+        }
+    })
+
+    Object.defineProperty(this, 'checkShipDestroy', {
+        value: function (oldShips, gameSide) {
+            let shipDestroyed = false
+            this.originalShips[gameSide].map(function (shipType) {
+                if (shipType.length < oldShips[gameSide][shipType]) {
+                    shipDestroyed = true
+                }
+            })
+            return shipDestroyed
+        }
+    })
+
+    Object.defineProperty(this, 'shipCount', {
+        value: function () {
+            let that = this
+            let ships = {
+                playerOne: {
+                    destroyer: that.originalShips.playerOne.destroyer.length,
+                    cruiser: that.originalShips.playerOne.cruiser.length,
+                    carrier: that.originalShips.playerOne.carrier.length,
+                    outpost: that.originalShips.playerOne.outpost.length,
+                    submarine: that.originalShips.playerOne.submarine.length
+                },
+                playerTwo: {
+                    destroyer: that.originalShips.playerTwo.destroyer.length,
+                    cruiser: that.originalShips.playerTwo.cruiser.length,
+                    carrier: that.originalShips.playerTwo.carrier.length,
+                    outpost: that.originalShips.playerTwo.outpost.length,
+                    submarine: that.originalShips.playerTwo.submarine.length
+                }
+            }
             return ships
         }
     })

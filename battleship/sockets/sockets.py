@@ -87,9 +87,14 @@ def pause_timer(json):
     emit('pause-timer', json, broadcast=True)
 
 
-@socketio.on('weapon-fired')
-def weapon_fired(json):
-    emit('weapon-fired', json, broadcast=True)
+@socketio.on('weapon-miss')
+def weapon_miss(json):
+    emit('weapon-miss', json, broadcast=True)
+
+
+@socketio.on('weapon-hit')
+def weapon_hit(json):
+    emit('weapon-hit', json, broadcast=True)
 
 
 @socketio.on('successful-game-code')

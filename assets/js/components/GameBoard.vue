@@ -43,8 +43,9 @@
                 </x-mask>
                 <x-hit-miss-object
                     :style="hm.style"
-                    :class="[hm.type]"
+                    class="hit-miss"
                     v-for="(hm, index) in gameBoard.hitMissGrid">
+                    <span class="hit-miss" :class="[hm.type]"></span>
                 </x-hit-miss-object>
                 <x-square
                     :class="[i.baseClass, {'square-hover': i.squareHover}]"
@@ -82,10 +83,10 @@
                                     Destroyer x{{ this.gameBoard.shipLimits.destroyer / 2 }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.destroyer / 2) === 0}">
-                                    {{ Math.ceil(ships.playerOne.destroyer / 2)}}
+                                    {{ ships.playerOne.destroyer}}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.destroyer / 2) === 0}">
-                                    {{ Math.ceil(ships.playerTwo.destroyer / 2) }}
+                                    {{ ships.playerTwo.destroyer }}
                                 </td>
                             </tr>
                             <tr>
@@ -93,10 +94,10 @@
                                     Cruiser x{{ this.gameBoard.shipLimits.cruiser / 3 }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.cruiser / 3) === 0}">
-                                    {{ Math.ceil(ships.playerOne.cruiser / 3) }}
+                                    {{ ships.playerOne.cruiser  }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.cruiser / 3) === 0}">
-                                    {{ Math.ceil(ships.playerTwo.cruiser / 3) }}
+                                    {{ ships.playerTwo.cruiser }}
                                 </td>
                             </tr>
                             <tr>
@@ -104,10 +105,10 @@
                                     Carrier x{{ this.gameBoard.shipLimits.carrier / 6 }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.carrier / 6) === 0}">
-                                    {{ Math.ceil(ships.playerOne.carrier / 6) }}
+                                    {{ ships.playerOne.carrier }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.carrier / 6) === 0}">
-                                    {{ Math.ceil(ships.playerTwo.carrier / 6) }}
+                                    {{ ships.playerTwo.carrier  }}
                                 </td>
                             </tr>
                             <tr>
@@ -115,10 +116,10 @@
                                     Outpost x{{ this.gameBoard.shipLimits.outpost }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.outpost) === 0}">
-                                    {{ Math.ceil(ships.playerOne.outpost) }}
+                                    {{ ships.playerOne.outpost }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.outpost) === 0}">
-                                    {{ Math.ceil(ships.playerTwo.outpost) }}
+                                    {{ ships.playerTwo.outpost }}
                                 </td>
                             </tr>
                             <tr>
@@ -126,10 +127,10 @@
                                     Submarine x{{ this.gameBoard.shipLimits.submarine }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.submarine) === 0}">
-                                    {{ Math.ceil(ships.playerOne.submarine) }}
+                                    {{ ships.playerOne.submarine }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.submarine) === 0}">
-                                    {{ Math.ceil(ships.playerTwo.submarine) }}
+                                    {{ ships.playerTwo.submarine }}
                                 </td>
                             </tr>
                         </tbody>
@@ -220,6 +221,11 @@
                         </tr>
                     </tbody>
                 </table>
+                <i @click="toggleBackgroundMusic()" class="music icon" :class="{'active-bg-music': !backgroundMusicStatus}"></i>
+                <audio ref="backgroundMusic" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/menu_music.mp3" type="audio/mpeg" loop></audio>
+                <audio ref="win_sound" style="display:none;" id="win_sound" src="/static/build/audio/win_jingle.wav" type="audio/mpeg"></audio>
+                <audio ref="lose_sound" style="display:none;" id="lose_sound" src="/static/build/audio/lose_jingle.wav" type="audio/mpeg"></audio>
+                <audio ref="ship_destroy_sound" style="display:none;" id="ship_destroy_sound" src="/static/build/audio/destroyed.wav" type="audio/mpeg"></audio>
             </div>
             <div class="player-one-name">
                 <span class="highlight">P1:</span> {{ playerOneName }}
@@ -269,6 +275,7 @@ export default {
             hoverColor: '#fff',
             boardMessage: '',
             gameTimer: new Timer(),
+            backgroundMusicStatus: true,
             participantTypeOptions: [
                 {type: 1, name: 'Player One'},
                 {type: 2, name: 'Player Two'},
@@ -361,6 +368,15 @@ export default {
             'setParticipantType',
             'setChatRecipients'
         ]),
+        toggleBackgroundMusic () {
+            var vm = this
+            if (this.backgroundMusicStatus) {
+                vm.$refs.backgroundMusic.play()
+            } else {
+                vm.$refs.backgroundMusic.pause()
+            }
+            this.backgroundMusicStatus = ! this.backgroundMusicStatus
+        },
         arsenalLock (participantType) {
             let player = participantType === 1 ? 'playerOne' : 'playerTwo'
             return this.arsenals[player].lock
@@ -418,30 +434,36 @@ export default {
                     if (weaponHit > -1 && _.findIndex(vm.gameBoard.hitMissGrid, function (o) {
                         return o.i === square.i && o.j === square.j
                     }) === -1) {
+                        let hitSquare = _.find(vm.gameBoard.boardObjects, function (o) {
+                            return o.i === square.i && o.j === square.j
+                        })
                         let hit ={
                             type: 'hit',
                             style: {
-                                transform: `translate(${square.i * 42}px, ${square.j * 42}px)`
+                                transform: `translate(${square.i * 42}px, ${square.j * 42}px)`,
+                                background: hitSquare.style.background
                             },
                             i: square.i,
                             j: square.j,
                             gameId: vm.currentRoom,
+                            shipType: hitSquare.type,
                             participantType: vm.participantType,
                             spliceIndex: weaponHit,
                             item: vm.selectedItem,
                             player: player
                         }
-                        vm.gameBoard.hitMissGrid.push(hit)
-                        vm.arsenals[player][vm.selectedItem] -= 1
-                        socket.emit('weapon-fired', hit)
-                        vm.gameBoard.boardObjects.splice(weaponHit, 1)
+                        socket.emit('weapon-hit', {
+                            hit: hit,
+                            hitSquare: hitSquare
+                        })
                     } else if (weaponHit === -1 && _.findIndex(vm.gameBoard.hitMissGrid, function (o) {
                         return o.i === square.i && o.j === square.j
                     }) === -1) {
                         let miss = {
                             type: 'miss',
                             style: {
-                                transform: `translate(${square.i * 42}px, ${square.j * 42}px)`
+                                transform: `translate(${square.i * 42}px, ${square.j * 42}px)`,
+                                background: 'none',
                             },
                             i: square.i,
                             j: square.j,
@@ -452,7 +474,7 @@ export default {
                         }
                         vm.gameBoard.hitMissGrid.push(miss)
                         vm.arsenals[player][vm.selectedItem] -= 1
-                        socket.emit('weapon-fired', miss)
+                        socket.emit('weapon-miss', miss)
                     }
                 })
                 vm.ships = vm.gameBoard.shipCount()
@@ -467,6 +489,7 @@ export default {
                     vm.boardMessage = ''
                 }, 1000)
             } else if (!vm.gameBoard.shipLimitExceeded(vm.selectedItem, vm.hoverGrid)){
+                let fullShip = []
                 vm.hoverGrid.map(function (square) {
                     let ship = {
                         type: vm.selectedItem,
@@ -480,10 +503,14 @@ export default {
                         participantType: vm.participantType
                     }
                     vm.gameBoard.boardObjects.push(ship)
-                    socket.emit('ship-placed', ship)
+                    fullShip.push(ship)
+                })
+                socket.emit('ship-placed', {
+                    gameId: vm.currentRoom,
+                    participantType: vm.participantType,
+                    fullShip: fullShip
                 })
             }
-            vm.ships = vm.gameBoard.shipCount()
         },
         clearHoverGrid () {
             this.hoverGrid = []
@@ -647,18 +674,31 @@ export default {
             vm.gameCodes = response.data.game_codes
         })
         socket.on('ship-placed', function (data) {
-            if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
-                vm.gameBoard.boardObjects.push(data)
+            if (data.gameId == vm.currentRoom) {
+                data.fullShip.map(function (ship) {
+                    if (data.participantType != vm.participantType) {
+                        vm.gameBoard.boardObjects.push(ship)
+                    }
+                })
+                let gameSide = data.fullShip[0].i > 8 ? 'playerTwo' : 'playerOne'
+                vm.gameBoard.originalShips[gameSide][data.fullShip[0].type].push(data.fullShip)
                 vm.ships = vm.gameBoard.shipCount()
             }
         })
-        socket.on('weapon-fired', function (data) {
-            if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
-                if (data.spliceIndex) {
-                    vm.gameBoard.boardObjects.splice(data.spliceIndex, 1)
+        socket.on('weapon-hit', function (data) {
+            if (data.hit.gameId == vm.currentRoom) {
+                if (data.hit.spliceIndex) {
+                    vm.gameBoard.boardObjects.splice(data.hit.spliceIndex, 1)
                 }
-                vm.gameBoard.hitMissGrid.push(data)
+                vm.gameBoard.removeShipPiece(data.hit, data.hitSquare)
+                vm.gameBoard.hitMissGrid.push(data.hit)
                 vm.ships = vm.gameBoard.shipCount()
+                vm.arsenals[data.hit.player][data.hit.item] -= 1
+            }
+        })
+        socket.on('weapon-miss', function (data) {
+            if (data.gameId == vm.currentRoom) {
+                vm.gameBoard.hitMissGrid.push(data)
                 vm.arsenals[data.player][data.item] -= 1
             }
         })
@@ -796,20 +836,19 @@ export default {
     height: 42px;
     width: 42px;
     background: #fff;
-    opacity: 0.5
 }
 
-.hit {
+.hit-miss {
     position: absolute;
     height: 42px;
     width: 42px;
+}
+
+.hit {
     background: url(/static/build/img/x.e7680db3e4b66837463c2d7208e70294.png);
 }
 
 .miss {
-    position: absolute;
-    height: 42px;
-    width: 42px;
     background: url(/static/build/img/o.ce7403ad50b153c281f3493a9d14d06d.png);
 }
 .participant-two-mask {
@@ -989,5 +1028,9 @@ export default {
 
 .gc-wrong {
    color: #db2828;
+}
+
+.active-bg-music {
+    color: #4adb28;
 }
 </style>
