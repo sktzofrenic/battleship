@@ -4,7 +4,7 @@ from flask import jsonify
 from battleship.extensions import socketio
 from battleship.utils import authenticated_only
 from flask_socketio import send, emit, join_room, leave_room
-from battleship.game.models import Game
+from battleship.game.models import Game, GameParticipant
 import datetime as dt
 
 
@@ -29,7 +29,7 @@ def join_game(json):
 @socketio.on('chat')
 def chat(json):
     print('received chat json: ' + str(json))
-    emit('chat', {'name': json['name'], 'message': json['message'], 'room': json['room']}, broadcast=True)
+    emit('chat', json, broadcast=True)
 
 
 @socketio.on('ship-placed')
@@ -41,6 +41,11 @@ def ship_placed(json):
 @socketio.on('restart-game')
 def restart_game(json):
     emit('restart-game', json, broadcast=True)
+
+
+@socketio.on('arsenal-change')
+def arsenal_change(json):
+    emit('arsenal-change', json, broadcast=True)
 
 
 @socketio.on('end-game')
@@ -66,6 +71,14 @@ def start_timer(json):
 
 @socketio.on('player-name')
 def player_name(json):
+    game = Game.query.filter_by(id=json['gameId']).first()
+    print(str(json))
+    requested_aleady_used = [x for x in game.game_participants if x.game_role == json['participantType']]
+    if not requested_aleady_used or json['participantType'] == 4:
+        game.game_participants.append(GameParticipant.create(game_role=json['participantType'], name=json['clientName']))
+        game.save()
+    else:
+        json['already_taken'] = True
     emit('player-name', json, broadcast=True)
 
 

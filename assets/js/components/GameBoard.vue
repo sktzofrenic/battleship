@@ -11,10 +11,7 @@
                         <div class="field">
                             <label>Participant Type</label>
                             <select class="ui dropdown" v-model.number="participantType">
-                                <option value="1">Player One</option>
-                                <option value="2">Player Two</option>
-                                <option value="3">Game Master</option>
-                                <option value="4">Observer</option>
+                                <option :value="option.type" v-for="option in participantTypeOptions">{{ option.name }}</option>
                             </select>
                         </div>
                     </div>
@@ -70,7 +67,7 @@
                         <thead>
                             <tr>
                                 <th>
-                                    <div class="content arsenal-content" @click="selectItem('cancel')" v-if="selectedItem">
+                                    <div class="content arsenal-content" @click="selectItem('cancel')" v-if="selectedItem === 'destroyer' || selectedItem === 'cruiser' || selectedItem === 'carrier' || selectedItem === 'outpost' || selectedItem === 'submarine'">
                                     Cancel
                                     <span v-if="selectedItem === 'destroyer' || selectedItem ==='cruiser' || selectedItem === 'carrier'"><img style="height: 18px; margin-left: 10px; position: absolute;" src="/static/build/img/rclickicon.bdeff0be54bbcfcb0db2759d7a8d1aee.png" alt=""> </span>
                                     </div>
@@ -151,7 +148,7 @@
                     <thead>
                         <tr>
                             <th>
-                                <div class="content arsenal-content" @click="selectItem('cancel')" v-if="selectedItem">
+                                <div class="content arsenal-content" @click="selectItem('cancel')" v-if="selectedItem === 'salvo' || selectedItem === 'radar' || selectedItem === 'missile' || selectedItem === 'torpedo'">
                                 Cancel
                                 <span v-if="selectedItem === 'salvo'"><img style="height: 18px; margin-left: 10px; position: absolute;" src="/static/build/img/rclickicon.bdeff0be54bbcfcb0db2759d7a8d1aee.png" alt=""> </span>
                                 </div>
@@ -164,37 +161,61 @@
                         <tr>
                             <td class="arsenal-content" @click="selectItem('salvo')" :class="{'highlight': selectedItem === 'salvo'}">Salvo</td>
                             <td>
-                                <span v-if="participantType === 1 || participantType > 2">  {{ arsenals.playerOne.salvo }} </span>
+                                <span v-if="participantType === 1 || participantType > 2">
+                                    <span v-if="arsenals.playerOne.lock"><i class="lock icon"></i> </span>
+                                    <span v-else>{{ arsenals.playerOne.salvo }} </span>
+                                </span>
                             </td>
                             <td>
-                                <span v-if="participantType === 2 || participantType > 2">  {{ arsenals.playerTwo.salvo }} </span>
+                                <span v-if="participantType === 2 || participantType > 2">
+                                    <span v-if="arsenals.playerTwo.lock"><i class="lock icon"></i> </span>
+                                    <span v-else>{{ arsenals.playerTwo.salvo }} </span>
+                                </span>
                             </td>
                         </tr>
                         <tr>
                             <td class="arsenal-content" @click="selectItem('torpedo')" :class="{'highlight': selectedItem === 'torpedo'}">Torpedo</td>
                             <td>
-                                <span v-if="participantType === 1 || participantType > 2">  {{ arsenals.playerOne.torpedo }} </span>
+                                <span v-if="participantType === 1 || participantType > 2">
+                                    <span v-if="arsenals.playerOne.lock"><i class="lock icon"></i> </span>
+                                    <span v-else>{{ arsenals.playerOne.torpedo }} </span>
+                                </span>
                             </td>
                             <td>
-                                <span v-if="participantType === 2 || participantType > 2">  {{ arsenals.playerTwo.torpedo }} </span>
+                                <span v-if="participantType === 2 || participantType > 2">
+                                    <span v-if="arsenals.playerTwo.lock"><i class="lock icon"></i> </span>
+                                    <span v-else>{{ arsenals.playerTwo.torpedo }} </span>
+                                </span>
                             </td>
                         </tr>
                         <tr>
                             <td class="arsenal-content" @click="selectItem('missile')" :class="{'highlight': selectedItem === 'missile'}">Missile</td>
                             <td>
-                                <span v-if="participantType === 1 || participantType > 2">  {{ arsenals.playerOne.missile }} </span>
+                                <span v-if="participantType === 1 || participantType > 2">
+                                    <span v-if="arsenals.playerOne.lock"><i class="lock icon"></i> </span>
+                                    <span v-else>{{ arsenals.playerOne.missile }} </span>
+                                </span>
                             </td>
                             <td>
-                                <span v-if="participantType === 2 || participantType > 2">  {{ arsenals.playerTwo.missile }} </span>
+                                <span v-if="participantType === 2 || participantType > 2">
+                                    <span v-if="arsenals.playerTwo.lock"><i class="lock icon"></i> </span>
+                                    <span v-else>{{ arsenals.playerTwo.missile }} </span>
+                                </span>
                             </td>
                         </tr>
                         <tr>
                             <td class="arsenal-content" @click="selectItem('radar')" :class="{'highlight': selectedItem === 'radar'}">Radar</td>
                             <td>
-                                <span v-if="participantType === 1 || participantType > 2">  {{ arsenals.playerOne.radar }} </span>
+                                <span v-if="participantType === 1 || participantType > 2">
+                                    <span v-if="arsenals.playerOne.lock"><i class="lock icon"></i> </span>
+                                    <span v-else>{{ arsenals.playerOne.radar }} </span>
+                                </span>
                             </td>
                             <td>
-                                <span v-if="participantType === 2 || participantType > 2">  {{ arsenals.playerTwo.radar }} </span>
+                                <span v-if="participantType === 2 || participantType > 2">
+                                    <span v-if="arsenals.playerTwo.lock"><i class="lock icon"></i> </span>
+                                    <span v-else>{{ arsenals.playerTwo.radar }} </span>
+                                </span>
                             </td>
                         </tr>
                     </tbody>
@@ -215,6 +236,14 @@
                     <i class="crosshairs icon"></i>
                     Verify
                 </button>
+                <div class="gc-history">
+                    <div class="gc-item" v-for="item in gameCodeHistory">
+                        {{ item.name }}
+                        <span :class="[item.result]" :data-tooltip="gcHistoryMsg[item.result]">
+                            <i :class="[item.icon]"></i>
+                        </span>
+                    </div>
+                </div>
             </div>
             <div class="board-message" v-if="boardMessage">
                 {{ boardMessage }}
@@ -240,20 +269,35 @@ export default {
             hoverColor: '#fff',
             boardMessage: '',
             gameTimer: new Timer(),
+            participantTypeOptions: [
+                {type: 1, name: 'Player One'},
+                {type: 2, name: 'Player Two'},
+                {type: 3, name: 'Game Master'},
+                {type: 4, name: 'Observer'}
+            ],
             selectedTeamName: '',
+            gcHistoryMsg: {
+                'gc-wrong-warn': 'Wrong code... be careful',
+                'gc-wrong': 'Wrong code, you helped the enemy!',
+                'gc-success': 'Correct code',
+                'gc-dupe': 'You already entered this correct code'
+            },
             playerOneName: '',
             playerTwoName: '',
+            gameCodeHistory: [],
             gameCodes: [],
             opponentName: '',
             rotate: false,
             arsenals: {
                 playerOne: {
+                    lock: false,
                     salvo: 0,
                     torpedo: 0,
                     missile: 0,
                     radar: 0
                 },
                 playerTwo: {
+                    lock: false,
                     salvo: 0,
                     torpedo: 0,
                     missile: 0,
@@ -314,8 +358,13 @@ export default {
             'changeCurrentRoom',
             'connectSocket',
             'pushMessage',
-            'setParticipantType'
+            'setParticipantType',
+            'setChatRecipients'
         ]),
+        arsenalLock (participantType) {
+            let player = participantType === 1 ? 'playerOne' : 'playerTwo'
+            return this.arsenals[player].lock
+        },
         boardClick (event) {
             var vm = this
             let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
@@ -444,10 +493,13 @@ export default {
             vm.changeClientName([vm.selectedTeamName])
             vm.gameBoard.gameState = 'setup'
             vm.setParticipantType([vm.participantType])
+            vm.updatePlayerNames()
             socket.emit('player-name', {
                 p1: vm.participantType === 1 ? vm.clientName : false,
                 p2: vm.participantType === 2 ? vm.clientName : false,
-                gameId: vm.currentRoom
+                gameId: vm.currentRoom,
+                clientName: vm.clientName,
+                participantType: vm.participantType
             })
         },
         verifyGameCode () {
@@ -480,6 +532,7 @@ export default {
                     item: item,
                     participantType: vm.participantType
                 })
+                vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-success', icon: 'checkmark icon'})
                 vm.boardMessage =`One ${item} added to your arsenal!`
                 setTimeout(function () {
                     vm.boardMessage = ''
@@ -488,6 +541,7 @@ export default {
             } else if (_.includes(vm.gameBoard.usedGameCodes, vm.gameCode)) {
                 // game code is valid but has already been used
                 vm.boardMessage = 'You already used that game code!'
+                vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-dupe', icon: 'circle thin icon'})
                 setTimeout(function () {
                     vm.boardMessage = ''
                 }, 2000)
@@ -496,6 +550,7 @@ export default {
                 if (vm.gameBoard.badGuesses < 2) {
                     vm.boardMessage = 'Bad Code! Incorrect codes will give the enemy free arsenal items...'
                     vm.gameBoard.badGuesses += 1
+                    vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-wrong-warn', icon: 'warning sign icon'})
                     setTimeout(function () {
                         vm.boardMessage = ''
                     }, 2000)
@@ -503,6 +558,7 @@ export default {
                     let freeItem = vm.gameBoard.badGuesses % 2 ? 'torpedo' : 'missile'
                     vm.boardMessage = `Bad Code! You just gave the enemy a free ${freeItem}`
                     vm.gameBoard.badGuesses += 1
+                    vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-wrong', icon: 'close icon'})
                     socket.emit('bad-game-code', {
                         gameId: vm.currentRoom,
                         player: player === 'playerOne' ? 'playerTwo' : 'playerOne',
@@ -516,7 +572,39 @@ export default {
             }
             vm.gameCode = ''
         },
+        updatePlayerNames () {
+            var vm = this
+            axios.get(`/api/v1/game/${vm.currentRoom}`).then(function (response) {
+                response.data.participants.map(function (each) {
+                    if (each.game_role == 1) {
+                        vm.playerOneName = each.name
+                        vm.participantTypeOptions = _.remove(vm.participantTypeOptions, function(o) {
+                            return o.type !== 1
+                        })
+                    } else if (each.game_role == 2) {
+                        vm.playerTwoName = each.name
+                        vm.participantTypeOptions = _.remove(vm.participantTypeOptions, function(o) {
+                            return o.type !== 2
+                        })
+                    } else if (each.game_role == 3) {
+                        vm.participantTypeOptions = _.remove(vm.participantTypeOptions, function(o) {
+                            return o.type !== 3
+                        })
+                    }
+                })
+            })
+        },
         selectItem (item) {
+            var vm = this
+            let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
+            if (this.arsenals[player].lock) {
+                this.selectedItem = false
+                this.hoverColor = '#fff'
+                this.hoverShape = 'one',
+                this.selectedItem = false
+                this.hoverGrid = []
+                return
+            }
             if (item == 'cancel') {
                 this.selectedItem = false
                 this.hoverColor = '#fff'
@@ -554,6 +642,7 @@ export default {
     },
     mounted () {
         var vm = this
+        vm.updatePlayerNames()
         axios.get(`/api/v1/game/${vm.currentRoom}`).then(function (response) {
             vm.gameCodes = response.data.game_codes
         })
@@ -581,11 +670,13 @@ export default {
             }
             if (data.id == vm.currentRoom) {
                 vm.gameTimer.start(duration)
+                vm.setChatRecipients([[vm.participantType, 3, 4]])
             }
         })
         socket.on('pause-timer', function (data) {
             if (data.id == vm.currentRoom) {
                 vm.gameTimer.pause()
+                vm.setChatRecipients([[1, 2, 3, 4]])
             }
         })
         socket.on('start-game', function (data) {
@@ -598,6 +689,25 @@ export default {
         socket.on('end-game', function (data) {
             if (data.id == vm.currentRoom) {
                 vm.gameBoard.gameState = 'ended'
+            }
+        })
+        socket.on('arsenal-change', function (data) {
+            if (data.gameId == vm.currentRoom) {
+                let player = data.participantType == 1 ? 'playerOne' : 'playerTwo'
+                if (data.modify == 'subtract') {
+                    if (data.item == 'lock') {
+                        vm.arsenals[player][data.item] = false
+                    } else if (vm.arsenals[player][data.item] > 0) {
+                        vm.arsenals[player][data.item] -= 1
+                    }
+
+                } else if (data.modify == 'add') {
+                    if (data.item == 'lock') {
+                        vm.arsenals[player][data.item] = true
+                    } else {
+                        vm.arsenals[player][data.item] += 1
+                    }
+                }
             }
         })
         socket.on('restart-game', function (data) {
@@ -617,6 +727,7 @@ export default {
         })
         socket.on('player-name', function (data) {
             if (data.gameId == vm.currentRoom) {
+                vm.updatePlayerNames()
                 if (data.p1) {
                     vm.playerOneName = data.p1
                 }
@@ -636,11 +747,8 @@ export default {
             }
         })
         socket.on('join-game', function (data) {
-            socket.emit('player-name', {
-                p1: vm.participantType === 1 ? vm.clientName : false,
-                p2: vm.participantType === 2 ? vm.clientName : false,
-                gameId: vm.currentRoom
-            })
+            // redownload all players
+            vm.updatePlayerNames()
         })
         vm.gameTimer.on('tick', function (duration) {
             var milliseconds = parseInt((duration%1000)/100)
@@ -695,14 +803,14 @@ export default {
     position: absolute;
     height: 42px;
     width: 42px;
-    background: url(/static/build/img/x.cd8fb4e86a7c5b75f287ddc343c94555.png);
+    background: url(/static/build/img/x.e7680db3e4b66837463c2d7208e70294.png);
 }
 
 .miss {
     position: absolute;
     height: 42px;
     width: 42px;
-    background: url(/static/build/img/o.db70076e0610804d2447412c85acffb0.png);
+    background: url(/static/build/img/o.ce7403ad50b153c281f3493a9d14d06d.png);
 }
 .participant-two-mask {
     position: absolute;
@@ -856,5 +964,30 @@ export default {
     color: #e22722;
     left: 570px;
     height: 55px;
+}
+.gc-history {
+    position: absolute;
+    top: 100px;
+    color: #636363;
+    font-size: 25px;
+    line-height: 30px;
+    height: 200px;
+    overflow-y: scroll;
+    width: 200px;
+}
+.gc-success {
+    color: #4adb28;
+}
+
+.gc-dupe {
+    color: #708278;
+}
+
+.gc-wrong-warn {
+    color: #a1a515;
+}
+
+.gc-wrong {
+   color: #db2828;
 }
 </style>

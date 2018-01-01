@@ -157,6 +157,7 @@ class GameParticipant(SurrogatePK, Model):
     __tablename__ = 'game_participants'
     game_role = Column(db.String(255))
     game = relationship('Game', backref='game_participants')
+    name = Column(db.String(255))
     game_id = reference_col('games', nullable=True)
     user = relationship('User', backref='game_participant', uselist=False)  # One to one relationship
     user_id = reference_col('users', nullable=True)
@@ -170,6 +171,14 @@ class GameParticipant(SurrogatePK, Model):
     def __repr__(self):
         """Represent instance as a unique string."""
         return '<GameParticipant({id})>'.format(id=self.id)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'game_role': self.game_role
+        }
 
 
 class ComputerPlayer(SurrogatePK, Model):

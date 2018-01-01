@@ -18,7 +18,8 @@ def games(game_id=None):
             game_codes = [x.serialize for x in game.game_code_set.game_codes]
             return jsonify({
                 'game': game.serialize,
-                'game_codes': game_codes
+                'game_codes': game_codes,
+                'participants': [x.serialize for x in game.game_participants]
             })
         games = Game.query.all()
         return jsonify({

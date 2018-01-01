@@ -18,7 +18,19 @@
             <button class="ui red tiny inverted button" name="button" @click="endGame()">End Game</button>
             <button class="ui red tiny inverted button" name="button" @click="restartGame()">Restart Game</button>
             <button class="ui red tiny inverted button" name="button" @click="addOneMinute()">Add Minute</button>
-
+            <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[1, 3, 4]])">p1 chat</button>
+            <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[2, 3, 4]])">p2 chat</button>
+            <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[1, 2, 3, 4]])">all chat</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'torpedo')">+ Torpedo</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'torpedo')">- Torpedo</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'missile')">+ Missile</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'missile')">- Missile</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'salvo')">+ Salvo</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'salvo')">- Salvo</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'radar')">+ Radar</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'radar')">- Radar</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'lock')">+ Lock</button>
+            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'lock')">- Lock</button>
         </div>
     </div>
 </template>
@@ -26,6 +38,7 @@
 <script>
 import {socket} from '../socket.js'
 import {mapGetters, mapActions} from 'vuex'
+import _ from 'lodash'
 
 export default {
     data () {
@@ -34,6 +47,19 @@ export default {
         }
     },
     methods: {
+        changeArsenal (modify, item) {
+            var vm = this
+            vm.chatRecipients.map(function (each) {
+                if (each < 3) {
+                    socket.emit('arsenal-change', {
+                        gameId: vm.currentRoom,
+                        modify: modify,
+                        item: item,
+                        participantType: each
+                    })
+                }
+            })
+        },
         startGame () {
             socket.emit('start-game', {
                 id: this.currentRoom
@@ -68,12 +94,14 @@ export default {
             socket.emit('chat', {
                 message: this.clientMessage,
                 name: this.clientName,
-                room: this.currentRoom
+                room: this.currentRoom,
+                recipients: this.chatRecipients
             })
             this.clientMessage = ''
         },
         ...mapActions([
-            'pushMessage'
+            'pushMessage',
+            'setChatRecipients'
         ])
     },
     updated () {
@@ -84,13 +112,21 @@ export default {
             'currentRoom',
             'clientName',
             'chatMessages',
-            'participantType'
+            'participantType',
+            'chatRecipients'
         ])
     },
     mounted () {
         var vm = this
         socket.on('chat', function(msg) {
-            vm.pushMessage([msg])
+            console.log(msg)
+            if (msg.recipients) {
+                if (_.includes(msg.recipients, vm.participantType)) {
+                    vm.pushMessage([msg])
+                }
+            } else {
+                vm.pushMessage([msg])
+            }
         })
     }
 }
