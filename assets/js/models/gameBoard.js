@@ -89,6 +89,7 @@ export function GameBoard (GameBoardData) {
         value: function (hit, hitSquare) {
             let that = this
             let player = hit.i > 8 ? 'playerTwo' : 'playerOne'
+            let shipDestroyed = false
             that.originalShips[player][hitSquare.type].map(function (ship) {
                 ship.map(function (shipPiece, index) {
                     if (shipPiece.i === hitSquare.i && shipPiece.j === hitSquare.j) {
@@ -98,9 +99,11 @@ export function GameBoard (GameBoardData) {
             })
             that.originalShips[player][hitSquare.type].map(function (ship, index) {
                 if (ship.length === 0) {
+                    shipDestroyed = true
                     that.originalShips[player][hitSquare.type].splice(index, 1)
                 }
             })
+            return shipDestroyed
         }
     })
 
@@ -109,12 +112,16 @@ export function GameBoard (GameBoardData) {
             let that = this
             let playerOneTotal = 0
             let playerTwoTotal = 0
-            that.originalShips.playerOne.map(function (shipType) {
-                playerOneTotal += shipType.length
-            })
-            that.originalShips.playerTwo.map(function (shipType) {
-                playerTwoTotal += shipType.length
-            })
+            playerOneTotal += that.originalShips.playerOne.destroyer.length
+            playerOneTotal += that.originalShips.playerOne.carrier.length
+            playerOneTotal += that.originalShips.playerOne.cruiser.length
+            playerOneTotal += that.originalShips.playerOne.submarine.length
+            playerOneTotal += that.originalShips.playerOne.outpost.length
+            playerTwoTotal += that.originalShips.playerTwo.destroyer.length
+            playerTwoTotal += that.originalShips.playerTwo.carrier.length
+            playerTwoTotal += that.originalShips.playerTwo.cruiser.length
+            playerTwoTotal += that.originalShips.playerTwo.submarine.length
+            playerTwoTotal += that.originalShips.playerTwo.outpost.length
             if (playerOneTotal === 0 && playerTwoTotal > 0) {
                 return 'playerTwo'
             } else if (playerOneTotal > 0 && playerTwoTotal === 0) {
@@ -130,12 +137,31 @@ export function GameBoard (GameBoardData) {
     Object.defineProperty(this, 'checkShipDestroy', {
         value: function (oldShips, gameSide) {
             let shipDestroyed = false
-            this.originalShips[gameSide].map(function (shipType) {
-                if (shipType.length < oldShips[gameSide][shipType]) {
-                    shipDestroyed = true
-                }
-            })
-            return shipDestroyed
+            let type = ''
+            if (oldShips[gameSide].destroyer > this.originalShips[gameSide].destroyer) {
+                shipDestroyed = true
+                type = 'destroyer'
+            }
+            if (oldShips[gameSide].cruiser > this.originalShips[gameSide].cruiser) {
+                shipDestroyed = true
+                type = 'cruiser'
+            }
+            if (oldShips[gameSide].carrier > this.originalShips[gameSide].carrier) {
+                shipDestroyed = true
+                type = 'carrier'
+            }
+            if (oldShips[gameSide].submarine > this.originalShips[gameSide].submarine) {
+                shipDestroyed = true
+                type = 'submarine'
+            }
+            if (oldShips[gameSide].outpost > this.originalShips[gameSide].outpost) {
+                shipDestroyed = true
+                type = 'outpost'
+            }
+            return {
+                shipDestroyed: shipDestroyed,
+                type: type
+            }
         }
     })
 

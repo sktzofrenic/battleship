@@ -500,7 +500,6 @@ export default {
                         gameId: vm.currentRoom,
                         participantType: vm.participantType
                     }
-                    vm.gameBoard.boardObjects.push(ship)
                     fullShip.push(ship)
                 })
                 socket.emit('ship-placed', {
@@ -674,9 +673,7 @@ export default {
         socket.on('ship-placed', function (data) {
             if (data.gameId == vm.currentRoom) {
                 data.fullShip.map(function (ship) {
-                    if (data.participantType != vm.participantType) {
-                        vm.gameBoard.boardObjects.push(ship)
-                    }
+                    vm.gameBoard.boardObjects.push(ship)
                 })
                 let gameSide = data.fullShip[0].i > 8 ? 'playerTwo' : 'playerOne'
                 vm.gameBoard.originalShips[gameSide][data.fullShip[0].type].push(data.fullShip)
@@ -688,10 +685,21 @@ export default {
                 if (data.hit.spliceIndex) {
                     vm.gameBoard.boardObjects.splice(data.hit.spliceIndex, 1)
                 }
-                vm.gameBoard.removeShipPiece(data.hit, data.hitSquare)
+                let shipDestroyed = vm.gameBoard.removeShipPiece(data.hit, data.hitSquare)
                 vm.gameBoard.hitMissGrid.push(data.hit)
-                vm.ships = vm.gameBoard.shipCount()
                 vm.arsenals[data.hit.player][data.hit.item] -= 1
+
+                vm.ships = vm.gameBoard.shipCount()
+
+                if (shipDestroyed) {
+                    vm.$refs.ship_destroy_sound.play()
+                    console.log(shipDestroyed)
+                }
+
+                if (vm.gameBoard.checkVictoryConditions()) {
+                    vm.gameBoard.gameState = 'ended'
+                    console.log(vm.gameBoard.checkVictoryConditions())
+                }
             }
         })
         socket.on('weapon-miss', function (data) {
