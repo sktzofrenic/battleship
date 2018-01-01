@@ -94,6 +94,7 @@ def weapon_miss(json):
 
 @socketio.on('weapon-hit')
 def weapon_hit(json):
+    print('weapon hit json {}'.format(str(json)))
     emit('weapon-hit', json, broadcast=True)
 
 

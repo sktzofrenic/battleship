@@ -122,11 +122,11 @@ export function GameBoard (GameBoardData) {
             playerTwoTotal += that.originalShips.playerTwo.cruiser.length
             playerTwoTotal += that.originalShips.playerTwo.submarine.length
             playerTwoTotal += that.originalShips.playerTwo.outpost.length
-            if (playerOneTotal === 0 && playerTwoTotal > 0) {
+            if (playerOneTotal === 0 && playerTwoTotal > 0 && that.gameState === 'playing') {
                 return 'playerTwo'
-            } else if (playerOneTotal > 0 && playerTwoTotal === 0) {
+            } else if (playerOneTotal > 0 && playerTwoTotal === 0 && that.gameState === 'playing') {
                 return 'playerOne'
-            } else if (playerOneTotal === playerTwoTotal && playerTwoTotal === 0) {
+            } else if (playerOneTotal === playerTwoTotal && playerTwoTotal === 0 && that.gameState === 'playing') {
                 return 'tie'
             } else {
                 return false

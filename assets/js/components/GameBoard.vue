@@ -1,5 +1,15 @@
 <template lang="html">
     <div class="game-board-wrapper">
+        <div class="ui dimmer" v-if="gameBoard.gameState === 'ended'">
+            <div class="content">
+                <div class="center">
+                    <h2 class="ui inverted icon header">
+                        <i class="heart icon"></i>
+                        Game Ended!
+                    </h2>
+                </div>
+            </div>
+        </div>
         <div class="game-board-wrapper" v-if="gameBoard.gameState === 'waiting'">
             <div class="ui inverted segment">
                 <div class="ui inverted form">
@@ -449,6 +459,7 @@ export default {
                             shipType: hitSquare.type,
                             participantType: vm.participantType,
                             spliceIndex: weaponHit,
+                            shotCounter: index,
                             item: vm.selectedItem,
                             player: player
                         }
@@ -470,6 +481,7 @@ export default {
                             gameId: vm.currentRoom,
                             participantType: vm.participantType,
                             item: vm.selectedItem,
+                            shotCounter: index,
                             player: player
                         }
                         socket.emit('weapon-miss', miss)
@@ -682,30 +694,42 @@ export default {
         })
         socket.on('weapon-hit', function (data) {
             if (data.hit.gameId == vm.currentRoom) {
-                if (data.hit.spliceIndex) {
-                    vm.gameBoard.boardObjects.splice(data.hit.spliceIndex, 1)
-                }
+                vm.gameBoard.boardObjects.splice(_.findIndex(vm.gameBoard.boardObjects, function (o) {
+                    return o.i === data.hit.i && o.j === data.hit.j
+                }), 1)
                 let shipDestroyed = vm.gameBoard.removeShipPiece(data.hit, data.hitSquare)
                 vm.gameBoard.hitMissGrid.push(data.hit)
-                vm.arsenals[data.hit.player][data.hit.item] -= 1
+                if (data.hit.item === 'salvo') {
+                    if (data.hit.shotCounter === 2) {
+                        vm.arsenals[data.hit.player][data.hit.item] -= 1
+                    }
+                } else {
+                    vm.arsenals[data.hit.player][data.hit.item] -= 1
+                }
 
                 vm.ships = vm.gameBoard.shipCount()
 
                 if (shipDestroyed) {
                     vm.$refs.ship_destroy_sound.play()
-                    console.log(shipDestroyed)
                 }
 
                 if (vm.gameBoard.checkVictoryConditions()) {
-                    vm.gameBoard.gameState = 'ended'
-                    console.log(vm.gameBoard.checkVictoryConditions())
+                    socket.emit('end-game', {
+                        id: vm.currentRoom
+                    })
                 }
             }
         })
         socket.on('weapon-miss', function (data) {
             if (data.gameId == vm.currentRoom) {
                 vm.gameBoard.hitMissGrid.push(data)
-                vm.arsenals[data.player][data.item] -= 1
+                if (data.item === 'salvo') {
+                    if (data.shotCounter === 2) {
+                        vm.arsenals[data.player][data.item] -= 1
+                    }
+                } else {
+                    vm.arsenals[data.player][data.item] -= 1
+                }
             }
         })
         socket.on('start-timer', function (data) {
@@ -806,6 +830,11 @@ export default {
             minutes = (minutes < 10) ? "0" + minutes : minutes
             seconds = (seconds < 10) ? "0" + seconds : seconds
             vm.gameBoard.timerDisplay = minutes + ":" + seconds
+        })
+        vm.gameTimer.on('end', function () {
+            socket.emit('end-game', {
+                id: vm.currentRoom
+            })
         })
     }
 }
