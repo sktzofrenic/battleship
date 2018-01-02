@@ -1,15 +1,5 @@
 <template lang="html">
     <div class="game-board-wrapper">
-        <div class="ui dimmer" v-if="gameBoard.gameState === 'ended'">
-            <div class="content">
-                <div class="center">
-                    <h2 class="ui inverted icon header">
-                        <i class="heart icon"></i>
-                        Game Ended!
-                    </h2>
-                </div>
-            </div>
-        </div>
         <div class="game-board-wrapper" v-if="gameBoard.gameState === 'waiting'">
             <div class="ui inverted segment">
                 <div class="ui inverted form">
@@ -231,6 +221,12 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="ship-timer highlight" v-if="arsenals[longParticipantType].lock && isOffsite">
+                    {{ gameBoard.arsenalTimerDisplay }} <br>
+                    <span style="color:#fff; margin-bottom: 10px; font-size:11px">
+                        Arsenal Locked!
+                    </span>
+                </div>
                 <i @click="toggleBackgroundMusic()" class="music icon" :class="{'active-bg-music': !backgroundMusicStatus}"></i>
                 <audio ref="backgroundMusic" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/menu_music.mp3" type="audio/mpeg" loop></audio>
                 <audio ref="win_sound" style="display:none;" id="win_sound" src="/static/build/audio/win_jingle.wav" type="audio/mpeg"></audio>
@@ -285,7 +281,9 @@ export default {
             hoverColor: '#fff',
             boardMessage: '',
             gameTimer: new Timer(),
+            arsenalLockTimer: new Timer(),
             backgroundMusicStatus: true,
+            isOffsite: false,
             participantTypeOptions: [
                 {type: 1, name: 'Player One'},
                 {type: 2, name: 'Player Two'},
@@ -364,6 +362,10 @@ export default {
             })
             return final
         },
+        longParticipantType: function () {
+            var vm = this
+            return vm.participantType === 1 ? 'playerOne' : 'playerTwo'
+        },
         ...mapGetters([
             'currentRoom',
             'clientName'
@@ -376,7 +378,8 @@ export default {
             'connectSocket',
             'pushMessage',
             'setParticipantType',
-            'setChatRecipients'
+            'setChatRecipients',
+            'changeView'
         ]),
         toggleBackgroundMusic () {
             var vm = this
@@ -681,6 +684,7 @@ export default {
         vm.updatePlayerNames()
         axios.get(`/api/v1/game/${vm.currentRoom}`).then(function (response) {
             vm.gameCodes = response.data.game_codes
+            vm.isOffsite = response.data.game.is_offsite
         })
         socket.on('ship-placed', function (data) {
             if (data.gameId == vm.currentRoom) {
@@ -694,11 +698,17 @@ export default {
         })
         socket.on('weapon-hit', function (data) {
             if (data.hit.gameId == vm.currentRoom) {
+                // Remove the board object for the ship in question
                 vm.gameBoard.boardObjects.splice(_.findIndex(vm.gameBoard.boardObjects, function (o) {
                     return o.i === data.hit.i && o.j === data.hit.j
                 }), 1)
+                // Remove the ship piece from our ship counter to help us
+                // calculate when a ship is destroyed. We need to do this because
+                // it is the easiest way to count partial ships that have been hit.
                 let shipDestroyed = vm.gameBoard.removeShipPiece(data.hit, data.hitSquare)
+                // Add the hit marker to the map
                 vm.gameBoard.hitMissGrid.push(data.hit)
+                // Only subtract a salvo from an arsenal when we've used the last of three shtos
                 if (data.hit.item === 'salvo') {
                     if (data.hit.shotCounter === 2) {
                         vm.arsenals[data.hit.player][data.hit.item] -= 1
@@ -706,14 +716,31 @@ export default {
                 } else {
                     vm.arsenals[data.hit.player][data.hit.item] -= 1
                 }
-
+                // update the ship count on the board
                 vm.ships = vm.gameBoard.shipCount()
 
-                if (shipDestroyed) {
+                // Check to see if a ship was destroyed and lock the arsenal if appropriate
+                if (shipDestroyed.result) {
                     vm.$refs.ship_destroy_sound.play()
+                    if (_.includes(['destroyer', 'cruiser', 'carrier'], shipDestroyed.ship)) {
+                        let player = data.hit.i < 9 ? 'playerOne' : 'playerTwo'
+                        vm.arsenals[player].lock = true
+                        if (player === vm.longParticipantType) {
+                            vm.boardMessage = 'Your arsenal is locked!'
+                            if (vm.isOffsite) {
+                                vm.arsenalLockTimer.start(10)
+                            }
+                            setTimeout(function () {
+                                vm.boardMessage = ''
+                            }, 2000)
+                        }
+                    }
                 }
-
+                // After every weapon hit, we need to check to see if the victory
+                // conditions have been acheived.
                 if (vm.gameBoard.checkVictoryConditions()) {
+                    console.log('victory conditions', vm.gameBoard.checkVictoryConditions())
+                    vm.$refs.win_sound.play()
                     socket.emit('end-game', {
                         id: vm.currentRoom
                     })
@@ -759,6 +786,7 @@ export default {
         socket.on('end-game', function (data) {
             if (data.id == vm.currentRoom) {
                 vm.gameBoard.gameState = 'ended'
+                vm.changeView(['ended'])
             }
         })
         socket.on('arsenal-change', function (data) {
@@ -835,6 +863,21 @@ export default {
             socket.emit('end-game', {
                 id: vm.currentRoom
             })
+        })
+        vm.arsenalLockTimer.on('tick', function (duration) {
+            var milliseconds = parseInt((duration%1000)/100)
+                , seconds = parseInt(Math.round(duration/1000)%60)
+                , minutes = parseInt((duration/(1000*60))%60)
+                , hours = parseInt((duration/(1000*60*60))%24);
+
+            hours = (hours < 10) ? "0" + hours : hours
+            minutes = (minutes < 10) ? "0" + minutes : minutes
+            seconds = (seconds < 10) ? "0" + seconds : seconds
+            vm.gameBoard.arsenalTimerDisplay = minutes + ":" + seconds
+        })
+        vm.arsenalLockTimer.on('end', function () {
+            let player = vm.participantType == 1 ? 'playerOne' : 'playerTwo'
+            vm.arsenals[player].lock = false
         })
     }
 }

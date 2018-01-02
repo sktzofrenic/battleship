@@ -1,5 +1,15 @@
 <template>
     <div id="app">
+        <div class="ui active dimmer" v-if="currentView === 'ended'">
+            <div class="content">
+                <div class="center">
+                    <h2 class="ui inverted icon header">
+                        <i class="heart icon"></i>
+                        Game Ended!
+                    </h2>
+                </div>
+            </div>
+        </div>
         <div class="ui huge inverted borderless fixed fluid menu game-header">
             <img src="static/build/img/houston_logo_white.88f80812ce0c22e9475b88b716203ef3.png" class="game-header-image">
             <div class="right menu">
@@ -12,7 +22,7 @@
             <div class="row">
                 <div class="column" id="content">
                     <GameList v-if="currentView === 'main'"></GameList>
-                    <GameBoard v-if="currentView === 'game'"></GameBoard>
+                    <GameBoard v-if="currentView === 'game' || currentView === 'ended'"></GameBoard>
                 </div>
                 <div class="column" id="sidebar">
                     <Chat></Chat>

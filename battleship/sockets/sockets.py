@@ -50,6 +50,7 @@ def arsenal_change(json):
 
 @socketio.on('end-game')
 def end_game(json):
+    print('received chat json: ' + str(json))
     emit('end-game', json, broadcast=True)
 
 

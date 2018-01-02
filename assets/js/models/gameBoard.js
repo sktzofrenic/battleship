@@ -18,6 +18,7 @@ export function GameBoard (GameBoardData) {
         outpost: 2
     }
     this.timerDisplay = GameBoardData['timerDisplay'] || '05:00'
+    this.arsenalTimerDisplay = GameBoardData['timerDisplay'] || '02:00'
     this.gameState = GameBoardData['gameState'] || 'waiting' // waiting, setup, playing, ended
     this.boardObjects = GameBoardData['boardObjects'] || []
     this.usedGameCodes = GameBoardData['usedGameCodes'] || []
@@ -89,7 +90,10 @@ export function GameBoard (GameBoardData) {
         value: function (hit, hitSquare) {
             let that = this
             let player = hit.i > 8 ? 'playerTwo' : 'playerOne'
-            let shipDestroyed = false
+            let shipDestroyed = {
+                result: false,
+                ship: ''
+            }
             that.originalShips[player][hitSquare.type].map(function (ship) {
                 ship.map(function (shipPiece, index) {
                     if (shipPiece.i === hitSquare.i && shipPiece.j === hitSquare.j) {
@@ -99,7 +103,8 @@ export function GameBoard (GameBoardData) {
             })
             that.originalShips[player][hitSquare.type].map(function (ship, index) {
                 if (ship.length === 0) {
-                    shipDestroyed = true
+                    shipDestroyed.result= true
+                    shipDestroyed.ship = hitSquare.type
                     that.originalShips[player][hitSquare.type].splice(index, 1)
                 }
             })
@@ -126,41 +131,10 @@ export function GameBoard (GameBoardData) {
                 return 'playerTwo'
             } else if (playerOneTotal > 0 && playerTwoTotal === 0 && that.gameState === 'playing') {
                 return 'playerOne'
-            } else if (playerOneTotal === playerTwoTotal && playerTwoTotal === 0 && that.gameState === 'playing') {
+            } else if (playerOneTotal === 0 && playerTwoTotal === 0 && that.gameState === 'playing') {
                 return 'tie'
             } else {
                 return false
-            }
-        }
-    })
-
-    Object.defineProperty(this, 'checkShipDestroy', {
-        value: function (oldShips, gameSide) {
-            let shipDestroyed = false
-            let type = ''
-            if (oldShips[gameSide].destroyer > this.originalShips[gameSide].destroyer) {
-                shipDestroyed = true
-                type = 'destroyer'
-            }
-            if (oldShips[gameSide].cruiser > this.originalShips[gameSide].cruiser) {
-                shipDestroyed = true
-                type = 'cruiser'
-            }
-            if (oldShips[gameSide].carrier > this.originalShips[gameSide].carrier) {
-                shipDestroyed = true
-                type = 'carrier'
-            }
-            if (oldShips[gameSide].submarine > this.originalShips[gameSide].submarine) {
-                shipDestroyed = true
-                type = 'submarine'
-            }
-            if (oldShips[gameSide].outpost > this.originalShips[gameSide].outpost) {
-                shipDestroyed = true
-                type = 'outpost'
-            }
-            return {
-                shipDestroyed: shipDestroyed,
-                type: type
             }
         }
     })
