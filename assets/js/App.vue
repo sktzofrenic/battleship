@@ -5,7 +5,8 @@
                 <div class="center">
                     <h2 class="ui inverted icon header">
                         <i class="heart icon"></i>
-                        Game Ended!
+                        Game Ended! <br><br>
+                        <button class="ui inverted button" @click="changeView(['main'])" name="button"> Exit </button>
                     </h2>
                 </div>
             </div>
@@ -55,6 +56,7 @@ export default {
         ...mapActions([
             'changeClientName',
             'changeCurrentRoom',
+            'changeView',
             'connectSocket',
             'pushMessage'
         ]),

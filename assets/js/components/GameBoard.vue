@@ -847,6 +847,8 @@ export default {
         socket.on('end-game', function (data) {
             if (data.id == vm.currentRoom) {
                 vm.gameBoard.gameState = 'ended'
+                vm.gameTimer.stop()
+                vm.gameBoard.timerDisplay = 0
                 vm.changeView(['ended'])
             }
         })

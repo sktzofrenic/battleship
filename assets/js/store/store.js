@@ -36,6 +36,9 @@ export const store = new Vuex.Store({
         },
         chatRecipients: state => {
             return state.chatRecipients
+        },
+        chatNumber: state => {
+            return state.chatRecipients.reduce((a, b) => a + b, 0)
         }
     },
     mutations: {

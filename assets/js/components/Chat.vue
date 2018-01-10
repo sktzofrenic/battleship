@@ -10,28 +10,113 @@
             <input type="text" placeholder="Chat..." v-model="clientMessage" @keyup.enter="send">
             <i class="comment outline icon"></i>
         </div>
+        <div class="chat-controls" v-if="participantType === 1">
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 8}" name="button" @click="setChatRecipients([[1, 3, 4]])">GM Chat</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}"  name="button" @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
+        </div>
+        <div class="chat-controls" v-if="participantType === 2">
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 9}"  name="button" @click="setChatRecipients([[2, 3, 4]])">GM Chat</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}" name="button" @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
+        </div>
+        <div class="chat-controls" v-if="participantType === 3">
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 8}"  @click="setChatRecipients([[1, 3, 4]])">P1</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 9}"  @click="setChatRecipients([[2, 3, 4]])">P2</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}"  @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
+        </div>
+        <div class="ui divider">
+
+        </div>
         <div class="gm-controls" v-if="participantType === 3">
             <h2 class="chat-title">GM Controls</h2>
-            <button class="ui red tiny inverted button" name="button" @click="startGame()">Start Game</button>
-            <button class="ui red tiny inverted button" name="button" @click="startTimer()">Start Timer</button>
-            <button class="ui red tiny inverted button" name="button" @click="pauseTimer()">Pause Timer</button>
-            <button class="ui red tiny inverted button" name="button" @click="endGame()">End Game</button>
-            <button class="ui red tiny inverted button" name="button" @click="restartGame()">Restart Game</button>
-            <button class="ui red tiny inverted button" name="button" @click="addOneMinute()">Add Minute</button>
-            <button class="ui red tiny inverted button" name="button" @click="subtractOneMinute()">Subtract Minute</button>
-            <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[1, 3, 4]])">p1 chat</button>
-            <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[2, 3, 4]])">p2 chat</button>
-            <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[1, 2, 3, 4]])">all chat</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'torpedo')">+ Torpedo</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'torpedo')">- Torpedo</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'missile')">+ Missile</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'missile')">- Missile</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'salvo')">+ Salvo</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'salvo')">- Salvo</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'radar')">+ Radar</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'radar')">- Radar</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('add', 'lock')">+ Lock</button>
-            <button class="ui red tiny inverted button" name="button" @click="changeArsenal('subtract', 'lock')">- Lock</button>
+            <div class="ui inverted red vertical menu gm-control-menu">
+                <a class="item">
+                    <h4 class="ui header">Game Timer</h4>
+                    <button class="ui black tiny inverted icon button" name="button" @click="startTimer()">
+                        <i class="play icon"></i>
+                    </button>
+                    <button class="ui black tiny inverted icon button" name="button" @click="pauseTimer()">
+                        <i class="pause icon"></i>
+                    </button>
+                    <button class="ui black tiny inverted button smaller-padding" name="button" @click="addOneMinute()">+1 Min</button>
+                    <button class="ui black tiny inverted button smaller-padding" name="button" @click="subtractOneMinute()">-1 Min </button>
+                </a>
+                <a class="item">
+                    <button class="ui black tiny inverted button smaller-padding" name="button" @click="startGame()">Start Game</button>
+                    <button class="ui black tiny inverted button smaller-padding" name="button" @click="endGame()">End Game</button>
+                    <button class="ui black tiny inverted button smaller-padding" name="button" @click="restartGame()">Restart</button>
+                </a>
+                <a class="item" style="padding: 0px !important;">
+                    <table class="ui compact inverted red table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('subtract', 'torpedo')">
+                                        <i class="minus icon"></i>
+                                    </button>
+                                </td>
+                                <td>Torpedo</td>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('add', 'torpedo')">
+                                        <i class="add icon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('subtract', 'missile')">
+                                        <i class="minus icon"></i>
+                                    </button>
+                                </td>
+                                <td>Missile</td>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('add', 'missile')">
+                                        <i class="add icon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('subtract', 'salvo')">
+                                        <i class="minus icon"></i>
+                                    </button>
+                                </td>
+                                <td>Salvo</td>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('add', 'salvo')">
+                                        <i class="add icon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('subtract', 'radar')">
+                                        <i class="minus icon"></i>
+                                    </button>
+                                </td>
+                                <td>Radar</td>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('add', 'radar')">
+                                        <i class="add icon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('subtract', 'lock')">
+                                        <i class="minus icon"></i>
+                                    </button>
+                                </td>
+                                <td>Arsenal Lock</td>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('add', 'lock')">
+                                        <i class="add icon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </a>
+            </div>
         </div>
     </div>
 </template>
@@ -101,7 +186,8 @@ export default {
                 message: this.clientMessage,
                 name: this.clientName,
                 room: this.currentRoom,
-                recipients: this.chatRecipients
+                recipients: this.chatRecipients,
+                chatNumber: this.chatNumber
             })
             this.clientMessage = ''
         },
@@ -119,15 +205,18 @@ export default {
             'clientName',
             'chatMessages',
             'participantType',
-            'chatRecipients'
+            'chatRecipients',
+            'chatNumber'
         ])
     },
     mounted () {
         var vm = this
         socket.on('chat', function(msg) {
-            console.log(msg)
             if (msg.recipients) {
                 if (_.includes(msg.recipients, vm.participantType)) {
+                    if (msg.chatNumber < 10) {
+                        msg.name = `${msg.name} (whispers)`
+                    }
                     vm.pushMessage([msg])
                 }
             } else {
@@ -143,17 +232,31 @@ export default {
     display: block;
     font-family: 'Inconsolata', monospace;
 }
+.smaller-padding {
+    padding: .78571429em .5em !important;
+}
+.gm-control-menu {
+    margin: 0px !important;
+    width: 100% !important;
+}
+.chat-controls {
+    margin-top: 10px;
+    text-align: center;
+    margin-bottom: -3px;
+}
 .chat-input {
     width: 100%;
     padding-left: 10px;
-    padding-right: 10px !important;
+    padding-right: 10px!important;
     border-top: 1px solid #464646;
-    padding-top: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #423e3e;
 }
 .chat-title {
     font-family: 'Black Ops One', cursive;
     color: #e22722;
-    padding-top: 10px;
+    padding-top: -1px;
     padding-left: 10px;
     padding-bottom: 0px;
     margin-bottom: 0px;
