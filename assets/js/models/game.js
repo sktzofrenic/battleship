@@ -18,7 +18,7 @@ export function Game (gameData) {
     this.isOffsite = gameData['isOffsite'] || gameData['is_offsite'] || false
     this.gameCodeSetID = gameData['gameCodeSetID'] || gameData['game_code_set_id'] || undefined
     this.status = gameData['status'] || 'Waiting for players...'
-    this.players = gameData['players'] || []
+    this.players = gameData['players'] || gameData['participants'] || []
 
     Object.defineProperty(this, 'gameName', {
         get: function () {

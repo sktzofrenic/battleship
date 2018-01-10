@@ -22,6 +22,7 @@
                         </div>
                     </div>
                 <div class="ui submit button" @click="submitGameSettings()">Submit</div>
+                <div class="ui submit button" @click="changeView(['main'])">Back</div>
               </div>
             </div>
         </div>
@@ -137,7 +138,7 @@
                     </table>
                 </div>
                 <div class="ship-timer highlight">
-                    {{ gameBoard.timerDisplay }} <br>
+                    {{ timerDisplay }} <br>
                     <span style="color:#fff; margin-bottom: 10px; font-size:11px" v-if="gameBoard.gameState === 'setup'">
                         Place your ships!
                     </span>
@@ -227,7 +228,10 @@
                         Arsenal Locked!
                     </span>
                 </div>
-                <i @click="toggleBackgroundMusic()" class="music icon" :class="{'active-bg-music': !backgroundMusicStatus}"></i>
+                <div class="arsenal-content highlight" @click="leaveGame()" style="position: absolute; top: -20px;">
+                    Exit
+                </div>
+                <i @click="toggleBackgroundMusic()" class="music icon" :class="{'active-bg-music': backgroundMusicStatus}"></i>
                 <audio ref="backgroundMusic" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/menu_music.mp3" type="audio/mpeg" loop></audio>
                 <audio ref="win_sound" style="display:none;" id="win_sound" src="/static/build/audio/win_jingle.wav" type="audio/mpeg"></audio>
                 <audio ref="lose_sound" style="display:none;" id="lose_sound" src="/static/build/audio/lose_jingle.wav" type="audio/mpeg"></audio>
@@ -366,6 +370,18 @@ export default {
             var vm = this
             return vm.participantType === 1 ? 'playerOne' : 'playerTwo'
         },
+        timerDisplay: function () {
+            var vm = this
+            var milliseconds = parseInt((vm.gameBoard.timerDisplay%1000)/100)
+                , seconds = parseInt(Math.round(vm.gameBoard.timerDisplay/1000)%60)
+                , minutes = parseInt((vm.gameBoard.timerDisplay/(1000*60))%60)
+                , hours = parseInt((vm.gameBoard.timerDisplay/(1000*60*60))%24);
+
+            hours = (hours < 10) ? "0" + hours : hours
+            minutes = (minutes < 10) ? "0" + minutes : minutes
+            seconds = (seconds < 10) ? "0" + seconds : seconds
+            return hours + ':' + minutes + ":" + seconds
+        },
         ...mapGetters([
             'currentRoom',
             'clientName'
@@ -384,11 +400,11 @@ export default {
         toggleBackgroundMusic () {
             var vm = this
             if (this.backgroundMusicStatus) {
-                vm.$refs.backgroundMusic.play()
-            } else {
                 vm.$refs.backgroundMusic.pause()
+            } else {
+                vm.$refs.backgroundMusic.play()
             }
-            this.backgroundMusicStatus = ! this.backgroundMusicStatus
+            this.backgroundMusicStatus = !this.backgroundMusicStatus
         },
         arsenalLock (participantType) {
             let player = participantType === 1 ? 'playerOne' : 'playerTwo'
@@ -413,7 +429,11 @@ export default {
                 setTimeout(function () {
                     vm.boardMessage = ''
                 }, 5000)
-                vm.arsenals[player][vm.selectedItem] -= 1
+                socket.emit('radar-used', {
+                    gameId: vm.currentRoom,
+                    player: player,
+                    selectedItem: vm.selectedItem
+                })
                 return
             }
             if (_.includes(['salvo', 'missile', 'torpedo'], vm.selectedItem)) {
@@ -423,6 +443,12 @@ export default {
                 vm.hoverGrid.map(function (square, index) {
                     // Check to see if salvo falls off the grid
                     if (square.j === 0 || square.i === 0 || square.i > 16 || square.j > 8){
+                        return
+                    }
+                    // Dont allow players to shoot on themselves
+                    if (vm.participantType === 1 && square.i < 9) {
+                        return
+                    } else if (vm.participantType === 2 && square.i > 8) {
                         return
                     }
                     // Check to see if the weapon hit an object on the gameboard
@@ -527,13 +553,30 @@ export default {
         clearHoverGrid () {
             this.hoverGrid = []
         },
+        leaveGame () {
+            var vm = this
+            socket.emit('leave-game', {
+                gameId: vm.currentRoom,
+                clientName: vm.clientName,
+                participantType: vm.participantType
+            })
+            vm.changeView(['main'])
+        },
         submitGameSettings () {
             var vm = this
             vm.changeClientName([vm.selectedTeamName])
             vm.gameBoard.gameState = 'setup'
             vm.setParticipantType([vm.participantType])
             vm.updatePlayerNames()
+            vm.updateGameActions()
             socket.emit('player-name', {
+                p1: vm.participantType === 1 ? vm.clientName : false,
+                p2: vm.participantType === 2 ? vm.clientName : false,
+                gameId: vm.currentRoom,
+                clientName: vm.clientName,
+                participantType: vm.participantType
+            })
+            socket.emit('join-game', {
                 p1: vm.participantType === 1 ? vm.clientName : false,
                 p2: vm.participantType === 2 ? vm.clientName : false,
                 gameId: vm.currentRoom,
@@ -633,6 +676,21 @@ export default {
                 })
             })
         },
+        updateGameActions () {
+            var vm = this
+            axios.get(`/api/v1/game/${vm.currentRoom}`).then(function (response) {
+                response.data.actions.map(function (each) {
+                    // do something with list of game actions
+                    if (each.action.name === 'Ship Placed') {
+                        var player = each.action.data[0].i > 8 ? 'playerTwo' : 'playerOne'
+                        vm.gameBoard.originalShips[player][each.action.data[0].type].push(each.action.data)
+                        each.action.data.map(function (shipTile) {
+                            vm.gameBoard.boardObjects.push(shipTile)
+                        })
+                    }
+                })
+            })
+        },
         selectItem (item) {
             var vm = this
             let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
@@ -710,10 +768,10 @@ export default {
                 vm.gameBoard.hitMissGrid.push(data.hit)
                 // Only subtract a salvo from an arsenal when we've used the last of three shtos
                 if (data.hit.item === 'salvo') {
-                    if (data.hit.shotCounter === 2) {
+                    if (data.hit.shotCounter === 2 && data.hit.participantType < 3) {
                         vm.arsenals[data.hit.player][data.hit.item] -= 1
                     }
-                } else {
+                } else if (data.hit.participantType < 3) {
                     vm.arsenals[data.hit.player][data.hit.item] -= 1
                 }
                 // update the ship count on the board
@@ -751,23 +809,23 @@ export default {
             if (data.gameId == vm.currentRoom) {
                 vm.gameBoard.hitMissGrid.push(data)
                 if (data.item === 'salvo') {
-                    if (data.shotCounter === 2) {
+                    if (data.shotCounter === 2 && data.participantType < 3) {
                         vm.arsenals[data.player][data.item] -= 1
                     }
-                } else {
+                } else if (data.participantType < 3) {
                     vm.arsenals[data.player][data.item] -= 1
                 }
             }
         })
         socket.on('start-timer', function (data) {
-            if (vm.gameBoard.gameState === 'setup') {
-                var duration = 5*60
-            } else {
-                var duration = 60*60
-            }
             if (data.id == vm.currentRoom) {
-                vm.gameTimer.start(duration)
+                vm.gameTimer.start(vm.gameBoard.timerDisplay / 1000)
                 vm.setChatRecipients([[vm.participantType, 3, 4]])
+            }
+        })
+        socket.on('radar-used', function (data) {
+            if (data.gameId == vm.currentRoom) {
+                vm.arsenals[data.player][data.selectedItem] -= 1
             }
         })
         socket.on('pause-timer', function (data) {
@@ -780,8 +838,11 @@ export default {
             if (data.id == vm.currentRoom) {
                 vm.gameBoard.gameState = 'playing'
                 vm.gameTimer.stop()
-                vm.gameBoard.timerDisplay = '60:00'
+                vm.gameBoard.timerDisplay = 60*60*1000
             }
+        })
+        socket.on('leave-game', function (data) {
+            vm.updatePlayerNames()
         })
         socket.on('end-game', function (data) {
             if (data.id == vm.currentRoom) {
@@ -812,15 +873,27 @@ export default {
             if (data.id == vm.currentRoom) {
                 vm.gameBoard = new GameBoard()
                 vm.gameTimer.stop()
-                vm.gameBoard.timerDisplay = '05:00'
+                vm.gameBoard.timerDisplay = 5*60*1000
                 vm.selectedItem = false
                 vm.ships = vm.gameBoard.shipCount()
             }
         })
         socket.on('add-minute', function (data) {
             if (data.id == vm.currentRoom) {
-                vm.gameTimer.pause()
-                vm.gameTimer.start((vm.gameTimer.getDuration() / 1000) + 60)
+                if (vm.gameTimer.getStatus() === 'started') {
+                    vm.gameTimer.stop()
+                    vm.gameTimer.start((vm.gameBoard.timerDisplay / 1000) + 60)
+                }
+                vm.gameBoard.timerDisplay += 60*1000
+            }
+        })
+        socket.on('subtract-minute', function (data) {
+            if (data.id == vm.currentRoom) {
+                if (vm.gameTimer.getStatus() === 'started') {
+                    vm.gameTimer.stop()
+                    vm.gameTimer.start((vm.gameBoard.timerDisplay / 1000) - 60)
+                }
+                vm.gameBoard.timerDisplay -= 60*1000
             }
         })
         socket.on('player-name', function (data) {
@@ -849,20 +922,15 @@ export default {
             vm.updatePlayerNames()
         })
         vm.gameTimer.on('tick', function (duration) {
-            var milliseconds = parseInt((duration%1000)/100)
-                , seconds = parseInt(Math.round(duration/1000)%60)
-                , minutes = parseInt((duration/(1000*60))%60)
-                , hours = parseInt((duration/(1000*60*60))%24);
-
-            hours = (hours < 10) ? "0" + hours : hours
-            minutes = (minutes < 10) ? "0" + minutes : minutes
-            seconds = (seconds < 10) ? "0" + seconds : seconds
-            vm.gameBoard.timerDisplay = minutes + ":" + seconds
+            vm.gameBoard.timerDisplay = duration
         })
         vm.gameTimer.on('end', function () {
-            socket.emit('end-game', {
-                id: vm.currentRoom
-            })
+            vm.gameBoard.timerDisplay = 0
+            if (vm.gameBoard.gameState === 'playing') {
+                socket.emit('end-game', {
+                    id: vm.currentRoom
+                })
+            }
         })
         vm.arsenalLockTimer.on('tick', function (duration) {
             var milliseconds = parseInt((duration%1000)/100)
@@ -889,10 +957,10 @@ export default {
     font-size: 30px;
     color: red;
     height: 80px;
-    width: 450px;
+    width: 550px;
     text-align: center;
     top: 430px;
-    left: 450px;
+    left: 500px;
     line-height: 40px;
 }
 .game-code input {

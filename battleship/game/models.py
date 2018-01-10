@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 
 from battleship.database import Column, Model, SurrogatePK, db, reference_col, relationship
 
@@ -32,7 +33,8 @@ class Game(SurrogatePK, Model):
             'started_on': self.started_on.isoformat() if self.started_on else None,
             'ended_on': self.ended_on.isoformat() if self.ended_on else None,
             'created_on': self.created_on.isoformat() if self.created_on else None,
-            'is_offsite': self.is_offsite
+            'is_offsite': self.is_offsite,
+            'participants': [x.serialize for x in self.game_participants]
         }
 
 
@@ -92,6 +94,7 @@ class Action(SurrogatePK, Model):
     __tablename__ = 'actions'
     name = Column(db.String(255))
     type_ = Column(db.String(255))
+    data = Column(db.Text)
 
     def __init__(self, **kwargs):
         """Create instance."""
@@ -106,7 +109,8 @@ class Action(SurrogatePK, Model):
         return {
             'id': self.id,
             'name': self.name,
-            'type_': self.type_
+            'type_': self.type_,
+            'data': json.loads(self.data) if self.data else None
         }
 
 
@@ -129,6 +133,14 @@ class GameEvent(SurrogatePK, Model):
     def __repr__(self):
         """Represent instance as a unique string."""
         return '<GameEvent({id})>'.format(id=self.id)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'created_on': self.created_on.isoformat() if self.created_on else None,
+            'action': self.action.serialize
+        }
 
 
 class ChatEvent(SurrogatePK, Model):

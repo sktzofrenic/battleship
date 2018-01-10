@@ -18,6 +18,7 @@
             <button class="ui red tiny inverted button" name="button" @click="endGame()">End Game</button>
             <button class="ui red tiny inverted button" name="button" @click="restartGame()">Restart Game</button>
             <button class="ui red tiny inverted button" name="button" @click="addOneMinute()">Add Minute</button>
+            <button class="ui red tiny inverted button" name="button" @click="subtractOneMinute()">Subtract Minute</button>
             <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[1, 3, 4]])">p1 chat</button>
             <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[2, 3, 4]])">p2 chat</button>
             <button class="ui red tiny inverted button" name="button" @click="setChatRecipients([[1, 2, 3, 4]])">all chat</button>
@@ -67,6 +68,11 @@ export default {
         },
         addOneMinute () {
             socket.emit('add-minute', {
+                id: this.currentRoom
+            })
+        },
+        subtractOneMinute () {
+            socket.emit('subtract-minute', {
                 id: this.currentRoom
             })
         },

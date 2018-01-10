@@ -17,7 +17,7 @@ export function GameBoard (GameBoardData) {
         submarine: 2,
         outpost: 2
     }
-    this.timerDisplay = GameBoardData['timerDisplay'] || '05:00'
+    this.timerDisplay = GameBoardData['timerDisplay'] || 5*60*1000 // seconds on clock
     this.arsenalTimerDisplay = GameBoardData['timerDisplay'] || '02:00'
     this.gameState = GameBoardData['gameState'] || 'waiting' // waiting, setup, playing, ended
     this.boardObjects = GameBoardData['boardObjects'] || []

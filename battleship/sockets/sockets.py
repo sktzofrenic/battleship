@@ -4,8 +4,9 @@ from flask import jsonify
 from battleship.extensions import socketio
 from battleship.utils import authenticated_only
 from flask_socketio import send, emit, join_room, leave_room
-from battleship.game.models import Game, GameParticipant
+from battleship.game.models import Game, GameParticipant, GameEvent, Action
 import datetime as dt
+import json as js
 
 
 @socketio.on('message')
@@ -23,7 +24,14 @@ def join_room(json):
 @socketio.on('join-game')
 def join_game(json):
     print('received join json: ' + str(json))
-    emit('join-game', {'id': json['id']}, broadcast=True)
+    emit('join-game', json, broadcast=True)
+
+
+@socketio.on('leave-game')
+def leave_game(json):
+    participant = GameParticipant.query.filter_by(game_id=json['gameId'], name=json['clientName'], game_role=str(json['participantType'])).first()
+    participant.delete()
+    emit('leave-game', json, broadcast=True)
 
 
 @socketio.on('chat')
@@ -35,6 +43,11 @@ def chat(json):
 @socketio.on('ship-placed')
 def ship_placed(json):
     print('received ship placed json: ' + str(json))
+    game = Game.query.filter_by(id=json['gameId']).first()
+    action = Action.create(name='Ship Placed', type_='7', data=js.dumps(json['fullShip']))
+    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
+                                  game_id=game.id,
+                                  action_id=action.id)
     emit('ship-placed', json, broadcast=True)
 
 
@@ -62,6 +75,11 @@ def start_game(json):
 @socketio.on('add-minute')
 def add_minute(json):
     emit('add-minute', json, broadcast=True)
+
+
+@socketio.on('subtract-minute')
+def subtract_minute(json):
+    emit('subtract-minute', json, broadcast=True)
 
 
 @socketio.on('start-timer')
@@ -97,6 +115,11 @@ def weapon_miss(json):
 def weapon_hit(json):
     print('weapon hit json {}'.format(str(json)))
     emit('weapon-hit', json, broadcast=True)
+
+
+@socketio.on('radar-used')
+def radar_used(json):
+    emit('radar-used', json, broadcast=True)
 
 
 @socketio.on('successful-game-code')

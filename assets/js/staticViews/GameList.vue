@@ -25,7 +25,7 @@
                     <td>{{ game.players.length }}</td>
                     <td><span v-if="game.isOffsite">Offsite</span></td>
                     <td>
-                        <span v-if="game.players.length === 0">
+                        <span>
                             <button @click="endGame(index)" type="button" class="ui red button">End</button>
                         </span>
                         <span v-if="game.status === 'Waiting for players...'">
@@ -150,8 +150,8 @@ export default {
     },
     mounted () {
         var vm = this
-        this.getGameCodeSets()
-        this.getGames()
+        vm.getGameCodeSets()
+        vm.getGames()
         socket.on('create-game', function (data) {
             var newGame = new Game(data.game)
             vm.games.push(newGame)
@@ -161,15 +161,11 @@ export default {
                 return game.id != data.id
             })
         })
+        socket.on('leave-game', function (data) {
+            vm.getGames()
+        })
         socket.on('join-game', function (data) {
-            vm.games = vm.games.map(function (game) {
-                if (game.id === data.id) {
-                    game.players.push({
-
-                    })
-                }
-                return game
-            })
+            vm.getGames()
         })
     }
 }
