@@ -1,10 +1,56 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
+from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, send_file
 from flask_login import login_required, current_user
 from battleship.user.models import User
 from battleship.game.models import GameCode, GameCodeSet, Action, Game
 from battleship.utils import try_parsing_date
+import csv
+import io
 
 blueprint = Blueprint('api', __name__, url_prefix='/api/v1', static_folder='../static')
+
+
+@blueprint.route('/chatstats', methods=['GET', 'POST'])
+@blueprint.route('/chatstats/<int:game_id>', methods=['GET', 'DELETE', 'PUT'])
+@login_required
+def chat_stats(game_id=None):
+    if request.method == 'GET':
+        game = Game.query.filter_by(id=game_id).first()
+        writer_file = io.StringIO()
+        writer = csv.writer(writer_file, dialect='excel', delimiter=',')
+        writer.writerow([u'Game ID', u'Event ID', u'Sender', u'Message', u'Channel', u'1=player One, 2=player two, 3=GM, 4=Obs'])
+        for event in game.chat_events:
+            writer.writerow([game.id, event.id, event.sender, event.message, event.channel])
+
+        # Creating the byteIO object from the StringIO Object
+        mem = io.BytesIO()
+        mem.write(writer_file.getvalue().encode('utf-8'))
+        # seeking was necessary. Python 3.5.2, Flask 0.12.2
+        mem.seek(0)
+        return send_file(mem,
+                         attachment_filename="game_chat_{}.csv".format(game.id),
+                         as_attachment=True)
+
+
+@blueprint.route('/eventstats', methods=['GET', 'POST'])
+@blueprint.route('/eventstats/<int:game_id>', methods=['GET', 'DELETE', 'PUT'])
+@login_required
+def event_stats(game_id=None):
+    if request.method == 'GET':
+        game = Game.query.filter_by(id=game_id).first()
+        writer_file = io.StringIO()
+        writer = csv.writer(writer_file, dialect='excel', delimiter=',')
+        writer.writerow([u'Game ID', u'Event ID', u'Name', u'Type', u'Data'])
+        for event in game.game_events:
+            writer.writerow([game.id, event.id, event.action.name, event.action.type_, event.action.data])
+
+        # Creating the byteIO object from the StringIO Object
+        mem = io.BytesIO()
+        mem.write(writer_file.getvalue().encode('utf-8'))
+        # seeking was necessary. Python 3.5.2, Flask 0.12.2
+        mem.seek(0)
+        return send_file(mem,
+                         attachment_filename="game_events_{}.csv".format(game.id),
+                         as_attachment=True)
 
 
 @blueprint.route('/games', methods=['GET', 'POST'])
@@ -13,6 +59,7 @@ blueprint = Blueprint('api', __name__, url_prefix='/api/v1', static_folder='../s
 def games(game_id=None):
     request_data = request.get_json()
     if request.method == 'GET':
+        page = request.args.get('page', 1, type=int)
         if game_id:
             game = Game.query.filter_by(id=game_id).first()
             game_codes = [x.serialize for x in game.game_code_set.game_codes]
@@ -22,9 +69,10 @@ def games(game_id=None):
                 'participants': [x.serialize for x in game.game_participants],
                 'actions': [x.serialize for x in game.game_events]
             })
-        games = Game.query.all()
+        games = Game.query.order_by(Game.ended_on.desc()).paginate(page, 14, False)
         return jsonify({
-            'games': [x.serialize for x in games if not x.ended_on]
+            'active_games': [x.serialize for x in games.items if not x.ended_on],
+            'all_games': [x.serialize for x in games.items]
         })
     if request.method == 'POST':
         game = Game.create(name=request_data.get('name', None),

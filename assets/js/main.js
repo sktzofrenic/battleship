@@ -16,6 +16,7 @@ import { store } from './store/store'
 import GameCode from './staticViews/GameCode.vue'
 import Users from './staticViews/Users.vue'
 import GameList from './staticViews/GameList.vue'
+import Analytics from './staticViews/Analytics.vue'
 
 // Vue.config.delimiters = ['[[', ']]']
 Vue.use(Vuex)
@@ -47,4 +48,11 @@ new Vue({
   template: '<GameList/>',
   render: h => h(GameList),
   components: { GameList }
+})
+
+new Vue({
+  el: '#analytics',
+  template: '<Analytics/>',
+  render: h => h(Analytics),
+  components: { Analytics }
 })

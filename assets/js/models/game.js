@@ -13,13 +13,16 @@ export function Game (gameData) {
 
     this.id = gameData['id'] || undefined
     this.name = gameData['name'] || ''
-    this.startedOn = gameData['startedOn'] || gameData['started_on'] || moment()
-    this.createdOn = gameData['createdOn'] || gameData['created_on'] || moment()
+    this.startedOn = gameData['startedOn'] || gameData['started_on'] || moment.utc()
+    this.createdOn = gameData['createdOn'] || gameData['created_on'] || moment.utc()
+    this.endedOn = gameData['endedOn'] || gameData['ended_on'] || null
     this.isOffsite = gameData['isOffsite'] || gameData['is_offsite'] || false
     this.arsenalTimeout = gameData['arsenalTimeout'] || gameData['arsenalTimeout'] || 0
     this.gameCodeSetID = gameData['gameCodeSetID'] || gameData['game_code_set_id'] || undefined
     this.status = gameData['status'] || 'Waiting for players...'
     this.players = gameData['players'] || gameData['participants'] || []
+    this.chatStatsUrl = `/api/v1/chatstats/${this.id}`
+    this.eventStatsUrl = `/api/v1/eventstats/${this.id}`
 
     Object.defineProperty(this, 'gameName', {
         get: function () {

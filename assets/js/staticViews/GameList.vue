@@ -145,7 +145,7 @@ export default {
         getGames () {
             var vm = this
             axios.get('/api/v1/games').then(function (response) {
-                vm.games = response.data.games.map(function (game) {
+                vm.games = response.data.active_games.map(function (game) {
                     return new Game(game)
                 })
             })
