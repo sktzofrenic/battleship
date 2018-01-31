@@ -367,7 +367,6 @@ export default {
         },
         timerDisplay: function () {
             var vm = this
-            console.log(vm.gameBoard.timerDisplay)
             var milliseconds = Math.round(vm.gameBoard.timerDisplay)
                 , seconds = Math.floor(Math.round(vm.gameBoard.timerDisplay / 1000) % 60)
                 , minutes = Math.floor((vm.gameBoard.timerDisplay / (1000 * 60)) % 60)
@@ -560,6 +559,7 @@ export default {
                 participantType: vm.participantType
             })
             vm.changeView(['main'])
+            vm.setParticipantType([4])
         },
         submitGameSettings () {
             var vm = this
@@ -803,7 +803,6 @@ export default {
                 // After every weapon hit, we need to check to see if the victory
                 // conditions have been acheived.
                 if (vm.gameBoard.checkVictoryConditions()) {
-                    console.log('victory conditions', vm.gameBoard.checkVictoryConditions())
                     vm.$refs.win_sound.play()
                     socket.emit('end-game', {
                         id: vm.currentRoom
@@ -855,6 +854,7 @@ export default {
                 vm.gameBoard.gameState = 'ended'
                 vm.gameTimer.stop()
                 vm.gameBoard.timerDisplay = 0
+                vm.setParticipantType([4])
                 setTimeout(function () {
                     Object.assign(vm.$data, vm.$options.data())
                 }, 7000)

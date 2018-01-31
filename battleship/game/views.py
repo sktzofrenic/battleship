@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 from battleship.user.models import User
-from battleship.game.models import GameCodeSet
+from battleship.game.models import GameCodeSet, Game
 
 blueprint = Blueprint('dashboard', __name__, url_prefix='/dashboard', static_folder='../static')
 
@@ -9,7 +9,9 @@ blueprint = Blueprint('dashboard', __name__, url_prefix='/dashboard', static_fol
 @blueprint.route('/')
 @login_required
 def home():
-    return render_template('admin/base.html')
+    games = Game.query.all()
+    games = [x.serialize for x in games if not x.ended_on]
+    return render_template('admin/base.html', games=games)
 
 
 @blueprint.route('/users')
@@ -30,3 +32,9 @@ def game_codes():
 @login_required
 def battleship_game():
     return render_template('app.html')
+
+
+@blueprint.route('/analytics')
+@login_required
+def analytics():
+    return render_template('admin/analytics.html')

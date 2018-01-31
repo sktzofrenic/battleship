@@ -12,7 +12,7 @@ export const store = new Vuex.Store({
         currentView: 'main',
         chatMessages: [],
         currentGame: new Game(),
-        participantType: 0,
+        participantType: 4,
         chatRecipients: [1, 2, 3, 4]
     },
     getters: {

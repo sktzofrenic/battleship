@@ -31,7 +31,7 @@
                 <div class="ui secondary vertical fluid menu">
                     <a href="{{url_for('dashboard.home')}}"  class="{% if request.url_rule.endpoint  == 'dashboard.home'%} active {% endif%}item">Games</a>
                     <a href="{{url_for('dashboard.game_codes')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.game_codes'%} active {% endif%}">Game Codes</a>
-                    <a class="item">Analytics</a>
+                    <a href="{{url_for('dashboard.analytics')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.analytics'%} active {% endif%}">Analytics</a>
                     <div class="ui hidden divider"></div>
                     <a href="{{url_for('dashboard.users')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.users'%} active {% endif%}">Users</a>
                 </div>
@@ -45,8 +45,30 @@
                     </div>
                     <div class="ui divider"></div>
                     {% block content %}
-                    <div id="gameList">
-
+                    {% if games | length > 0%}
+                    <table class="ui single line striped selectable table">
+                        <thead>
+                            <tr>
+                                <th> #</th>
+                                <th>Name</th>
+                                <th>Players</th>
+                                <th>Offsite</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for game in games %}
+                            <tr>
+                                <td>{{ game.id }}</td>
+                                <td>{{ game.name }}</td>
+                                <td>{{ game.players | length }}</td>
+                                <td>{% if game.is_offsite %}Offsite {% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+                    <div class="row">
+                        <a target="_blank" href="/dashboard/battleship" type="button" class="ui inverted secondary button" name="button">Launch App</a>
                     </div>
                     {% endblock %}
                 </div>

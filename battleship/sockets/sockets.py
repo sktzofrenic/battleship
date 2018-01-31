@@ -4,7 +4,7 @@ from flask import jsonify
 from battleship.extensions import socketio
 from battleship.utils import authenticated_only
 from flask_socketio import send, emit, join_room, leave_room
-from battleship.game.models import Game, GameParticipant, GameEvent, Action
+from battleship.game.models import Game, GameParticipant, GameEvent, Action, ChatEvent
 import datetime as dt
 import json as js
 
@@ -24,6 +24,19 @@ def join_room(json):
 @socketio.on('join-game')
 def join_game(json):
     print('received join json: ' + str(json))
+    game = Game.query.filter_by(id=json['gameId']).first()
+    if json['p1']:
+        player_number = 'Player 1'
+    elif json['p2']:
+        player_number = 'Player 2'
+    elif json['participantType'] == 3:
+        player_number = 'Game Master'
+    elif json['participantType'] == 4:
+        player_number = 'Observer'
+    action = Action.create(name='Player Joined Game', type_='9', data=js.dumps('{} joined as {}'.format(json['clientName'], player_number)))
+    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
+                                  game_id=game.id,
+                                  action_id=action.id)
     emit('join-game', json, broadcast=True)
 
 
@@ -31,12 +44,20 @@ def join_game(json):
 def leave_game(json):
     participant = GameParticipant.query.filter_by(game_id=json['gameId'], name=json['clientName'], game_role=str(json['participantType'])).first()
     participant.delete()
+
+    game = Game.query.filter_by(id=json['gameId']).first()
+    action = Action.create(name='Player Left Game', type_='8', data=js.dumps(json['clientName'] + ' left the game'))
+    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
+                                  game_id=game.id,
+                                  action_id=action.id)
     emit('leave-game', json, broadcast=True)
 
 
 @socketio.on('chat')
 def chat(json):
     print('received chat json: ' + str(json))
+    if json['room'] != 'public':
+        chat_event = ChatEvent.create(game_id=json['room'], sender=json['name'], message=json['message'], channel=json['recipients'])
     emit('chat', json, broadcast=True)
 
 
@@ -53,17 +74,36 @@ def ship_placed(json):
 
 @socketio.on('reset-ships')
 def reset_ships(json):
+    game = Game.query.filter_by(id=json['id']).first()
+    action = Action.create(name='Ship Placed', type_='10', data=js.dumps('GM Reset Ship Placements'))
+    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
+                                  game_id=game.id,
+                                  action_id=action.id)
     emit('reset-ships', json, broadcast=True)
 
 
 @socketio.on('arsenal-change')
 def arsenal_change(json):
+    game = Game.query.filter_by(id=json['gameId']).first()
+    if json['modify'] == 'add':
+        action_name = 'GM manually added arsenal {} for player {}'.format(json['item'], json['participantType'])
+    if json['modify'] == 'subtract':
+        action_name = 'GM manually subtracted an arsenal {} for player {}'.format(json['item'], json['participantType'])
+    action = Action.create(name=action_name, type_='11', data=js.dumps(json))
+    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
+                                  game_id=game.id,
+                                  action_id=action.id)
     emit('arsenal-change', json, broadcast=True)
 
 
 @socketio.on('end-game')
 def end_game(json):
     print('received chat json: ' + str(json))
+    game = Game.query.filter_by(id=json['id']).first()
+    action = Action.create(name='Game ended', type_='12', data=js.dumps(json))
+    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
+                                  game_id=game.id,
+                                  action_id=action.id)
     emit('end-game', json, broadcast=True)
 
 

@@ -65,7 +65,7 @@
                             </div>
                             <div class="field" v-if="isOffsite">
                                 <input v-model.number="arsenalTimeout" type="text" name="newsletter">
-                                <label>Arsenal Timeout</label>
+                                <label>Arsenal Timeout in Seconds</label>
                             </div>
                         </form>
                     </div>
