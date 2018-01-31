@@ -611,6 +611,7 @@ export default {
                     gameId: vm.currentRoom,
                     player: player,
                     item: item,
+                    gameCode: vm.gameCode,
                     participantType: vm.participantType
                 })
                 vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-success', icon: 'checkmark icon'})
@@ -644,6 +645,7 @@ export default {
                         gameId: vm.currentRoom,
                         player: player === 'playerOne' ? 'playerTwo' : 'playerOne',
                         item: freeItem,
+                        gameCode: vm.gameCode,
                         participantType: vm.participantType
                     })
                     setTimeout(function () {
