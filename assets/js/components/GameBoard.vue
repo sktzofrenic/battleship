@@ -15,12 +15,6 @@
                             </select>
                         </div>
                     </div>
-                    <div class="inline field">
-                        <div class="ui checkbox">
-                            <input type="checkbox" tabindex="0" class="hidden">
-                            <label>I agree to have fun and follow the rules.</label>
-                        </div>
-                    </div>
                 <div class="ui submit button" @click="submitGameSettings()">Submit</div>
                 <div class="ui submit button" @click="changeView(['main'])">Back</div>
               </div>
@@ -305,6 +299,7 @@ export default {
             playerTwoName: '',
             gameCodeHistory: [],
             gameCodes: [],
+            arsenalTimeout: 10,
             opponentName: '',
             rotate: false,
             arsenals: {
@@ -372,14 +367,18 @@ export default {
         },
         timerDisplay: function () {
             var vm = this
-            var milliseconds = parseInt((vm.gameBoard.timerDisplay%1000)/100)
-                , seconds = parseInt(Math.round(vm.gameBoard.timerDisplay/1000)%60)
-                , minutes = parseInt((vm.gameBoard.timerDisplay/(1000*60))%60)
-                , hours = parseInt((vm.gameBoard.timerDisplay/(1000*60*60))%24);
+            console.log(vm.gameBoard.timerDisplay)
+            var milliseconds = Math.round(vm.gameBoard.timerDisplay)
+                , seconds = Math.floor(Math.round(vm.gameBoard.timerDisplay / 1000) % 60)
+                , minutes = Math.floor((vm.gameBoard.timerDisplay / (1000 * 60)) % 60)
+                , hours = Math.floor((vm.gameBoard.timerDisplay / (1000 * 60 * 60)) % 24)
 
             hours = (hours < 10) ? "0" + hours : hours
-            minutes = (minutes < 10) ? "0" + minutes : minutes
             seconds = (seconds < 10) ? "0" + seconds : seconds
+            if (seconds === '00') {
+                minutes = Math.floor(Math.round(vm.gameBoard.timerDisplay / (1000 * 60)) % 60)
+            }
+            minutes = (minutes < 10) ? "0" + minutes : minutes
             return hours + ':' + minutes + ":" + seconds
         },
         ...mapGetters([
@@ -425,7 +424,7 @@ export default {
                         shipCount += 1
                     }
                 })
-                vm.boardMessage = `There are ${shipCount} squares occupied by ships in this area.`
+                vm.boardMessage = `There are ${shipCount} squares occupied by the enemy in this area.`
                 setTimeout(function () {
                     vm.boardMessage = ''
                 }, 5000)
@@ -694,6 +693,12 @@ export default {
         selectItem (item) {
             var vm = this
             let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
+            if (_.includes(['salvo', 'cruiser', 'carrier', 'destroyer'], item) && this.gameBoard.gameState === 'setup' && this.participantType < 3) {
+                vm.boardMessage =`Right click to rotate`
+                setTimeout(function () {
+                    vm.boardMessage = ''
+                }, 2000)
+            }
             if (this.arsenals[player].lock) {
                 this.selectedItem = false
                 this.hoverColor = '#fff'
@@ -743,6 +748,7 @@ export default {
         axios.get(`/api/v1/game/${vm.currentRoom}`).then(function (response) {
             vm.gameCodes = response.data.game_codes
             vm.isOffsite = response.data.game.is_offsite
+            vm.arsenalTimeout = response.data.game.arsenal_timeout
         })
         socket.on('ship-placed', function (data) {
             if (data.gameId == vm.currentRoom) {
@@ -786,7 +792,7 @@ export default {
                         if (player === vm.longParticipantType) {
                             vm.boardMessage = 'Your arsenal is locked!'
                             if (vm.isOffsite) {
-                                vm.arsenalLockTimer.start(10)
+                                vm.arsenalLockTimer.start(vm.arsenalTimeout)
                             }
                             setTimeout(function () {
                                 vm.boardMessage = ''
@@ -849,6 +855,9 @@ export default {
                 vm.gameBoard.gameState = 'ended'
                 vm.gameTimer.stop()
                 vm.gameBoard.timerDisplay = 0
+                setTimeout(function () {
+                    Object.assign(vm.$data, vm.$options.data())
+                }, 7000)
                 vm.changeView(['ended'])
             }
         })
@@ -871,13 +880,41 @@ export default {
                 }
             }
         })
-        socket.on('restart-game', function (data) {
+        socket.on('reset-ships', function (data) {
             if (data.id == vm.currentRoom) {
-                vm.gameBoard = new GameBoard()
-                vm.gameTimer.stop()
-                vm.gameBoard.timerDisplay = 5*60*1000
-                vm.selectedItem = false
-                vm.ships = vm.gameBoard.shipCount()
+                vm.ships = {
+                    playerOne: {
+                        destroyer: 0,
+                        cruiser: 0,
+                        carrier: 0,
+                        outpost: 0,
+                        submarine: 0
+                    },
+                    playerTwo: {
+                        destroyer: 0,
+                        cruiser: 0,
+                        carrier: 0,
+                        outpost: 0,
+                        submarine: 0
+                    }
+                }
+                vm.gameBoard.boardObjects = []
+                vm.gameBoard.originalShips = {
+                    playerOne: {
+                        destroyer: [],
+                        cruiser: [],
+                        carrier: [],
+                        outpost: [],
+                        submarine: []
+                    },
+                    playerTwo: {
+                        destroyer: [],
+                        cruiser: [],
+                        carrier: [],
+                        outpost: [],
+                        submarine: []
+                    }
+                }
             }
         })
         socket.on('add-minute', function (data) {

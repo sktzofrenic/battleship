@@ -12,6 +12,7 @@ class Game(SurrogatePK, Model):
     created_on = Column(db.DateTime, default=dt.datetime.utcnow)
     ended_on = Column(db.DateTime)
     is_offsite = Column(db.Boolean(), default=False)
+    arsenal_timeout = Column(db.Integer)
     name = Column(db.String(255))
     game_code_set = relationship('GameCodeSet', backref='games')
     game_code_set_id = reference_col('game_code_sets', nullable=True)
@@ -34,6 +35,7 @@ class Game(SurrogatePK, Model):
             'ended_on': self.ended_on.isoformat() if self.ended_on else None,
             'created_on': self.created_on.isoformat() if self.created_on else None,
             'is_offsite': self.is_offsite,
+            'arsenal_timeout': self.arsenal_timeout,
             'participants': [x.serialize for x in self.game_participants]
         }
 

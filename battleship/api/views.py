@@ -30,6 +30,7 @@ def games(game_id=None):
         game = Game.create(name=request_data.get('name', None),
                            created_on=try_parsing_date(request_data.get('createdOn', None)),
                            is_offsite=request_data.get('isOffsite', None),
+                           arsenal_timeout=request_data.get('arsenalTimeout', None),
                            game_code_set_id=request_data.get('gameCodeSetID', None))
         return jsonify({
             'game': game.serialize

@@ -63,6 +63,10 @@
                                     <label>Offsite Game</label>
                                 </div>
                             </div>
+                            <div class="field" v-if="isOffsite">
+                                <input v-model.number="arsenalTimeout" type="text" name="newsletter">
+                                <label>Arsenal Timeout</label>
+                            </div>
                         </form>
                     </div>
                     <div class="ui error message"></div>
@@ -90,6 +94,7 @@ export default {
             gameName: '',
             gameCodeSetID: '',
             isOffsite: false,
+            arsenalTimeout: 0,
             gameCodeSets: [],
             games: []
         }
@@ -106,6 +111,7 @@ export default {
             this.gameName = ''
             this.gameCodeSetID = ''
             this.isOffsite = false
+            this.arsenalTimeout = 0
         },
         joinGame (index) {
             let vm = this
@@ -120,6 +126,7 @@ export default {
             var game = new Game({
                 name: vm.gameName,
                 isOffsite: vm.isOffsite,
+                arsenalTimeout: vm.arsenalTimeout,
                 gameCodeSetID: vm.gameCodeSetID
             })
             vm.loading = true

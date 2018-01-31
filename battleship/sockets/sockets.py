@@ -51,9 +51,9 @@ def ship_placed(json):
     emit('ship-placed', json, broadcast=True)
 
 
-@socketio.on('restart-game')
-def restart_game(json):
-    emit('restart-game', json, broadcast=True)
+@socketio.on('reset-ships')
+def reset_ships(json):
+    emit('reset-ships', json, broadcast=True)
 
 
 @socketio.on('arsenal-change')

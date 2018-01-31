@@ -16,6 +16,7 @@ export function Game (gameData) {
     this.startedOn = gameData['startedOn'] || gameData['started_on'] || moment()
     this.createdOn = gameData['createdOn'] || gameData['created_on'] || moment()
     this.isOffsite = gameData['isOffsite'] || gameData['is_offsite'] || false
+    this.arsenalTimeout = gameData['arsenalTimeout'] || gameData['arsenalTimeout'] || 0
     this.gameCodeSetID = gameData['gameCodeSetID'] || gameData['game_code_set_id'] || undefined
     this.status = gameData['status'] || 'Waiting for players...'
     this.players = gameData['players'] || gameData['participants'] || []
@@ -33,7 +34,8 @@ export function Game (gameData) {
                 name: this.name,
                 createdOn: this.createdOn.format('YYYY-MM-DD HH:mm'),
                 isOffsite: this.isOffsite,
-                gameCodeSetID: this.gameCodeSetID
+                gameCodeSetID: this.gameCodeSetID,
+                arsenalTimeout: this.arsenalTimeout
             }).then(function (response) {
                 that.id = response.data.game.id
                 callBack()

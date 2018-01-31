@@ -1,6 +1,6 @@
 <template lang="html">
     <div class="">
-        <h2 class="chat-title">Chat ({{ currentRoom }})</h2>
+        <h2 class="chat-title" style="margin-top: 10px;">Chat ({{ currentRoom }})</h2>
         <div class="chat-box" ref="chatbox" id="style-3">
             <span v-for="msg in chatMessages" class="chat-message" v-if="msg.room === currentRoom">
                 <strong>{{msg.name}}:</strong> {{msg.message}}
@@ -23,7 +23,7 @@
             <button class="ui red tiny inverted button" :class="{'active': chatNumber == 9}"  @click="setChatRecipients([[2, 3, 4]])">P2</button>
             <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}"  @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
         </div>
-        <div class="ui divider">
+        <div class="ui divider" v-if="participantType === 3">
 
         </div>
         <div class="gm-controls" v-if="participantType === 3">
@@ -43,7 +43,7 @@
                 <a class="item">
                     <button class="ui black tiny inverted button smaller-padding" name="button" @click="startGame()">Start Game</button>
                     <button class="ui black tiny inverted button smaller-padding" name="button" @click="endGame()">End Game</button>
-                    <button class="ui black tiny inverted button smaller-padding" name="button" @click="restartGame()">Restart</button>
+                    <button class="ui black tiny inverted button smaller-padding" name="button" @click="resetShips()">Reset Ships</button>
                 </a>
                 <a class="item" style="padding: 0px !important;">
                     <table class="ui compact inverted red table">
@@ -176,8 +176,8 @@ export default {
                 id: this.currentRoom
             })
         },
-        restartGame () {
-            socket.emit('restart-game', {
+        resetShips () {
+            socket.emit('reset-ships', {
                 id: this.currentRoom
             })
         },
@@ -221,6 +221,11 @@ export default {
                 }
             } else {
                 vm.pushMessage([msg])
+            }
+        })
+        socket.on('end-game', function (data) {
+            if (data.id == vm.currentRoom) {
+                Object.assign(vm.$data, vm.$options.data())
             }
         })
     }
