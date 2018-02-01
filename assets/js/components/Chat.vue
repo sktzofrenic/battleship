@@ -177,8 +177,14 @@ export default {
             })
         },
         resetShips () {
-            socket.emit('reset-ships', {
-                id: this.currentRoom
+            var vm = this
+            vm.chatRecipients.map(function (each) {
+                if (each < 3) {
+                    socket.emit('reset-ships', {
+                        id: vm.currentRoom,
+                        participantType: each
+                    })
+                }
             })
         },
         send () {

@@ -17,9 +17,9 @@ def chat_stats(game_id=None):
         game = Game.query.filter_by(id=game_id).first()
         writer_file = io.StringIO()
         writer = csv.writer(writer_file, dialect='excel', delimiter=',')
-        writer.writerow([u'Game ID', u'Event ID', u'Sender', u'Message', u'Channel', u'1=player One, 2=player two, 3=GM, 4=Obs'])
+        writer.writerow([u'Game ID', u'Event ID', u'TimeStamp (UTC)', u'Sender', u'Message', u'Channel', u'1=player One, 2=player two, 3=GM, 4=Obs'])
         for event in game.chat_events:
-            writer.writerow([game.id, event.id, event.sender, event.message, event.channel])
+            writer.writerow([game.id, event.id, event.created_on.strftime('%x %X'), event.sender, event.message, event.channel])
 
         # Creating the byteIO object from the StringIO Object
         mem = io.BytesIO()
@@ -39,9 +39,9 @@ def event_stats(game_id=None):
         game = Game.query.filter_by(id=game_id).first()
         writer_file = io.StringIO()
         writer = csv.writer(writer_file, dialect='excel', delimiter=',')
-        writer.writerow([u'Game ID', u'Event ID', u'Name', u'Type', u'Data'])
+        writer.writerow([u'Game ID', u'Event ID', u'TimeStamp (UTC)', u'Name', u'Type', u'Data'])
         for event in game.game_events:
-            writer.writerow([game.id, event.id, event.action.name, event.action.type_, event.action.data])
+            writer.writerow([game.id, event.id, event.created_on.strftime('%x %X'), event.action.name, event.action.type_, event.action.data])
 
         # Creating the byteIO object from the StringIO Object
         mem = io.BytesIO()

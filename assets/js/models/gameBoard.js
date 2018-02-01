@@ -18,7 +18,7 @@ export function GameBoard (GameBoardData) {
         outpost: 2
     }
     this.timerDisplay = GameBoardData['timerDisplay'] || 5*60*1000 // seconds on clock
-    this.arsenalTimerDisplay = GameBoardData['timerDisplay'] || '02:00'
+    this.arsenalTimerDisplay = GameBoardData['timerDisplay'] || 0
     this.gameState = GameBoardData['gameState'] || 'waiting' // waiting, setup, playing, ended
     this.boardObjects = GameBoardData['boardObjects'] || []
     this.usedGameCodes = GameBoardData['usedGameCodes'] || []
@@ -77,6 +77,45 @@ export function GameBoard (GameBoardData) {
         salvo: '#ff0000',
         radar: '#fe9999'
     }
+
+    Object.defineProperty(this, 'eraseShips', {
+        value: function (player) {
+            let that = this
+            that.boardObjects = that.boardObjects.filter(function (bObject, index) {
+                if (player === 'playerTwo') {
+                    return bObject.i < 9
+                }
+                if (player === 'playerOne') {
+                    return bObject.i > 8
+                }
+                // if (bObject.i > 8 && player === 'playerTwo') {
+                //     that.boardObjects.splice(_.findIndex(that.boardObjects, function (o) {
+                //         return o.i === bObject.i && o.j === bObject.j
+                //     }), 1)
+                // }
+                // if (bObject.i < 9 && player === 'playerOne') {
+                //     that.boardObjects.splice(_.findIndex(that.boardObjects, function (o) {
+                //         return o.i === bObject.i && o.j === bObject.j
+                //     }), 1)
+                // }
+            })
+        }
+    })
+
+    Object.defineProperty(this, 'findShipPiece', {
+        value: function (player, shipType) {
+            let that = this
+            let piece = ''
+            that.originalShips[player][shipType].map(function (ship) {
+                ship.map(function (shipPiece, index) {
+                    if (index === 0) {
+                        piece = shipPiece
+                    }
+                })
+            })
+            return piece
+        }
+    })
 
     Object.defineProperty(this, 'grid', {
         get: function () {

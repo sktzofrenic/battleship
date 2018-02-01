@@ -217,7 +217,7 @@
                     </tbody>
                 </table>
                 <div class="ship-timer highlight" v-if="arsenals[longParticipantType].lock && isOffsite">
-                    {{ gameBoard.arsenalTimerDisplay }} <br>
+                    {{ arsenalTimerDisplay }} <br>
                     <span style="color:#fff; margin-bottom: 10px; font-size:11px">
                         Arsenal Locked!
                     </span>
@@ -232,13 +232,19 @@
                 <audio ref="ship_destroy_sound" style="display:none;" id="ship_destroy_sound" src="/static/build/audio/destroyed.wav" type="audio/mpeg"></audio>
             </div>
             <div class="player-one-name">
-                <span class="highlight">P1:</span> {{ playerOneName }}
+                <span class="highlight">P1:</span>
+                <span v-if="!playerOneName && participantType === 3" @click="addAI(1)">+ <i class='laptop icon'></i></span>
+                <span v-if="AIPlayerOne" @click="removeAI(1)"><i class='trash icon'></i></span>
+                {{ playerOneName }}
             </div>
             <div class="versus">
                 VS
             </div>
             <div class="player-two-name">
-                <span class="highlight">P2:</span> {{ playerTwoName }}
+                <span class="highlight">P2:</span>
+                <span v-if="!playerOneName && participantType === 3" @click="addAI(2)">+ <i class='laptop icon'></i></span>
+                <span v-if="AIPlayerTwo" @click="removeAI(2)"><i class='trash icon'></i></span>
+                {{ playerTwoName }}
             </div>
             <div class="ui action inverted huge input game-code">
                 <input type="text" :value="gameCode" maxlength="6" @input="gameCode = $event.target.value.toUpperCase()">
@@ -269,6 +275,7 @@ import {mapGetters, mapActions} from 'vuex'
 import {socket} from '../socket.js'
 import Timer from 'timer.js'
 import axios from 'axios'
+import {AIPlayer} from '../models/AIPlayer.js'
 
 export default {
     data () {
@@ -300,6 +307,9 @@ export default {
             gameCodeHistory: [],
             gameCodes: [],
             arsenalTimeout: 10,
+            secondsElapsed: 0,
+            AIPlayerOne: false,
+            AIPlayerTwo: false,
             opponentName: '',
             rotate: false,
             arsenals: {
@@ -380,6 +390,21 @@ export default {
             minutes = (minutes < 10) ? "0" + minutes : minutes
             return hours + ':' + minutes + ":" + seconds
         },
+        arsenalTimerDisplay: function () {
+            var vm = this
+            var milliseconds = Math.round(vm.gameBoard.arsenalTimerDisplay)
+                , seconds = Math.floor(Math.round(vm.gameBoard.arsenalTimerDisplay / 1000) % 60)
+                , minutes = Math.floor((vm.gameBoard.arsenalTimerDisplay / (1000 * 60)) % 60)
+                , hours = Math.floor((vm.gameBoard.arsenalTimerDisplay / (1000 * 60 * 60)) % 24)
+
+            hours = (hours < 10) ? "0" + hours : hours
+            seconds = (seconds < 10) ? "0" + seconds : seconds
+            if (seconds === '00') {
+                minutes = Math.floor(Math.round(vm.gameBoard.arsenalTimerDisplay / (1000 * 60)) % 60)
+            }
+            minutes = (minutes < 10) ? "0" + minutes : minutes
+            return minutes + ":" + seconds
+        },
         ...mapGetters([
             'currentRoom',
             'clientName'
@@ -395,6 +420,46 @@ export default {
             'setChatRecipients',
             'changeView'
         ]),
+        addAI (player) {
+            var vm = this
+            if (player === 1) {
+                this.AIPlayerOne = new AIPlayer()
+                socket.emit('player-name', {
+                    p1: 'Computer',
+                    p2: false,
+                    gameId: vm.currentRoom,
+                    clientName: 'Computer',
+                    participantType: 1
+                })
+            } else if (player === 2) {
+                this.AIPlayerTwo = new AIPlayer()
+                socket.emit('player-name', {
+                    p1: false,
+                    p2: 'Computer',
+                    gameId: vm.currentRoom,
+                    clientName: 'Computer',
+                    participantType: 2
+                })
+            }
+        },
+        removeAI (player) {
+            var vm = this
+            if (player === 1) {
+                this.AIPlayerOne = false
+                socket.emit('leave-game', {
+                    gameId: vm.currentRoom,
+                    clientName: 'Computer',
+                    participantType: 1
+                })
+            } else if (player === 2) {
+                this.AIPlayerTwo = false
+                socket.emit('leave-game', {
+                    gameId: vm.currentRoom,
+                    clientName: 'Computer',
+                    participantType: 2
+                })
+            }
+        },
         toggleBackgroundMusic () {
             var vm = this
             if (this.backgroundMusicStatus) {
@@ -785,6 +850,20 @@ export default {
                 // update the ship count on the board
                 vm.ships = vm.gameBoard.shipCount()
 
+
+                // UPDATE the AI delay if appropriate
+                if (shipDestroyed.result) {
+                    let player = data.hit.i < 9 ? 'playerOne' : 'playerTwo'
+
+                    if (player == 'playerOne' && vm.AIPlayerOne) {
+                        vm.AIPlayerOne.delay += 10
+                    }
+
+                    if (player == 'playerTwo' && vm.AIPlayerTwo) {
+                        vm.AIPlayerTwo.delay += 10
+                    }
+                }
+
                 // Check to see if a ship was destroyed and lock the arsenal if appropriate
                 if (shipDestroyed.result) {
                     vm.$refs.ship_destroy_sound.play()
@@ -793,8 +872,14 @@ export default {
                         vm.arsenals[player].lock = true
                         if (player === vm.longParticipantType) {
                             vm.boardMessage = 'Your arsenal is locked!'
+                            vm.selectItem('cancel')
                             if (vm.isOffsite) {
-                                vm.arsenalLockTimer.start(vm.arsenalTimeout)
+                                if (vm.arsenalLockTimer.getStatus() === 'started') {
+                                    vm.arsenalLockTimer.stop()
+                                    vm.arsenalLockTimer.start((vm.gameBoard.arsenalTimerDisplay / 1000) + vm.arsenalTimeout)
+                                }
+                                vm.gameBoard.arsenalTimerDisplay += vm.arsenalTimeout*1000
+                                vm.arsenalLockTimer.start(vm.gameBoard.arsenalTimerDisplay / 1000)
                             }
                             setTimeout(function () {
                                 vm.boardMessage = ''
@@ -844,6 +929,7 @@ export default {
         socket.on('start-game', function (data) {
             if (data.id == vm.currentRoom) {
                 vm.gameBoard.gameState = 'playing'
+                vm.selectItem('cancel')
                 vm.gameTimer.stop()
                 vm.gameBoard.timerDisplay = 60*60*1000
             }
@@ -884,38 +970,21 @@ export default {
         })
         socket.on('reset-ships', function (data) {
             if (data.id == vm.currentRoom) {
-                vm.ships = {
-                    playerOne: {
-                        destroyer: 0,
-                        cruiser: 0,
-                        carrier: 0,
-                        outpost: 0,
-                        submarine: 0
-                    },
-                    playerTwo: {
-                        destroyer: 0,
-                        cruiser: 0,
-                        carrier: 0,
-                        outpost: 0,
-                        submarine: 0
-                    }
+                let player = data.participantType == 1 ? 'playerOne' : 'playerTwo'
+                vm.ships[player] = {
+                    destroyer: 0,
+                    cruiser: 0,
+                    carrier: 0,
+                    outpost: 0,
+                    submarine: 0
                 }
-                vm.gameBoard.boardObjects = []
-                vm.gameBoard.originalShips = {
-                    playerOne: {
-                        destroyer: [],
-                        cruiser: [],
-                        carrier: [],
-                        outpost: [],
-                        submarine: []
-                    },
-                    playerTwo: {
-                        destroyer: [],
-                        cruiser: [],
-                        carrier: [],
-                        outpost: [],
-                        submarine: []
-                    }
+                vm.gameBoard.eraseShips(player)
+                vm.gameBoard.originalShips[player] = {
+                    destroyer: [],
+                    cruiser: [],
+                    carrier: [],
+                    outpost: [],
+                    submarine: []
                 }
             }
         })
@@ -964,6 +1033,79 @@ export default {
         })
         vm.gameTimer.on('tick', function (duration) {
             vm.gameBoard.timerDisplay = duration
+            vm.secondsElapsed += 1
+            // Check to see if an AI player is playing
+            if (vm.AIPlayerOne && vm.gameBoard.gameState !== 'setup') {
+                let AIAction = _.findIndex(vm.AIPlayerOne.actions, function (each) {
+                    return each.time == (vm.secondsElapsed - vm.AIPlayerOne.delay)
+                })
+                if (AIAction > -1) {
+                    AIAction = vm.AIPlayerOne.actions[AIAction]
+                    let piece = vm.gameBoard.findShipPiece('playerTwo', AIAction.shipPiece)
+                    var weaponHit = _.findIndex(vm.gameBoard.boardObjects, function (o) {
+                        return o.i === piece.i && o.j === piece.j
+                    })
+                    let hitSquare = _.find(vm.gameBoard.boardObjects, function (o) {
+                        return o.i === piece.i && o.j === piece.j
+                    })
+                    let hit ={
+                        type: 'hit',
+                        style: {
+                            transform: `translate(${piece.i * 42}px, ${piece.j * 42}px)`,
+                            background: hitSquare.style.background
+                        },
+                        i: piece.i,
+                        j: piece.j,
+                        gameId: vm.currentRoom,
+                        shipType: hitSquare.type,
+                        participantType: vm.participantType,
+                        spliceIndex: weaponHit,
+                        shotCounter: 0,
+                        item: vm.selectedItem,
+                        player: 'playerOne'
+                    }
+                    socket.emit('weapon-hit', {
+                        hit: hit,
+                        hitSquare: hitSquare
+                    })
+                }
+            }
+
+            if (vm.AIPlayerTwo && vm.gameBoard.gameState !== 'setup') {
+                let AIAction = _.findIndex(vm.AIPlayerTwo.actions, function (each) {
+                    return each.time == (vm.secondsElapsed - vm.AIPlayerTwo.delay)
+                })
+                if (AIAction > -1) {
+                    AIAction = vm.AIPlayerTwo.actions[AIAction]
+                    let piece = vm.gameBoard.findShipPiece('playerOne', AIAction.shipPiece)
+                    var weaponHit = _.findIndex(vm.gameBoard.boardObjects, function (o) {
+                        return o.i === piece.i && o.j === piece.j
+                    })
+                    let hitSquare = _.find(vm.gameBoard.boardObjects, function (o) {
+                        return o.i === piece.i && o.j === piece.j
+                    })
+                    let hit ={
+                        type: 'hit',
+                        style: {
+                            transform: `translate(${piece.i * 42}px, ${piece.j * 42}px)`,
+                            background: hitSquare.style.background
+                        },
+                        i: piece.i,
+                        j: piece.j,
+                        gameId: vm.currentRoom,
+                        shipType: hitSquare.type,
+                        participantType: vm.participantType,
+                        spliceIndex: weaponHit,
+                        shotCounter: 0,
+                        item: vm.selectedItem,
+                        player: 'playerTwo'
+                    }
+                    socket.emit('weapon-hit', {
+                        hit: hit,
+                        hitSquare: hitSquare
+                    })
+                }
+            }
         })
         vm.gameTimer.on('end', function () {
             vm.gameBoard.timerDisplay = 0
@@ -974,15 +1116,7 @@ export default {
             }
         })
         vm.arsenalLockTimer.on('tick', function (duration) {
-            var milliseconds = parseInt((duration%1000)/100)
-                , seconds = parseInt(Math.round(duration/1000)%60)
-                , minutes = parseInt((duration/(1000*60))%60)
-                , hours = parseInt((duration/(1000*60*60))%24);
-
-            hours = (hours < 10) ? "0" + hours : hours
-            minutes = (minutes < 10) ? "0" + minutes : minutes
-            seconds = (seconds < 10) ? "0" + seconds : seconds
-            vm.gameBoard.arsenalTimerDisplay = minutes + ":" + seconds
+            vm.gameBoard.arsenalTimerDisplay = duration
         })
         vm.arsenalLockTimer.on('end', function () {
             let player = vm.participantType == 1 ? 'playerOne' : 'playerTwo'

@@ -54,11 +54,9 @@ export default {
         },
         getGames (page) {
             let url = `/api/v1/games`
-            console.log(page)
             if (page != undefined) {
                 url = `/api/v1/games?page=${page}`
             }
-            console.log(url)
             var vm = this
             vm.loading = true
             axios.get(url).then(function (response) {
