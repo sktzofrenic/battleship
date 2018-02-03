@@ -58,7 +58,7 @@
                                                 <select v-model="newAction">
                                                     <option value="">Action</option>
                                                     <option v-for="action in actions" :value="action.id">
-                                                        <strong>{{ action.id }}</strong> {{ action.name }}
+                                                        {{ action.name }}
                                                     </option>
                                                 </select>
                                             </div>
@@ -117,7 +117,13 @@ export default {
             showModal: false,
             modalAction: 'Add',
             editIndex: undefined,
-            actions: [],
+            actions: [
+                {id: 3, name: 'Add Missile'},
+                {id: 4, name: 'Add Salvo'},
+                {id: 5, name: 'Add Torpedo'},
+                {id: 6, name: 'Add Radar Scan'},
+                {id: 4383, name: 'Add Missile and Torpedo'}
+            ],
             viewIndex: undefined,
             newCode: '',
             newAction: ''
@@ -200,7 +206,7 @@ export default {
     mounted () {
         var vm = this
         vm.getGameCodeSets()
-        vm.getActions()
+        // vm.getActions()
     }
 }
 </script>

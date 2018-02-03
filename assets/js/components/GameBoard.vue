@@ -671,6 +671,10 @@ export default {
                 } else if (vm.gameCodes[gcIndex].action.type_ == 4) {
                     vm.arsenals[player].radar += 1
                     item = 'radar'
+                } else if (vm.gameCodes[gcIndex].action.type_ == 24) {
+                    vm.arsenals[player].torpedo += 1
+                    vm.arsenals[player].missile += 1
+                    item = 'missile and torpedo'
                 }
                 socket.emit('successful-game-code', {
                     gameId: vm.currentRoom,
@@ -1019,7 +1023,12 @@ export default {
         })
         socket.on('successful-game-code', function (data) {
             if (data.gameId == vm.currentRoom && data.participantType != vm.participantType) {
-                vm.arsenals[data.player][data.item] += 1
+                if (data.item == 'missile and torpedo') {
+                    vm.arsenals[data.player]['missile'] += 1
+                    vm.arsenals[data.player]['torpedo'] += 1
+                } else {
+                    vm.arsenals[data.player][data.item] += 1
+                }
             }
         })
         socket.on('bad-game-code', function (data) {
