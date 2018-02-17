@@ -10,8 +10,8 @@ export function AIPlayer (AIPlayerData) {
     // The numbers is the number of seconds elapsed for the opponent ship
     // piece to be destroyed. The delay is added to this number.
     // If an AI ship is hit, the delay will increase.
-    this.actions = [
-        {'time': 2, 'shipPiece': 'destroyer'}, 
+    this.actions_ = [
+        {'time': 2, 'shipPiece': 'destroyer'},
         {'time': 4, 'shipPiece': 'destroyer'},
         {'time': 6, 'shipPiece': 'cruiser'},
         {'time': 8, 'shipPiece': 'submarine'},
@@ -34,7 +34,7 @@ export function AIPlayer (AIPlayerData) {
         {'time': 42, 'shipPiece': 'destroyer'},
         {'time': 44, 'shipPiece': 'outpost'}
     ]
-    this.actions_ = [
+    this.actions = [
         {'time': 300, 'shipPiece': 'destroyer'},
         {'time': 600, 'shipPiece': 'destroyer'},
         {'time': 720, 'shipPiece': 'cruiser'},
