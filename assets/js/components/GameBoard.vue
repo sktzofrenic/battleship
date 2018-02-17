@@ -893,10 +893,12 @@ export default {
                 }
                 // After every weapon hit, we need to check to see if the victory
                 // conditions have been acheived.
-                if (vm.gameBoard.checkVictoryConditions()) {
+                let winner = vm.gameBoard.checkVictoryConditions()
+                if (winner) {
                     vm.$refs.win_sound.play()
                     socket.emit('end-game', {
-                        id: vm.currentRoom
+                        id: vm.currentRoom,
+                        winner: winner
                     })
                 }
             }
@@ -1118,9 +1120,11 @@ export default {
         })
         vm.gameTimer.on('end', function () {
             vm.gameBoard.timerDisplay = 0
+            let winner = vm.gameBoard.checkVictoryConditions()
             if (vm.gameBoard.gameState === 'playing') {
                 socket.emit('end-game', {
-                    id: vm.currentRoom
+                    id: vm.currentRoom,
+                    winner: winner
                 })
             }
         })

@@ -161,6 +161,9 @@ export function GameBoard (GameBoardData) {
             } else if (playerOneTotal > 0 && playerTwoTotal === 0 && that.gameState === 'playing') {
                 return 'playerOne'
             } else if (playerOneTotal === 0 && playerTwoTotal === 0 && that.gameState === 'playing') {
+                // The player that has the most hits should win in a tie and in the case that
+                // both teams have hit the same number of ships then the winner should be
+                // declared based on the number of puzzles solved.
                 return 'tie'
             } else {
                 return false
