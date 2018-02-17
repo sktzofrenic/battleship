@@ -88,16 +88,6 @@ export function GameBoard (GameBoardData) {
                 if (player === 'playerOne') {
                     return bObject.i > 8
                 }
-                // if (bObject.i > 8 && player === 'playerTwo') {
-                //     that.boardObjects.splice(_.findIndex(that.boardObjects, function (o) {
-                //         return o.i === bObject.i && o.j === bObject.j
-                //     }), 1)
-                // }
-                // if (bObject.i < 9 && player === 'playerOne') {
-                //     that.boardObjects.splice(_.findIndex(that.boardObjects, function (o) {
-                //         return o.i === bObject.i && o.j === bObject.j
-                //     }), 1)
-                // }
             })
         }
     })
