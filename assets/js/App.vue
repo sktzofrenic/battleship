@@ -164,7 +164,7 @@
             <img src="static/build/img/houston_logo_white.88f80812ce0c22e9475b88b716203ef3.png" class="game-header-image">
             <div class="right menu">
                 <div class="vs-battleship item">
-                    <span style="color:#e22722">VS</span> <span style="color:#fff"> BATTLESHIP</span>
+                    <span style="color:#e22722">NAVAL</span> <span style="color:#fff"> WARFARE</span>
                 </div>
             </div>
         </div>

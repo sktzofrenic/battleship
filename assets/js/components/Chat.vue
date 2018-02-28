@@ -50,6 +50,19 @@
                         <tbody>
                             <tr>
                                 <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('subtract', 'salvo')">
+                                        <i class="minus icon"></i>
+                                    </button>
+                                </td>
+                                <td>Salvo</td>
+                                <td>
+                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('add', 'salvo')">
+                                        <i class="add icon"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
                                     <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('subtract', 'torpedo')">
                                         <i class="minus icon"></i>
                                     </button>
@@ -70,19 +83,6 @@
                                 <td>Missile</td>
                                 <td>
                                     <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('add', 'missile')">
-                                        <i class="add icon"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('subtract', 'salvo')">
-                                        <i class="minus icon"></i>
-                                    </button>
-                                </td>
-                                <td>Salvo</td>
-                                <td>
-                                    <button class="ui black tiny inverted icon button" name="button" @click="changeArsenal('add', 'salvo')">
                                         <i class="add icon"></i>
                                     </button>
                                 </td>
