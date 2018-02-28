@@ -96,17 +96,6 @@ def arsenal_change(json):
     emit('arsenal-change', json, broadcast=True)
 
 
-@socketio.on('end-game')
-def end_game(json):
-    print('received chat json: ' + str(json))
-    game = Game.query.filter_by(id=json['id']).first()
-    action = Action.create(name='Game ended', type_='12', data=js.dumps(json))
-    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
-                                  game_id=game.id,
-                                  action_id=action.id)
-    emit('end-game', json, broadcast=True)
-
-
 @socketio.on('start-game')
 def start_game(json):
     game = Game.query.filter_by(id=json['id']).first()
@@ -180,6 +169,15 @@ def weapon_miss(json):
     emit('weapon-miss', json, broadcast=True)
 
 
+@socketio.on('update-stats')
+def weapon_miss(json):
+    game = Game.query.filter_by(id=json['id']).first()
+    action = Action.create(name='Final Game Stats', type_='24', data=js.dumps(json))
+    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
+                                  game_id=game.id,
+                                  action_id=action.id)
+
+
 @socketio.on('weapon-hit')
 def weapon_hit(json):
     print('weapon hit json {}'.format(str(json)))
@@ -223,7 +221,7 @@ def bad_game_code(json):
 
 @socketio.on('end-game')
 def end_game(json):
-    print('received chat json: ' + str(json))
+    print('game end json: ' + str(json))
     game = Game.query.filter_by(id=json['id']).first()
     game.ended_on = dt.datetime.utcnow()
     game.save()
@@ -232,7 +230,7 @@ def end_game(json):
     game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
                                   game_id=game.id,
                                   action_id=action.id)
-    emit('end-game', {'id': game.id}, broadcast=True)
+    emit('end-game', json, broadcast=True)
 
 
 @socketio.on('create-game')

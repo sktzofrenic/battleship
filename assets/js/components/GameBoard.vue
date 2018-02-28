@@ -289,6 +289,21 @@ export default {
             arsenalLockTimer: new Timer(),
             backgroundMusicStatus: true,
             isOffsite: false,
+            statistics: {
+                missileCodes: 0,
+                missileCodesUsed: 0,
+                salvoCodes: 0,
+                salvoCodesUsed: 0,
+                torpedoCodes: 0,
+                torpedoCodesUsed: 0,
+                radarCodes: 0,
+                radarCodesUsed: 0,
+                misses: 0,
+                hits: 0,
+                invalidCodes: 0,
+                itemsAwardedToOpponent: 0,
+                reusedCodes: 0
+            },
             participantTypeOptions: [
                 {type: 1, name: 'Player One'},
                 {type: 2, name: 'Player Two'},
@@ -418,7 +433,8 @@ export default {
             'pushMessage',
             'setParticipantType',
             'setChatRecipients',
-            'changeView'
+            'changeView',
+            'setGameEndedDetails'
         ]),
         addAI (player) {
             var vm = this
@@ -492,6 +508,7 @@ export default {
                 setTimeout(function () {
                     vm.boardMessage = ''
                 }, 5000)
+                vm.statistics.radarCodesUsed += 1
                 socket.emit('radar-used', {
                     gameId: vm.currentRoom,
                     player: player,
@@ -555,6 +572,14 @@ export default {
                             item: vm.selectedItem,
                             player: player
                         }
+                        vm.statistics.hits += 1
+                        if (hit.item === 'torpedo') {
+                            vm.statistics.torpedoCodesUsed += 1
+                        } else if (hit.item === 'salvo') {
+                            vm.statistics.salvoCodesUsed += 1
+                        } else if (hit.item === 'missile') {
+                            vm.statistics.missileCodesUsed += 1
+                        }
                         socket.emit('weapon-hit', {
                             hit: hit,
                             hitSquare: hitSquare
@@ -577,6 +602,7 @@ export default {
                             player: player
                         }
                         socket.emit('weapon-miss', miss)
+                        vm.statistics.misses += 1
                     }
                 })
                 vm.ships = vm.gameBoard.shipCount()
@@ -662,19 +688,25 @@ export default {
                 if (vm.gameCodes[gcIndex].action.type_ == 5) {
                     vm.arsenals[player].torpedo += 1
                     item = 'torpedo'
+                    vm.statistics.torpedoCodes += 1
                 } else if (vm.gameCodes[gcIndex].action.type_ == 3) {
                     vm.arsenals[player].missile += 1
                     item = 'missile'
+                    vm.statistics.missileCodes += 1
                 } else if (vm.gameCodes[gcIndex].action.type_ == 4) {
                     vm.arsenals[player].salvo += 1
                     item = 'salvo'
+                    vm.statistics.salvoCodes += 1
                 } else if (vm.gameCodes[gcIndex].action.type_ == 4) {
                     vm.arsenals[player].radar += 1
                     item = 'radar'
+                    vm.statistics.radarCodes += 1
                 } else if (vm.gameCodes[gcIndex].action.type_ == 24) {
                     vm.arsenals[player].torpedo += 1
                     vm.arsenals[player].missile += 1
                     item = 'missile and torpedo'
+                    vm.statistics.torpedoCodes += 1
+                    vm.statistics.missileCodes += 1
                 }
                 socket.emit('successful-game-code', {
                     gameId: vm.currentRoom,
@@ -692,6 +724,7 @@ export default {
             } else if (_.includes(vm.gameBoard.usedGameCodes, vm.gameCode)) {
                 // game code is valid but has already been used
                 vm.boardMessage = 'You already used that game code!'
+                vm.statistics.reusedCodes += 1
                 vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-dupe', icon: 'circle thin icon'})
                 setTimeout(function () {
                     vm.boardMessage = ''
@@ -701,6 +734,7 @@ export default {
                 if (vm.gameBoard.badGuesses < 2) {
                     vm.boardMessage = 'Bad Code! Incorrect codes will give the enemy free arsenal items...'
                     vm.gameBoard.badGuesses += 1
+                    vm.statistics.invalidCodes += 1
                     vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-wrong-warn', icon: 'warning sign icon'})
                     setTimeout(function () {
                         vm.boardMessage = ''
@@ -709,6 +743,8 @@ export default {
                     let freeItem = vm.gameBoard.badGuesses % 2 ? 'torpedo' : 'missile'
                     vm.boardMessage = `Bad Code! You just gave the enemy a free ${freeItem}`
                     vm.gameBoard.badGuesses += 1
+                    vm.statistics.invalidCodes += 1
+                    vm.statistics.itemsAwardedToOpponent += 1
                     vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-wrong', icon: 'close icon'})
                     socket.emit('bad-game-code', {
                         gameId: vm.currentRoom,
@@ -898,7 +934,8 @@ export default {
                     vm.$refs.win_sound.play()
                     socket.emit('end-game', {
                         id: vm.currentRoom,
-                        winner: winner
+                        winner: winner,
+                        clientName: vm[winner + 'Name']
                     })
                 }
             }
@@ -938,6 +975,7 @@ export default {
                 vm.selectItem('cancel')
                 vm.gameTimer.stop()
                 vm.gameBoard.timerDisplay = 60*60*1000
+                // vm.gameBoard.timerDisplay = 20000
             }
         })
         socket.on('leave-game', function (data) {
@@ -948,6 +986,17 @@ export default {
                 vm.gameBoard.gameState = 'ended'
                 vm.gameTimer.stop()
                 vm.gameBoard.timerDisplay = 0
+                if (vm.participantType < 3) {
+                    socket.emit('update-stats', {
+                        id: vm.currentRoom,
+                        participantType: vm.participantType,
+                        clientName: vm.clientName,
+                        statistics: vm.statistics
+                    })
+                }
+                data['won'] = vm.clientName === data.clientName ? true : false
+                data['participantType'] = vm.participantType
+                vm.setGameEndedDetails([data])
                 vm.setParticipantType([4])
                 setTimeout(function () {
                     Object.assign(vm.$data, vm.$options.data())
@@ -1120,11 +1169,13 @@ export default {
         })
         vm.gameTimer.on('end', function () {
             vm.gameBoard.timerDisplay = 0
-            let winner = vm.gameBoard.checkVictoryConditions()
+            let winner = vm.gameBoard.checkVictoryConditions('timer-end', vm.arsenals)
             if (vm.gameBoard.gameState === 'playing') {
+                vm.$refs.win_sound.play()
                 socket.emit('end-game', {
                     id: vm.currentRoom,
-                    winner: winner
+                    winner: winner,
+                    clientName: vm[winner + 'Name']
                 })
             }
         })

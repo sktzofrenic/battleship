@@ -5,6 +5,7 @@ from battleship.game.models import GameCode, GameCodeSet, Action, Game
 from battleship.utils import try_parsing_date
 import csv
 import io
+import json as js
 
 blueprint = Blueprint('api', __name__, url_prefix='/api/v1', static_folder='../static')
 
@@ -33,10 +34,26 @@ def chat_stats(game_id=None):
 
 @blueprint.route('/eventstats', methods=['GET', 'POST'])
 @blueprint.route('/eventstats/<int:game_id>', methods=['GET', 'DELETE', 'PUT'])
+@blueprint.route('/eventstats/<int:game_id>/<modify>', methods=['GET', 'DELETE', 'PUT'])
 @login_required
-def event_stats(game_id=None):
+def event_stats(game_id=None, modify=None):
     if request.method == 'GET':
         game = Game.query.filter_by(id=game_id).first()
+        if modify == 'stats':
+            player_one_stats = ''
+            player_two_stats = ''
+            for event in game.game_events:
+                if event.action.type_ == '24':
+                    event_data = js.loads(event.action.data)
+                    print(event_data)
+                    if event_data.get('participantType', None) == 1:
+                        player_one_stats = event_data
+                    if event_data.get('participantType', None) == 2:
+                        player_two_stats = event_data
+            return jsonify({
+                'playerOne': player_one_stats,
+                'playerTwo': player_two_stats
+            })
         writer_file = io.StringIO()
         writer = csv.writer(writer_file, dialect='excel', delimiter=',')
         writer.writerow([u'Game ID', u'Event ID', u'TimeStamp (UTC)', u'Name', u'Type', u'Data'])

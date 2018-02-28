@@ -3,9 +3,158 @@
         <div class="ui active dimmer" v-if="currentView === 'ended'">
             <div class="content">
                 <div class="center">
+                    <img class="end-img" src="static/build/img/defeat.d74b71ec69166eb433a797a5ac9bec3a.png" v-if="gameEndedDetails.participantType < 3 && gameEndedDetails.won === false">
+                    <img class="end-img" src="static/build/img/victory.6d896044b3d5fa12eddc53a21afd8c78.png" v-if="gameEndedDetails.participantType < 3 && gameEndedDetails.won === true">
                     <h2 class="ui inverted icon header">
-                        <i class="heart icon"></i>
-                        Game Ended! <br><br>
+                        <i class="heart icon" v-if="gameEndedDetails.participantType > 2"></i>
+                        <span v-if="gameEndedDetails.participantType < 3 && gameEndedDetails.won === true">Victory! You've defeated your enemy!</span>
+                        <span v-if="gameEndedDetails.participantType < 3 && gameEndedDetails.won === false">Defeat. We'll get 'em next time</span>
+                        <span  v-if="gameEndedDetails.participantType > 2">Game Ended!</span> <br><br>
+                        <div class="ui two column grid" v-if="statsReady">
+                            <div class="column">
+                                <h3>{{ statistics.playerOne.clientName }}</h3>
+                                <div class="ui inverted segment">
+                                    <div class="ui inverted statistics">
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerOne.statistics.missileCodes}} / {{ statistics.playerOne.statistics.missileCodesUsed}}
+                                            </div>
+                                            <div class="label">
+                                                Missiles Earned / Used
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerOne.statistics.torpedoCodes}} / {{ statistics.playerOne.statistics.torpedoCodesUsed}}
+                                            </div>
+                                            <div class="label">
+                                                Torpedos Earned / Used
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerOne.statistics.salvoCodes}} / {{ statistics.playerOne.statistics.salvoCodesUsed}}
+                                            </div>
+                                            <div class="label">
+                                                Salvos Earned / Used
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerOne.statistics.radarCodes}} / {{ statistics.playerOne.statistics.radarCodesUsed}}
+                                            </div>
+                                            <div class="label">
+                                                Radars Earned / Used
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ (statistics.playerOne.statistics.hits / (statistics.playerOne.statistics.misses + statistics.playerOne.statistics.hits) * 100 ).toFixed(2)}}%
+                                            </div>
+                                            <div class="label">
+                                                Accuracy Percentage
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerOne.statistics.invalidCodes }}
+                                            </div>
+                                            <div class="label">
+                                                Invalid Codes
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerOne.statistics.reusedCodes }}
+                                            </div>
+                                            <div class="label">
+                                                Duplicate Codes
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerOne.statistics.itemsAwardedToOpponent }}
+                                            </div>
+                                            <div class="label">
+                                                Arsenal Items Gifted to Opponent
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <h3>{{ statistics.playerTwo.clientName }}</h3>
+                                <div class="ui inverted segment">
+                                    <div class="ui inverted statistics">
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerTwo.statistics.missileCodes}} / {{ statistics.playerTwo.statistics.missileCodesUsed}}
+                                            </div>
+                                            <div class="label">
+                                                Missiles Earned / Used
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerTwo.statistics.torpedoCodes}} / {{ statistics.playerTwo.statistics.torpedoCodesUsed}}
+                                            </div>
+                                            <div class="label">
+                                                Torpedos Earned / Used
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerTwo.statistics.salvoCodes}} / {{ statistics.playerTwo.statistics.salvoCodesUsed}}
+                                            </div>
+                                            <div class="label">
+                                                Salvos Earned / Used
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerTwo.statistics.radarCodes}} / {{ statistics.playerTwo.statistics.radarCodesUsed}}
+                                            </div>
+                                            <div class="label">
+                                                Radars Earned / Used
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ (statistics.playerTwo.statistics.hits / (statistics.playerTwo.statistics.misses + statistics.playerTwo.statistics.hits) * 100 ).toFixed(2) }}%
+                                            </div>
+                                            <div class="label">
+                                                Accuracy Percentage
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerTwo.statistics.invalidCodes }}
+                                            </div>
+                                            <div class="label">
+                                                Invalid Codes
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerTwo.statistics.reusedCodes }}
+                                            </div>
+                                            <div class="label">
+                                                Duplicate Codes
+                                            </div>
+                                        </div>
+                                        <div class="statistic">
+                                            <div class="value">
+                                                {{ statistics.playerTwo.statistics.itemsAwardedToOpponent }}
+                                            </div>
+                                            <div class="label">
+                                                Arsenal Items Gifted to Opponent
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br><br>
                         <button class="ui inverted button" @click="changeView(['main'])" name="button"> Exit </button>
                     </h2>
                 </div>
@@ -45,6 +194,49 @@ export default {
     name: 'app',
     data () {
         return {
+            statsReady: false,
+            statistics: {
+                playerOne: {
+                    clientName: '',
+                    id: 0,
+                    participantType: 1,
+                    statistics: {
+                        hits: 0,
+                        invalidCodes: 0,
+                        itemsAwardedToOpponent: 0,
+                        misses: 0,
+                        missileCodes: 0,
+                        missileCodesUsed: 0,
+                        radarCodes: 0,
+                        radarCodesUsed: 0,
+                        reusedCodes: 0,
+                        salvoCodes: 0,
+                        salvoCodesUsed: 0,
+                        torpedoCodes: 0,
+                        torpedoCodesUsed: 0
+                    }
+                },
+                playerTwo: {
+                    clientName: '',
+                    id: 0,
+                    participantType: 0,
+                    statistics: {
+                        hits: 0,
+                        invalidCodes: 0,
+                        itemsAwardedToOpponent: 0,
+                        misses: 0,
+                        missileCodes: 0,
+                        missileCodesUsed: 0,
+                        radarCodes: 0,
+                        radarCodesUsed: 0,
+                        reusedCodes: 0,
+                        salvoCodes: 0,
+                        salvoCodesUsed: 0,
+                        torpedoCodes: 0,
+                        torpedoCodesUsed: 0
+                    }
+                }
+            }
         }
     },
     components: {
@@ -52,13 +244,27 @@ export default {
         GameList,
         GameBoard
     },
+    watch: {
+        currentView (oldValue, newValue) {
+            var vm = this
+            vm.statsReady = false
+            if (vm.gameEndedDetails !== null) {
+                axios.get(`/api/v1/eventstats/${vm.gameEndedDetails.id}/stats`).then(function (response) {
+                    console.log(response.data);
+                    vm.statistics = response.data
+                    vm.statsReady = true
+                })
+            }
+        }
+    },
     methods: {
         ...mapActions([
             'changeClientName',
             'changeCurrentRoom',
             'changeView',
             'connectSocket',
-            'pushMessage'
+            'pushMessage',
+            'setGameEndedDetails'
         ]),
         getClientData () {
             var vm = this
@@ -71,7 +277,8 @@ export default {
         ...mapGetters([
             'currentRoom',
             'clientName',
-            'currentView'
+            'currentView',
+            'gameEndedDetails'
         ])
     },
     mounted () {
@@ -112,6 +319,10 @@ export default {
 .vs-battleship {
     font-family: 'Black Ops One', cursive;
     font-size: 40px;
+}
+.end-img {
+    display: block;
+    margin: auto;
 }
 .game-header-image {
     max-width: 179px;

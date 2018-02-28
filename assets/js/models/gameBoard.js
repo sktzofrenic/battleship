@@ -142,7 +142,7 @@ export function GameBoard (GameBoardData) {
     })
 
     Object.defineProperty(this, 'checkVictoryConditions', {
-        value: function () {
+        value: function (timerEnd, arsenals) {
             let that = this
             let playerOneTotal = 0
             let playerTwoTotal = 0
@@ -156,6 +156,25 @@ export function GameBoard (GameBoardData) {
             playerTwoTotal += that.originalShips.playerTwo.cruiser.length
             playerTwoTotal += that.originalShips.playerTwo.submarine.length
             playerTwoTotal += that.originalShips.playerTwo.outpost.length
+
+            if (timerEnd !== undefined) {
+                // if the game ends because the timer expired rather than elimination
+                // of another team, then we need to count the ships and see who has more
+                if (playerOneTotal > playerTwoTotal) {
+                    return 'playerOne'
+                } else if (playerTwoTotal > playerOneTotal) {
+                    return 'playerTwo'
+                } else if (playerOneTotal === playerTwoTotal) {
+                    // in a tie we will add up the arsenal points remainig and whoever has the most wins
+                    let p1 = arsenals.playerOne.salvo + arsenals.playerOne.missile + arsenals.playerOne.torpedo
+                    let p2 = arsenals.playerTwo.salvo + arsenals.playerTwo.missile + arsenals.playerTwo.torpedo
+                    if (p1 > p2) {
+                        return 'playerOne'
+                    } else {
+                        return 'playerTwo'
+                    }
+                }
+            }
             if (playerOneTotal === 0 && playerTwoTotal > 0 && that.gameState === 'playing') {
                 return 'playerTwo'
             } else if (playerOneTotal > 0 && playerTwoTotal === 0 && that.gameState === 'playing') {
