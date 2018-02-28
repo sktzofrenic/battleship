@@ -576,7 +576,9 @@ export default {
                         if (hit.item === 'torpedo') {
                             vm.statistics.torpedoCodesUsed += 1
                         } else if (hit.item === 'salvo') {
-                            vm.statistics.salvoCodesUsed += 1
+                            if (hit.shotCounter === 2) {
+                                vm.statistics.salvoCodesUsed += 1
+                            }
                         } else if (hit.item === 'missile') {
                             vm.statistics.missileCodesUsed += 1
                         }
