@@ -235,6 +235,7 @@
                 <span class="highlight">P1:</span>
                 <span v-if="!playerOneName && participantType === 3" @click="addAI(1)">+ <i class='laptop icon'></i></span>
                 <span v-if="AIPlayerOne" @click="removeAI(1)"><i class='trash icon'></i></span>
+                <span v-if="playerOneName && participantType === 3" @click="leaveGame(playerOneName, 1)"><i class='trash icon'></i></span>
                 {{ playerOneName }}
             </div>
             <div class="versus">
@@ -244,6 +245,7 @@
                 <span class="highlight">P2:</span>
                 <span v-if="!playerOneName && participantType === 3" @click="addAI(2)">+ <i class='laptop icon'></i></span>
                 <span v-if="AIPlayerTwo" @click="removeAI(2)"><i class='trash icon'></i></span>
+                <span v-if="playerTwoName && participantType === 3" @click="leaveGame(playerTwoName, 2)"><i class='trash icon'></i></span>
                 {{ playerTwoName }}
             </div>
             <div class="ui action inverted huge input game-code">
@@ -644,8 +646,16 @@ export default {
         clearHoverGrid () {
             this.hoverGrid = []
         },
-        leaveGame () {
+        leaveGame (clientName, participantType) {
             var vm = this
+            if (clientName !== undefined && participantType !== undefined) {
+                socket.emit('leave-game', {
+                    gameId: vm.currentRoom,
+                    clientName: clientName,
+                    participantType: participantType
+                })
+                return
+            }
             socket.emit('leave-game', {
                 gameId: vm.currentRoom,
                 clientName: vm.clientName,
@@ -981,6 +991,17 @@ export default {
             }
         })
         socket.on('leave-game', function (data) {
+            if (data.gameId == vm.currentRoom) {
+                if (data.clientName === vm.playerOneName) {
+                    vm.playerOneName = ''
+                } else if (data.clientName === vm.playerTwoName) {
+                    vm.playerTwoName = ''
+                }
+                if (data.clientName === vm.clientName) {
+                    vm.changeView(['main'])
+                    vm.setParticipantType([4])
+                }
+            }
             vm.updatePlayerNames()
         })
         socket.on('end-game', function (data) {
