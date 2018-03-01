@@ -262,6 +262,11 @@ export default {
             if (vm.gameEndedDetails !== null) {
                 axios.get(`/api/v1/eventstats/${vm.gameEndedDetails.id}/stats`).then(function (response) {
                     vm.statistics = response.data
+                    if (vm.statistics.playerOne.statistics !== undefined) {
+                        axios.get(`/api/v1/eventstats/${vm.gameEndedDetails.id}/stats`).then(function (response) {
+                            vm.statistics = response.data
+                        })
+                    }
                     vm.statsReady = true
                 })
             }
