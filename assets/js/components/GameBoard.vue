@@ -28,6 +28,11 @@
                     @contextmenu.prevent=""
                     v-for="(o, index) in gameBoard.boardObjects">
                 </x-board-object>
+                <x-ship-icon
+                    class="ship-icon"
+                    :style="o.style"
+                    v-for="(o, index) in gameBoard.shipIcons">
+                </x-ship-icon>
                 <x-mask
                     class="participant-one-mask"
                     v-if="participantType === 1">
@@ -877,6 +882,7 @@ export default {
                 let gameSide = data.fullShip[0].i > 8 ? 'playerTwo' : 'playerOne'
                 vm.gameBoard.originalShips[gameSide][data.fullShip[0].type].push(data.fullShip)
                 vm.ships = vm.gameBoard.shipCount()
+                vm.gameBoard.addShipIcons(data, gameSide)
             }
         })
         socket.on('weapon-hit', function (data) {
@@ -1244,6 +1250,10 @@ export default {
     height: 42px;
     width: 42px;
     background: #fff;
+}
+
+.ship-icon {
+    position: absolute;
 }
 
 .hit-miss {

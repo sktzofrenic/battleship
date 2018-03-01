@@ -49,8 +49,11 @@
                                                 </div>
                                             </div>
                                             <div class="statistic">
-                                                <div class="value">
+                                                <div class="value" v-if="statistics.playerOne.statistics.hits > 0">
                                                     {{ (statistics.playerOne.statistics.hits / (statistics.playerOne.statistics.misses + statistics.playerOne.statistics.hits) * 100 ).toFixed(2)}}%
+                                                </div>
+                                                <div class="value" v-else>
+                                                    0%
                                                 </div>
                                                 <div class="label">
                                                     Accuracy Percentage
@@ -120,8 +123,11 @@
                                                 </div>
                                             </div>
                                             <div class="statistic">
-                                                <div class="value">
-                                                    {{ (statistics.playerTwo.statistics.hits / (statistics.playerTwo.statistics.misses + statistics.playerTwo.statistics.hits) * 100 ).toFixed(2) }}%
+                                                <div class="value" v-if="statistics.playerTwo.statistics.hits > 0">
+                                                    {{ (statistics.playerTwo.statistics.hits / (statistics.playerTwo.statistics.misses + statistics.playerTwo.statistics.hits) * 100 ).toFixed(2)}}%
+                                                </div>
+                                                <div class="value" v-else>
+                                                    0%
                                                 </div>
                                                 <div class="label">
                                                     Accuracy Percentage
@@ -255,7 +261,6 @@ export default {
             vm.statsReady = false
             if (vm.gameEndedDetails !== null) {
                 axios.get(`/api/v1/eventstats/${vm.gameEndedDetails.id}/stats`).then(function (response) {
-                    console.log(response.data);
                     vm.statistics = response.data
                     vm.statsReady = true
                 })
