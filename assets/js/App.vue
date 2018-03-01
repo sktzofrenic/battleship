@@ -10,149 +10,154 @@
                         <span v-if="gameEndedDetails.participantType < 3 && gameEndedDetails.won === true">Victory! You've defeated your enemy!</span>
                         <span v-if="gameEndedDetails.participantType < 3 && gameEndedDetails.won === false">Defeat. We'll get 'em next time</span>
                         <span  v-if="gameEndedDetails.participantType > 2">Game Ended!</span> <br><br>
-                        <div class="ui two column grid" v-if="statsReady">
-                            <div class="column">
-                                <h3>{{ statistics.playerOne.clientName }}</h3>
-                                <div class="ui inverted segment">
-                                    <div class="ui inverted statistics">
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerOne.statistics.missileCodes}} / {{ statistics.playerOne.statistics.missileCodesUsed}}
+                        <div class="ui container" v-if="statsReady">
+                            <div class="ui two column grid">
+                                <div class="column">
+                                    <h3>{{ statistics.playerOne.clientName }}</h3>
+                                    <div class="ui inverted segment">
+                                        <div class="ui inverted statistics">
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.missileCodes}} / {{ statistics.playerOne.statistics.missileCodesUsed}}
+                                                </div>
+                                                <div class="label">
+                                                    Missiles Earned / Used
+                                                </div>
                                             </div>
-                                            <div class="label">
-                                                Missiles Earned / Used
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.torpedoCodes}} / {{ statistics.playerOne.statistics.torpedoCodesUsed}}
+                                                </div>
+                                                <div class="label">
+                                                    Torpedos Earned / Used
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.salvoCodes}} / {{ statistics.playerOne.statistics.salvoCodesUsed}}
+                                                </div>
+                                                <div class="label">
+                                                    Salvos Earned / Used
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.radarCodes}} / {{ statistics.playerOne.statistics.radarCodesUsed}}
+                                                </div>
+                                                <div class="label">
+                                                    Radars Earned / Used
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ (statistics.playerOne.statistics.hits / (statistics.playerOne.statistics.misses + statistics.playerOne.statistics.hits) * 100 ).toFixed(2)}}%
+                                                </div>
+                                                <div class="label">
+                                                    Accuracy Percentage
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.invalidCodes }}
+                                                </div>
+                                                <div class="label">
+                                                    Invalid Codes
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.reusedCodes }}
+                                                </div>
+                                                <div class="label">
+                                                    Duplicate Codes
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.itemsAwardedToOpponent }}
+                                                </div>
+                                                <div class="label">
+                                                    Arsenal Items Gifted to Opponent
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerOne.statistics.torpedoCodes}} / {{ statistics.playerOne.statistics.torpedoCodesUsed}}
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <h3>{{ statistics.playerTwo.clientName }}</h3>
+                                    <div class="ui inverted segment">
+                                        <div class="ui inverted statistics">
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.missileCodes}} / {{ statistics.playerTwo.statistics.missileCodesUsed}}
+                                                </div>
+                                                <div class="label">
+                                                    Missiles Earned / Used
+                                                </div>
                                             </div>
-                                            <div class="label">
-                                                Torpedos Earned / Used
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.torpedoCodes}} / {{ statistics.playerTwo.statistics.torpedoCodesUsed}}
+                                                </div>
+                                                <div class="label">
+                                                    Torpedos Earned / Used
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerOne.statistics.salvoCodes}} / {{ statistics.playerOne.statistics.salvoCodesUsed}}
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.salvoCodes}} / {{ statistics.playerTwo.statistics.salvoCodesUsed}}
+                                                </div>
+                                                <div class="label">
+                                                    Salvos Earned / Used
+                                                </div>
                                             </div>
-                                            <div class="label">
-                                                Salvos Earned / Used
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.radarCodes}} / {{ statistics.playerTwo.statistics.radarCodesUsed}}
+                                                </div>
+                                                <div class="label">
+                                                    Radars Earned / Used
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerOne.statistics.radarCodes}} / {{ statistics.playerOne.statistics.radarCodesUsed}}
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ (statistics.playerTwo.statistics.hits / (statistics.playerTwo.statistics.misses + statistics.playerTwo.statistics.hits) * 100 ).toFixed(2) }}%
+                                                </div>
+                                                <div class="label">
+                                                    Accuracy Percentage
+                                                </div>
                                             </div>
-                                            <div class="label">
-                                                Radars Earned / Used
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.invalidCodes }}
+                                                </div>
+                                                <div class="label">
+                                                    Invalid Codes
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ (statistics.playerOne.statistics.hits / (statistics.playerOne.statistics.misses + statistics.playerOne.statistics.hits) * 100 ).toFixed(2)}}%
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.reusedCodes }}
+                                                </div>
+                                                <div class="label">
+                                                    Duplicate Codes
+                                                </div>
                                             </div>
-                                            <div class="label">
-                                                Accuracy Percentage
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerOne.statistics.invalidCodes }}
-                                            </div>
-                                            <div class="label">
-                                                Invalid Codes
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerOne.statistics.reusedCodes }}
-                                            </div>
-                                            <div class="label">
-                                                Duplicate Codes
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerOne.statistics.itemsAwardedToOpponent }}
-                                            </div>
-                                            <div class="label">
-                                                Arsenal Items Gifted to Opponent
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.itemsAwardedToOpponent }}
+                                                </div>
+                                                <div class="label">
+                                                    Arsenal Items Gifted to Opponent
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="column">
-                                <h3>{{ statistics.playerTwo.clientName }}</h3>
-                                <div class="ui inverted segment">
-                                    <div class="ui inverted statistics">
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerTwo.statistics.missileCodes}} / {{ statistics.playerTwo.statistics.missileCodesUsed}}
-                                            </div>
-                                            <div class="label">
-                                                Missiles Earned / Used
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerTwo.statistics.torpedoCodes}} / {{ statistics.playerTwo.statistics.torpedoCodesUsed}}
-                                            </div>
-                                            <div class="label">
-                                                Torpedos Earned / Used
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerTwo.statistics.salvoCodes}} / {{ statistics.playerTwo.statistics.salvoCodesUsed}}
-                                            </div>
-                                            <div class="label">
-                                                Salvos Earned / Used
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerTwo.statistics.radarCodes}} / {{ statistics.playerTwo.statistics.radarCodesUsed}}
-                                            </div>
-                                            <div class="label">
-                                                Radars Earned / Used
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ (statistics.playerTwo.statistics.hits / (statistics.playerTwo.statistics.misses + statistics.playerTwo.statistics.hits) * 100 ).toFixed(2) }}%
-                                            </div>
-                                            <div class="label">
-                                                Accuracy Percentage
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerTwo.statistics.invalidCodes }}
-                                            </div>
-                                            <div class="label">
-                                                Invalid Codes
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerTwo.statistics.reusedCodes }}
-                                            </div>
-                                            <div class="label">
-                                                Duplicate Codes
-                                            </div>
-                                        </div>
-                                        <div class="statistic">
-                                            <div class="value">
-                                                {{ statistics.playerTwo.statistics.itemsAwardedToOpponent }}
-                                            </div>
-                                            <div class="label">
-                                                Arsenal Items Gifted to Opponent
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="ui container" v-else>
+                            <h2>Generating statistics...</h2>
                         </div>
                         <br><br>
                         <button class="ui inverted button" @click="changeView(['main'])" name="button"> Exit </button>
