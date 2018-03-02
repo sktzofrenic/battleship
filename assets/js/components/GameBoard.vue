@@ -307,6 +307,7 @@ export default {
                 radarCodesUsed: 0,
                 misses: 0,
                 hits: 0,
+                shipsDestroyed: 0,
                 invalidCodes: 0,
                 itemsAwardedToOpponent: 0,
                 reusedCodes: 0
@@ -807,6 +808,7 @@ export default {
                     if (each.action.name === 'Ship Placed') {
                         var player = each.action.data[0].i > 8 ? 'playerTwo' : 'playerOne'
                         vm.gameBoard.originalShips[player][each.action.data[0].type].push(each.action.data)
+                        vm.gameBoard.addShipIcons(each.action.data, 'gameSide')
                         each.action.data.map(function (shipTile) {
                             vm.gameBoard.boardObjects.push(shipTile)
                         })
@@ -882,7 +884,7 @@ export default {
                 let gameSide = data.fullShip[0].i > 8 ? 'playerTwo' : 'playerOne'
                 vm.gameBoard.originalShips[gameSide][data.fullShip[0].type].push(data.fullShip)
                 vm.ships = vm.gameBoard.shipCount()
-                vm.gameBoard.addShipIcons(data, gameSide)
+                vm.gameBoard.addShipIcons(data.fullShip, gameSide)
             }
         })
         socket.on('weapon-hit', function (data) {
@@ -925,9 +927,17 @@ export default {
                 // Check to see if a ship was destroyed and lock the arsenal if appropriate
                 if (shipDestroyed.result) {
                     vm.$refs.ship_destroy_sound.play()
+
+                    if (_.includes(['submarine', 'outpost'], shipDestroyed.ship)) {
+                        let player = data.hit.i < 9 ? 'playerOne' : 'playerTwo'
+                        vm.gameBoard[player + 'RadarDelay'] += 120
+                    }
                     if (_.includes(['destroyer', 'cruiser', 'carrier'], shipDestroyed.ship)) {
                         let player = data.hit.i < 9 ? 'playerOne' : 'playerTwo'
                         vm.arsenals[player].lock = true
+                        if (player !== vm.longParticipantType) {
+                            vm.statistics.shipsDestroyed += 1
+                        }
                         if (player === vm.longParticipantType) {
                             vm.boardMessage = 'Your arsenal is locked!'
                             vm.selectItem('cancel')
@@ -1123,6 +1133,32 @@ export default {
         vm.gameTimer.on('tick', function (duration) {
             vm.gameBoard.timerDisplay = duration
             vm.secondsElapsed += 1
+            if (vm.gameBoard.gameState !== 'setup') {
+                if (vm.secondsElapsed % (360 + vm.gameBoard.playerOneRadarDelay) === 0 && vm.participantType === 1) {
+                    socket.emit('arsenal-change', {
+                        gameId: vm.currentRoom,
+                        modify: 'add',
+                        item: 'radar',
+                        participantType: 1
+                    })
+                    vm.boardMessage = `You have been gifted a free Radar!`
+                    setTimeout(function () {
+                        vm.boardMessage = ''
+                    }, 5000)
+                }
+                if (vm.secondsElapsed % (360 + vm.gameBoard.playerTwoRadarDelay) === 0 && vm.participantType === 2) {
+                    socket.emit('arsenal-change', {
+                        gameId: vm.currentRoom,
+                        modify: 'add',
+                        item: 'radar',
+                        participantType: 2
+                    })
+                    vm.boardMessage = `You have been gifted a free Radar!`
+                    setTimeout(function () {
+                        vm.boardMessage = ''
+                    }, 5000)
+                }
+            }
             // Check to see if an AI player is playing
             if (vm.AIPlayerOne && vm.gameBoard.gameState !== 'setup') {
                 let AIAction = _.findIndex(vm.AIPlayerOne.actions, function (each) {

@@ -21,6 +21,8 @@ export function GameBoard (GameBoardData) {
     this.arsenalTimerDisplay = GameBoardData['timerDisplay'] || 0
     this.gameState = GameBoardData['gameState'] || 'waiting' // waiting, setup, playing, ended
     this.boardObjects = GameBoardData['boardObjects'] || []
+    this.playerOneRadarDelay = GameBoardData['teamOneRadarDelay'] || 0
+    this.playerTwoRadarDelay = GameBoardData['teamTwoRadarDelay'] || 0
     this.shipIcons = GameBoardData['shipIcons'] || []
     this.usedGameCodes = GameBoardData['usedGameCodes'] || []
     this.badGuesses = GameBoardData['badGuesses'] || 0
@@ -102,41 +104,41 @@ export function GameBoard (GameBoardData) {
     })
 
     Object.defineProperty(this, 'addShipIcons', {
-        value: function (shipArray, gameSide) {
+        value: function (fullShip) {
             let that = this
-            if (shipArray.fullShip[0].type === 'outpost') {
+            if (fullShip[0].type === 'outpost') {
                 let icon = {
                     style: {
                         background: 'url(static/build/img/outpost.dcc1b398008c7bf352dd51bac7b33327.png) no-repeat',
-                        transform: `translate(${shipArray.fullShip[0].i * 42}px, ${(shipArray.fullShip[0].j * 42) + 11}px)`,
+                        transform: `translate(${fullShip[0].i * 42}px, ${(fullShip[0].j * 42) + 11}px)`,
                         height: '42px',
                         width: '42px'
                     },
-                    i: shipArray.fullShip[0].i,
-                    j: shipArray.fullShip[0].j
+                    i: fullShip[0].i,
+                    j: fullShip[0].j
                 }
                 that.shipIcons.push(icon)
             }
-            if (shipArray.fullShip[0].type === 'submarine') {
+            if (fullShip[0].type === 'submarine') {
                 let icon = {
                     style: {
                         background: 'url(static/build/img/submarine.254114018aa986f7c6be696576e63a15.png) no-repeat',
-                        transform: `translate(${(shipArray.fullShip[0].i * 42) + 4}px, ${(shipArray.fullShip[0].j * 42) + 11}px)`,
+                        transform: `translate(${(fullShip[0].i * 42) + 4}px, ${(fullShip[0].j * 42) + 11}px)`,
                         height: '42px',
                         width: '42px'
                     },
-                    i: shipArray.fullShip[0].i,
-                    j: shipArray.fullShip[0].j
+                    i: fullShip[0].i,
+                    j: fullShip[0].j
                 }
                 that.shipIcons.push(icon)
             }
-            if (shipArray.fullShip[0].type === 'destroyer') {
+            if (fullShip[0].type === 'destroyer') {
                 let transform = ''
-                if (shipArray.fullShip[0].i === shipArray.fullShip[1].i) {
+                if (fullShip[0].i === fullShip[1].i) {
                     // rotated
-                    transform = `translate(${(shipArray.fullShip[0].i * 42) - 34}px, ${(shipArray.fullShip[0].j * 42) + 27}px) rotate(90deg)`
+                    transform = `translate(${(fullShip[0].i * 42) - 34}px, ${(fullShip[0].j * 42) + 27}px) rotate(90deg)`
                 } else {
-                    transform = `translate(${(shipArray.fullShip[0].i * 42)}px, ${(shipArray.fullShip[0].j * 42) + 11}px)`
+                    transform = `translate(${(fullShip[0].i * 42)}px, ${(fullShip[0].j * 42) + 11}px)`
                 }
                 let icon = {
                     style: {
@@ -145,18 +147,18 @@ export function GameBoard (GameBoardData) {
                         height: '42px',
                         width: '84px'
                     },
-                    i: shipArray.fullShip[0].i,
-                    j: shipArray.fullShip[0].j
+                    i: fullShip[0].i,
+                    j: fullShip[0].j
                 }
                 that.shipIcons.push(icon)
             }
-            if (shipArray.fullShip[0].type === 'cruiser') {
+            if (fullShip[0].type === 'cruiser') {
                 let transform = ''
-                if (shipArray.fullShip[0].i === shipArray.fullShip[1].i) {
+                if (fullShip[0].i === fullShip[1].i) {
                     // rotated
-                    transform = `translate(${(shipArray.fullShip[0].i * 42) - 43}px, ${(shipArray.fullShip[0].j * 42) + 47}px) rotate(90deg)`
+                    transform = `translate(${(fullShip[0].i * 42) - 43}px, ${(fullShip[0].j * 42) + 47}px) rotate(90deg)`
                 } else {
-                    transform = `translate(${(shipArray.fullShip[0].i * 42)}px, ${(shipArray.fullShip[0].j * 42) + 1}px)`
+                    transform = `translate(${(fullShip[0].i * 42)}px, ${(fullShip[0].j * 42) + 1}px)`
                 }
                 let icon = {
                     style: {
@@ -165,18 +167,18 @@ export function GameBoard (GameBoardData) {
                         height: '42px',
                         width: '126px'
                     },
-                    i: shipArray.fullShip[0].i,
-                    j: shipArray.fullShip[0].j
+                    i: fullShip[0].i,
+                    j: fullShip[0].j
                 }
                 that.shipIcons.push(icon)
             }
-            if (shipArray.fullShip[0].type === 'carrier') {
+            if (fullShip[0].type === 'carrier') {
                 let transform = ''
-                if (shipArray.fullShip[0].i === shipArray.fullShip[1].i) {
+                if (fullShip[0].i === fullShip[1].i) {
                     // rotated
-                    transform = `translate(${(shipArray.fullShip[0].i * 42) - 34}px, ${(shipArray.fullShip[0].j * 42) + 27}px) rotate(90deg)`
+                    transform = `translate(${(fullShip[0].i * 42) - 34}px, ${(fullShip[0].j * 42) + 27}px) rotate(90deg)`
                 } else {
-                    transform = `translate(${(shipArray.fullShip[0].i * 42)}px, ${(shipArray.fullShip[0].j * 42) + 11}px)`
+                    transform = `translate(${(fullShip[0].i * 42)}px, ${(fullShip[0].j * 42) + 11}px)`
                 }
                 let icon = {
                     style: {
@@ -185,8 +187,8 @@ export function GameBoard (GameBoardData) {
                         height: '84px',
                         width: '126px'
                     },
-                    i: shipArray.fullShip[0].i,
-                    j: shipArray.fullShip[0].j
+                    i: fullShip[0].i,
+                    j: fullShip[0].j
                 }
                 that.shipIcons.push(icon)
             }

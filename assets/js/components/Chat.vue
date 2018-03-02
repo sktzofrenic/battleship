@@ -42,7 +42,8 @@
                 </a>
                 <a class="item">
                     <button class="ui black tiny inverted button smaller-padding" name="button" @click="startGame()">Start Game</button>
-                    <button class="ui black tiny inverted button smaller-padding" name="button" @click="endGame()">End Game</button>
+                    <button v-if="!endGameConfirm" class="ui black tiny inverted button smaller-padding" name="button" @click="confirmButton">End Game</button>
+                    <button v-if="endGameConfirm" class="ui black tiny inverted button smaller-padding" name="button" @click="endGame()">Confirm</button>
                     <button class="ui black tiny inverted button smaller-padding" name="button" @click="resetShips()">Reset Ships</button>
                 </a>
                 <a class="item" style="padding: 0px !important;">
@@ -129,7 +130,8 @@ import _ from 'lodash'
 export default {
     data () {
         return {
-            clientMessage: ''
+            clientMessage: '',
+            endGameConfirm: false,
         }
     },
     methods: {
@@ -160,6 +162,13 @@ export default {
             socket.emit('subtract-minute', {
                 id: this.currentRoom
             })
+        },
+        confirmButton () {
+            var vm = this
+            vm.endGameConfirm = true
+            setTimeout(function () {
+                vm.endGameConfirm = false
+            }, 4000)
         },
         startTimer () {
             socket.emit('start-timer', {

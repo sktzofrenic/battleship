@@ -10,12 +10,36 @@
                         <span v-if="gameEndedDetails.participantType < 3 && gameEndedDetails.won === true">Victory! You've defeated your enemy!</span>
                         <span v-if="gameEndedDetails.participantType < 3 && gameEndedDetails.won === false">Defeat. We'll get 'em next time</span>
                         <span  v-if="gameEndedDetails.participantType > 2">Game Ended!</span> <br><br>
-                        <div class="ui container" v-if="statsReady">
+                        <div class="ui container" style="width: 90%" v-if="statsReady">
                             <div class="ui two column grid">
                                 <div class="column">
                                     <h3>{{ statistics.playerOne.clientName }}</h3>
                                     <div class="ui inverted segment">
                                         <div class="ui inverted statistics">
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.shipsDestroyed}}
+                                                </div>
+                                                <div class="label">
+                                                    Enemy Ships Sunk
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerOne.statistics.hits}}
+                                                </div>
+                                                <div class="label">
+                                                    Successful Hits
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ playerOnePuzzlesSolved}}
+                                                </div>
+                                                <div class="label">
+                                                    Puzzles Solved
+                                                </div>
+                                            </div>
                                             <div class="statistic">
                                                 <div class="value">
                                                     {{ statistics.playerOne.statistics.missileCodes}} / {{ statistics.playerOne.statistics.missileCodesUsed}}
@@ -90,6 +114,30 @@
                                     <h3>{{ statistics.playerTwo.clientName }}</h3>
                                     <div class="ui inverted segment">
                                         <div class="ui inverted statistics">
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.shipsDestroyed}}
+                                                </div>
+                                                <div class="label">
+                                                    Enemy Ships Sunk
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ statistics.playerTwo.statistics.hits}}
+                                                </div>
+                                                <div class="label">
+                                                    Successful Hits
+                                                </div>
+                                            </div>
+                                            <div class="statistic">
+                                                <div class="value">
+                                                    {{ playerTwoPuzzlesSolved}}
+                                                </div>
+                                                <div class="label">
+                                                    Puzzles Solved
+                                                </div>
+                                            </div>
                                             <div class="statistic">
                                                 <div class="value">
                                                     {{ statistics.playerTwo.statistics.missileCodes}} / {{ statistics.playerTwo.statistics.missileCodesUsed}}
@@ -220,6 +268,7 @@ export default {
                         missileCodesUsed: 0,
                         radarCodes: 0,
                         radarCodesUsed: 0,
+                        shipsDestroyed: 0,
                         reusedCodes: 0,
                         salvoCodes: 0,
                         salvoCodesUsed: 0,
@@ -238,6 +287,7 @@ export default {
                         misses: 0,
                         missileCodes: 0,
                         missileCodesUsed: 0,
+                        shipsDestroyed: 0,
                         radarCodes: 0,
                         radarCodesUsed: 0,
                         reusedCodes: 0,
@@ -297,7 +347,13 @@ export default {
             'clientName',
             'currentView',
             'gameEndedDetails'
-        ])
+        ]),
+        playerOnePuzzlesSolved () {
+            return (this.statistics.playerOne.statistics.missileCodes + this.statistics.playerOne.statistics.torpedoCodes + this.statistics.playerOne.statistics.salvoCodes)
+        },
+        playerTwoPuzzlesSolved () {
+            return (this.statistics.playerTwo.statistics.missileCodes + this.statistics.playerTwo.statistics.torpedoCodes + this.statistics.playerTwo.statistics.salvoCodes)
+        }
     },
     mounted () {
         var vm = this
