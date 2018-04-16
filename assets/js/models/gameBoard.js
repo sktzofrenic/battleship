@@ -262,10 +262,9 @@ export function GameBoard (GameBoardData) {
             playerTwoTotal += that.originalShips.playerTwo.submarine.length
             playerTwoTotal += that.originalShips.playerTwo.outpost.length
 
-            playerOneShipsDestroyed = participantType === 'playerOne' ? statistics.ownShipsDestroyed : statistics.shipsDestroyed
-            playerTwoShipsDestroyed = participantType === 'playerTwo' ? statistics.ownShipsDestroyed : statistics.shipsDestroyed
-
             if (timerEnd !== undefined) {
+                let playerOneShipsDestroyed = participantType === 'playerOne' ? statistics.ownShipsDestroyed : statistics.shipsDestroyed
+                let playerTwoShipsDestroyed = participantType === 'playerTwo' ? statistics.ownShipsDestroyed : statistics.shipsDestroyed
                 // if the game ends because the timer expired rather than elimination
                 // of another team, then we need to count the ships and see who has more
                 // first we check to see who destroyed more ships.

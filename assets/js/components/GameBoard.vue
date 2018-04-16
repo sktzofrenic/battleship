@@ -945,9 +945,10 @@ export default {
                         if (player !== vm.longParticipantType) {
                             vm.statistics.shipsDestroyed += 1
                         }
-                        if (player === vm.longParticipantType) {
+                        if (player === vm.longParticipantType || vm.participantType > 2) {
                             vm.statistics.ownShipsDestroyed += 1
                             vm.boardMessage = 'Your arsenal is locked!'
+                            vm.selectedItem = false
                             vm.selectItem('cancel')
                             if (vm.isOffsite) {
                                 if (vm.arsenalLockTimer.getStatus() === 'started') {
@@ -1244,6 +1245,10 @@ export default {
         vm.gameTimer.on('end', function () {
             vm.gameBoard.timerDisplay = 0
             let winner = vm.gameBoard.checkVictoryConditions('timer-end', vm.arsenals, vm.statistics, vm.longParticipantType)
+            console.log(vm.statistics, 'stats');
+            console.log(vm.longParticipantType);
+            
+            
             if (vm.gameBoard.gameState === 'playing') {
                 vm.$refs.win_sound.play()
                 socket.emit('end-game', {
@@ -1259,6 +1264,13 @@ export default {
         vm.arsenalLockTimer.on('end', function () {
             let player = vm.participantType == 1 ? 'playerOne' : 'playerTwo'
             vm.arsenals[player].lock = false
+            if (vm.participantType == 3) {
+                if (vm.arsenals['playerOne'].lock) {
+                    vm.arsenals['playerOne'].lock = false
+                } else if (vm.arsenals['playerTwo'].lock) {
+                    vm.arsenals['playerTwo'].lock = false
+                }
+            }
         })
     }
 }
