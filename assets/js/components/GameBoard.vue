@@ -221,7 +221,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="ship-timer highlight" v-if="arsenals[longParticipantType].lock && isOffsite">
+                <div class="ship-timer highlight" v-if="(arsenals[longParticipantType].lock && isOffsite) || participantType > 2 && isOffsite && (arsenals.playerTwo.lock || arsenals.playerOne.lock)">
                     {{ arsenalTimerDisplay }} <br>
                     <span style="color:#fff; margin-bottom: 10px; font-size:11px">
                         Arsenal Locked!
