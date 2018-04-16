@@ -767,7 +767,7 @@ export default {
                     vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-wrong', icon: 'close icon'})
                     socket.emit('bad-game-code', {
                         gameId: vm.currentRoom,
-                        player: player === 'playerOne' ? 'playerTwo' : 'playerOne',
+                        player: player,
                         item: freeItem,
                         gameCode: vm.gameCode,
                         participantType: vm.participantType
