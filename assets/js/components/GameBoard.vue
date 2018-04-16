@@ -308,6 +308,7 @@ export default {
                 misses: 0,
                 hits: 0,
                 shipsDestroyed: 0,
+                ownShipsDestroyed: 0,
                 invalidCodes: 0,
                 itemsAwardedToOpponent: 0,
                 reusedCodes: 0
@@ -931,6 +932,12 @@ export default {
                     if (_.includes(['submarine', 'outpost'], shipDestroyed.ship)) {
                         let player = data.hit.i < 9 ? 'playerOne' : 'playerTwo'
                         vm.gameBoard[player + 'RadarDelay'] += 120
+                        if (player !== vm.longParticipantType && shipDestroyed.ship === 'submarine') {
+                            vm.statistics.shipsDestroyed += 1
+                        }
+                        if (player === vm.longParticipantType && shipDestroyed.ship === 'submarine') {
+                            vm.statistics.ownShipsDestroyed += 1
+                        }
                     }
                     if (_.includes(['destroyer', 'cruiser', 'carrier'], shipDestroyed.ship)) {
                         let player = data.hit.i < 9 ? 'playerOne' : 'playerTwo'
@@ -939,6 +946,7 @@ export default {
                             vm.statistics.shipsDestroyed += 1
                         }
                         if (player === vm.longParticipantType) {
+                            vm.statistics.ownShipsDestroyed += 1
                             vm.boardMessage = 'Your arsenal is locked!'
                             vm.selectItem('cancel')
                             if (vm.isOffsite) {
@@ -1235,7 +1243,7 @@ export default {
         })
         vm.gameTimer.on('end', function () {
             vm.gameBoard.timerDisplay = 0
-            let winner = vm.gameBoard.checkVictoryConditions('timer-end', vm.arsenals)
+            let winner = vm.gameBoard.checkVictoryConditions('timer-end', vm.arsenals, vm.statistics, vm.longParticipantType)
             if (vm.gameBoard.gameState === 'playing') {
                 vm.$refs.win_sound.play()
                 socket.emit('end-game', {

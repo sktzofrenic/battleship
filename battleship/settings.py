@@ -37,7 +37,7 @@ class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://njmprneafciwlm:155ab57d0f979a4c117a2d8718caa4933c0a65a5cbd086a07e76b3e6ee9d5263@ec2-54-83-203-198.compute-1.amazonaws.com:5432/depegtamdcggjh')
     DEBUG_TB_ENABLED = False
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
-    WEBPACK_ASSETS_URL = "http://myground.org:5001/static/build/"
+    WEBPACK_ASSETS_URL = "http://server.myground.org:5001/static/build/"
 
 
 class TestConfig(Config):

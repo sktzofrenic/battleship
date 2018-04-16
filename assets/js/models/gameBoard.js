@@ -247,7 +247,7 @@ export function GameBoard (GameBoardData) {
     })
 
     Object.defineProperty(this, 'checkVictoryConditions', {
-        value: function (timerEnd, arsenals) {
+        value: function (timerEnd, arsenals, statistics, participantType) {
             let that = this
             let playerOneTotal = 0
             let playerTwoTotal = 0
@@ -262,15 +262,26 @@ export function GameBoard (GameBoardData) {
             playerTwoTotal += that.originalShips.playerTwo.submarine.length
             playerTwoTotal += that.originalShips.playerTwo.outpost.length
 
+            playerOneShipsDestroyed = participantType === 'playerOne' ? statistics.ownShipsDestroyed : statistics.shipsDestroyed
+            playerTwoShipsDestroyed = participantType === 'playerTwo' ? statistics.ownShipsDestroyed : statistics.shipsDestroyed
+
             if (timerEnd !== undefined) {
                 // if the game ends because the timer expired rather than elimination
                 // of another team, then we need to count the ships and see who has more
+                // first we check to see who destroyed more ships.
+                if (playerOneShipsDestroyed > playerTwoShipsDestroyed) {
+                    return 'playerTwo'
+                } else if (playerTwoShipsDestroyed > playerOneShipsDestroyed) {
+                    return 'playerOne'
+                }
+                // if the game is still tied then we look at who has the most hits
                 if (playerOneTotal > playerTwoTotal) {
                     return 'playerOne'
                 } else if (playerTwoTotal > playerOneTotal) {
                     return 'playerTwo'
                 } else if (playerOneTotal === playerTwoTotal) {
-                    // in a tie we will add up the arsenal points remainig and whoever has the most wins
+                    // if still a tie we will add up the arsenal points remainig and whoever has the most
+                    // successful codes (i.e. who earned the most arsenal items)
                     let p1 = arsenals.playerOne.salvo + arsenals.playerOne.missile + arsenals.playerOne.torpedo
                     let p2 = arsenals.playerTwo.salvo + arsenals.playerTwo.missile + arsenals.playerTwo.torpedo
                     if (p1 > p2) {
@@ -280,6 +291,8 @@ export function GameBoard (GameBoardData) {
                     }
                 }
             }
+            // if the game ends while the timer is still going it's more trivial to pick a winner
+            // as the winner is the one who does not have zero ships remaining
             if (playerOneTotal === 0 && playerTwoTotal > 0 && that.gameState === 'playing') {
                 return 'playerTwo'
             } else if (playerOneTotal > 0 && playerTwoTotal === 0 && that.gameState === 'playing') {
