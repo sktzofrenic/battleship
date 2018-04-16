@@ -1002,6 +1002,7 @@ export default {
                 vm.gameBoard.gameState = 'playing'
                 vm.selectItem('cancel')
                 vm.gameTimer.stop()
+                vm.secondsElapsed = 0
                 vm.gameBoard.timerDisplay = 60*60*1000
                 // vm.gameBoard.timerDisplay = 20000
             }
