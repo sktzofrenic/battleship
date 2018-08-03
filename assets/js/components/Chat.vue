@@ -116,7 +116,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <audio ref="chatSound" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/new-chat.wav" type="audio/mpeg" loop></audio>
+                    <audio ref="chatSound" style="display:none;" id="menu_music" src="/static/build/audio/new-chat.wav" type="audio/mpeg"></audio>
                 </a>
             </div>
         </div>
