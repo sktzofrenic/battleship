@@ -1,5 +1,6 @@
 <template lang="html">
     <div class="">
+        <audio ref="chatSound" style="display:none;" id="menu_music" src="/static/build/audio/new-chat.wav" type="audio/mpeg"></audio>
         <h2 class="chat-title" style="margin-top: 10px;">Chat ({{ currentRoom }})</h2>
         <div class="chat-box" ref="chatbox" id="style-3">
             <span v-for="msg in chatMessages" class="chat-message" v-if="msg.room === currentRoom">
@@ -116,7 +117,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    <audio ref="chatSound" style="display:none;" id="menu_music" src="/static/build/audio/new-chat.wav" type="audio/mpeg"></audio>
                 </a>
             </div>
         </div>
@@ -238,7 +238,9 @@ export default {
             } else {
                 vm.pushMessage([msg])
             }
-            vm.$refs.chatSound.play()
+            if (!_.includes(msg.recipients, vm.participantType)) {
+                vm.$refs.chatSound.play()
+            }
         })
         socket.on('end-game', function (data) {
             if (data.id == vm.currentRoom) {
