@@ -203,7 +203,8 @@ export default {
                 name: this.clientName,
                 room: this.currentRoom,
                 recipients: this.chatRecipients,
-                chatNumber: this.chatNumber
+                chatNumber: this.chatNumber,
+                sender: this.participantType
             })
             this.clientMessage = ''
         },
@@ -238,7 +239,7 @@ export default {
             } else {
                 vm.pushMessage([msg])
             }
-            if (!_.includes(msg.recipients, vm.participantType)) {
+            if (msg.sender === vm.participantType) {
                 vm.$refs.chatSound.play()
             }
         })
