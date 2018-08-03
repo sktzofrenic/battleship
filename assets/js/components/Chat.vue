@@ -116,6 +116,7 @@
                             </tr>
                         </tbody>
                     </table>
+                    <audio ref="chatSound" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/new-chat.wav" type="audio/mpeg" loop></audio>
                 </a>
             </div>
         </div>
@@ -237,6 +238,7 @@ export default {
             } else {
                 vm.pushMessage([msg])
             }
+            vm.$refs.chatSound.play()
         })
         socket.on('end-game', function (data) {
             if (data.id == vm.currentRoom) {

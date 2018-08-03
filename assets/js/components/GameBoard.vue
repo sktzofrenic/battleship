@@ -231,7 +231,7 @@
                     Exit
                 </div>
                 <i @click="toggleBackgroundMusic()" class="music icon" :class="{'active-bg-music': backgroundMusicStatus}"></i>
-                <audio ref="backgroundMusic" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/menu_music.mp3" type="audio/mpeg" loop></audio>
+                <audio ref="backgroundMusic" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/menu_music_low.wav" type="audio/mpeg" loop></audio>
                 <audio ref="win_sound" style="display:none;" id="win_sound" src="/static/build/audio/win_jingle.wav" type="audio/mpeg"></audio>
                 <audio ref="lose_sound" style="display:none;" id="lose_sound" src="/static/build/audio/lose_jingle.wav" type="audio/mpeg"></audio>
                 <audio ref="ship_destroy_sound" style="display:none;" id="ship_destroy_sound" src="/static/build/audio/destroyed.wav" type="audio/mpeg"></audio>
