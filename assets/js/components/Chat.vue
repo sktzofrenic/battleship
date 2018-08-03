@@ -239,7 +239,7 @@ export default {
             } else {
                 vm.pushMessage([msg])
             }
-            if (msg.sender === vm.participantType) {
+            if (msg.sender != vm.participantType) {
                 vm.$refs.chatSound.play()
             }
         })
