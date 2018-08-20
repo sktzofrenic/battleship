@@ -3,7 +3,7 @@
 from flask import Flask, render_template
 
 from battleship import commands, public, user, game, api, sockets
-from battleship.extensions import bcrypt, cache, csrf_protect, db, debug_toolbar, login_manager, migrate, webpack, socketio
+from battleship.extensions import bcrypt, csrf_protect, db, debug_toolbar, login_manager, migrate, webpack, socketio
 from battleship.settings import ProdConfig
 from battleship.game.models import (Game, GameEvent, ChatEvent, GameCodeSet,
                                     GameCode, Action, GameParticipant, ComputerPlayer, ComputerPlayerEvents)
@@ -27,7 +27,6 @@ def create_app(config_object=ProdConfig):
 def register_extensions(app):
     """Register Flask extensions."""
     bcrypt.init_app(app)
-    cache.init_app(app)
     db.init_app(app)
     csrf_protect.init_app(app)
     login_manager.init_app(app)
