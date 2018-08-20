@@ -21,7 +21,7 @@ Flask-WTF==0.14.2
 WTForms==2.1
 
 # Deployment
-gunicorn>=19.9.1
+gunicorn>=19.9.0
 eventlet==0.24.1
 
 # Webpack
