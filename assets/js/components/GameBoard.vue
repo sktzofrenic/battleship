@@ -972,7 +972,6 @@ export default {
                 // conditions have been acheived.
                 let winner = vm.gameBoard.checkVictoryConditions()
                 if (winner) {
-                    vm.$refs.win_sound.play()
                     socket.emit('end-game', {
                         id: vm.currentRoom,
                         winner: winner,
@@ -1036,9 +1035,9 @@ export default {
         })
         socket.on('end-game', function (data) {
             if (data.id == vm.currentRoom) {
-                vm.gameBoard.gameState = 'ended'
-                vm.gameTimer.stop()
-                vm.gameBoard.timerDisplay = 0
+                vm.gameBoard.gameState = 'ended' 
+                vm.gameTimer.pause()
+                vm.$refs.win_sound.play()
                 if (vm.participantType < 3) {
                     socket.emit('update-stats', {
                         id: vm.currentRoom,
@@ -1248,18 +1247,18 @@ export default {
         })
         vm.gameTimer.on('end', function () {
             vm.gameBoard.timerDisplay = 0
-            let winner = vm.gameBoard.checkVictoryConditions('timer-end', vm.arsenals, vm.statistics, vm.longParticipantType)
-            console.log(vm.statistics, 'stats');
-            console.log(vm.longParticipantType);
-            
-            
-            if (vm.gameBoard.gameState === 'playing') {
-                vm.$refs.win_sound.play()
-                socket.emit('end-game', {
-                    id: vm.currentRoom,
-                    winner: winner,
-                    clientName: vm[winner + 'Name']
-                })
+
+            // when the timer ends, don't let the game master client decide the winner
+            if (vm.participantType < 3) {
+                let winner = vm.gameBoard.checkVictoryConditions('timer-end', vm.arsenals, vm.statistics, vm.longParticipantType)
+
+                if (vm.gameBoard.gameState === 'playing') {
+                    socket.emit('end-game', {
+                        id: vm.currentRoom,
+                        winner: winner,
+                        clientName: vm[winner + 'Name']
+                    })
+                }
             }
         })
         vm.arsenalLockTimer.on('tick', function (duration) {
