@@ -363,6 +363,18 @@ export default {
         socket.emit('join-room', {
             room: 'public'
         })
+        var pic = new Image()
+        var pic2 = new Image()
+        var pic3 = new Image()
+        var pic4 = new Image()
+        var pic5 = new Image()
+
+        pic.src="/static/build/img/x.e7680db3e4b66837463c2d7208e70294.png";
+        pic2.src="/static/build/img/o.ce7403ad50b153c281f3493a9d14d06d.png";
+        pic3.src="/static/build/img/left-gray.f97d507e49d3696ddd187b009b54205b.png";
+        pic4.src="/static/build/img/right-gray.8260c0c5fecc26d292602ed075f3b673.png";
+        pic5.src="/static/build/img/game-map-small.c27ec7300208ac92eacdfa6c4e2fa594.png";
+        
     }
 }
 </script>
