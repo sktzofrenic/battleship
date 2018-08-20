@@ -695,6 +695,10 @@ export default {
         },
         verifyGameCode () {
             var vm = this
+            // Don't do anything if gamecode is blank
+            if (!vm.gameCode) {
+                return
+            }
             let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
             let gcIndex = _.findIndex(vm.gameCodes, function(gCode) {
                 if (gCode.name === vm.gameCode) {
