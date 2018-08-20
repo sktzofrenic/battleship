@@ -936,10 +936,10 @@ export default {
                     if (_.includes(['submarine', 'outpost'], shipDestroyed.ship)) {
                         let player = data.hit.i < 9 ? 'playerOne' : 'playerTwo'
                         vm.gameBoard[player + 'RadarDelay'] += 120
-                        if (player !== vm.longParticipantType && shipDestroyed.ship === 'submarine') {
+                        if (player !== vm.longParticipantType) {
                             vm.statistics.shipsDestroyed += 1
                         }
-                        if (player === vm.longParticipantType && shipDestroyed.ship === 'submarine') {
+                        if (player === vm.longParticipantType) {
                             vm.statistics.ownShipsDestroyed += 1
                         }
                     }

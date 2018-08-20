@@ -21,7 +21,7 @@
                                                     {{ statistics.playerOne.statistics.shipsDestroyed}}
                                                 </div>
                                                 <div class="label">
-                                                    Enemy Ships Sunk
+                                                    Enemy Units Destroyed
                                                 </div>
                                             </div>
                                             <div class="statistic">
@@ -119,7 +119,7 @@
                                                     {{ statistics.playerTwo.statistics.shipsDestroyed}}
                                                 </div>
                                                 <div class="label">
-                                                    Enemy Ships Sunk
+                                                    Enemy Units Destroyed
                                                 </div>
                                             </div>
                                             <div class="statistic">
