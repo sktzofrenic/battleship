@@ -4,9 +4,10 @@ from flask import jsonify
 from battleship.extensions import socketio
 from battleship.utils import authenticated_only
 from flask_socketio import send, emit, join_room, leave_room
-from battleship.game.models import Game, GameParticipant, GameEvent, Action, ChatEvent
+from battleship.game.models import Game, GameParticipant, GameEvent, Action, ChatEvent, QuickChatCode
 import datetime as dt
 import json as js
+import re
 
 
 @socketio.on('message')
@@ -58,6 +59,12 @@ def chat(json):
     print('received chat json: ' + str(json))
     if json['room'] != 'public':
         chat_event = ChatEvent.create(game_id=json['room'], sender=json['name'], message=json['message'], channel=json['recipients'])
+        json['message'] = json['message'] + ' '
+        matches = re.findall(r'!(.*?) ', json['message'])
+        for match in matches:
+            check = QuickChatCode.query.filter_by(code=match).first()
+            if check:
+                json['message'] = json['message'].replace('!' + match, check.text)
     emit('chat', json, broadcast=True)
 
 
