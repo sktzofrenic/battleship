@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 from battleship.user.models import User
-from battleship.game.models import GameCodeSet, Game
+from battleship.game.models import GameCodeSet, Game, QuickChatCode
 
 blueprint = Blueprint('dashboard', __name__, url_prefix='/dashboard', static_folder='../static')
 
@@ -26,6 +26,13 @@ def users():
 def game_codes():
     game_code_sets = GameCodeSet.query.all()
     return render_template('admin/game_code_sets.html', game_code_sets=game_code_sets)
+
+
+@blueprint.route('/chat-codes')
+@login_required
+def chat_codes():
+    chat_codes = QuickChatCode.query.all()
+    return render_template('admin/chat_codes.html', chat_codes=chat_codes)
 
 
 @blueprint.route('/battleship')

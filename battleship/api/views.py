@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, send_file
 from flask_login import login_required, current_user
 from battleship.user.models import User
-from battleship.game.models import GameCode, GameCodeSet, Action, Game
+from battleship.game.models import GameCode, GameCodeSet, Action, Game, QuickChatCode
 from battleship.utils import try_parsing_date
 import csv
 import io
@@ -115,6 +115,36 @@ def actions(action_id=None):
         actions = Action.query.all()
         return jsonify({
             'actions': [x.serialize for x in actions]
+        })
+
+
+@blueprint.route('/chat-codes', methods=['GET', 'POST'])
+@blueprint.route('/chat-codes/<int:code_id>', methods=['DELETE', 'PUT'])
+@login_required
+def chat_codes(code_id=None):
+    request_data = request.get_json()
+    if request.method == 'GET':
+        codes = QuickChatCode.query.all()
+        return jsonify({
+            'codes': [x.serialize for x in codes]
+        })
+    if request.method == 'POST':
+        QuickChatCode.create(code=request_data.get('code', None), text=request_data.get('text', None))
+        return jsonify({
+            'result': 'ok'
+        })
+    if request.method == 'PUT':
+        code = QuickChatCode.query.filter_by(id=code_id).first()
+        code.text = request_data.get('text', code.text)
+        code.code = request_data.get('code', code.code)
+        code.save()
+        return jsonify({
+            'result': 'ok'
+        })
+    if request.method == 'DELETE':
+        QuickChatCode.query.filter_by(id=code_id).first().delete()
+        return jsonify({
+            'result': 'ok'
         })
 
 

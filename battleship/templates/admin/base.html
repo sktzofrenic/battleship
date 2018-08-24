@@ -31,6 +31,7 @@
                 <div class="ui secondary vertical fluid menu">
                     <a href="{{url_for('dashboard.home')}}"  class="{% if request.url_rule.endpoint  == 'dashboard.home'%} active {% endif%}item">Games</a>
                     <a href="{{url_for('dashboard.game_codes')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.game_codes'%} active {% endif%}">Game Codes</a>
+                    <a href="{{url_for('dashboard.chat_codes')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.chat_codes'%} active {% endif%}">Chat Quick Codes</a>
                     <a href="{{url_for('dashboard.analytics')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.analytics'%} active {% endif%}">Analytics</a>
                     <div class="ui hidden divider"></div>
                     <a href="{{url_for('dashboard.users')}}" class="item {% if request.url_rule.endpoint  == 'dashboard.users'%} active {% endif%}">Users</a>

@@ -4,6 +4,30 @@ import json
 from battleship.database import Column, Model, SurrogatePK, db, reference_col, relationship
 
 
+class QuickChatCode(SurrogatePK, Model):
+    """A game code and an associated action for that code."""
+
+    __tablename__ = 'quick_chat_codes'
+    code = Column(db.Text)
+    text = Column(db.Text)
+
+    def __init__(self, **kwargs):
+        """Create instance."""
+        db.Model.__init__(self, **kwargs)
+
+    def __repr__(self):
+        """Represent instance as a unique string."""
+        return '<QuickChatCode({id})>'.format(id=self.id)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'code': self.code,
+            'text': self.text
+        }
+
+
 class Game(SurrogatePK, Model):
     """A game model for the battleship product."""
 

@@ -14,6 +14,7 @@ import Vuex from 'vuex'
 import App from './App.vue'
 import { store } from './store/store'
 import GameCode from './staticViews/GameCode.vue'
+import ChatCode from './staticViews/ChatCode.vue'
 import Users from './staticViews/Users.vue'
 import GameList from './staticViews/GameList.vue'
 import Analytics from './staticViews/Analytics.vue'
@@ -35,6 +36,13 @@ new Vue({
   render: h => h(GameCode),
   components: { GameCode }
 })
+
+new Vue({
+    el: '#chatCodes',
+    template: '<ChatCode/>',
+    render: h => h(ChatCode),
+    components: { ChatCode }
+  })
 
 new Vue({
   el: '#users',
