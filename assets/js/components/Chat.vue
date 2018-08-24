@@ -4,7 +4,7 @@
         <h2 class="chat-title" style="margin-top: 10px;">Chat ({{ currentRoom }})</h2>
         <div class="chat-box" ref="chatbox" id="style-3">
             <span v-for="msg in chatMessages" class="chat-message" v-if="msg.room === currentRoom">
-                <strong>{{msg.name}}:</strong> {{msg.message}}
+                <strong :class="{'red': msg.sender == 1, 'blue': msg.sender == 2}">{{msg.name}}:</strong> {{msg.message}}
             </span>
         </div>
         <div class="ui inverted transparent icon input chat-input">
@@ -253,6 +253,12 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.red {
+    color: #e22722;
+}
+.blue {
+    color: lightskyblue;
+}
 .chat-message {
     display: block;
     font-family: 'Inconsolata', monospace;
