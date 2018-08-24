@@ -265,6 +265,9 @@ export function GameBoard (GameBoardData) {
             if (timerEnd !== undefined) {
                 let playerOneShipsDestroyed = participantType === 'playerOne' ? statistics.ownShipsDestroyed : statistics.shipsDestroyed
                 let playerTwoShipsDestroyed = participantType === 'playerTwo' ? statistics.ownShipsDestroyed : statistics.shipsDestroyed
+
+                let playerOneHits = participantType === 'playerOne' ? statistics.hits : statistics.enemyHits
+                let playerTwoHits = participantType === 'playerTwo' ? statistics.hits : statistics.enemyHits
                 // if the game ends because the timer expired rather than elimination
                 // of another team, then we need to count the ships and see who has more
                 // first we check to see who destroyed more ships.
@@ -274,12 +277,12 @@ export function GameBoard (GameBoardData) {
                     return 'playerOne'
                 }
                 // if the game is still tied then we look at who has the most hits
-                if (playerOneTotal > playerTwoTotal) {
+                if (playerOneHits > playerTwoHits) {
                     return 'playerOne'
-                } else if (playerTwoTotal > playerOneTotal) {
+                } else if (playerTwoHits > playerOneHits) {
                     return 'playerTwo'
-                } else if (playerOneTotal === playerTwoTotal) {
-                    // if still a tie we will add up the arsenal points remainig and whoever has the most
+                } else if (playerOneHits === playerTwoHits) {
+                    // if still a tie we will add up the arsenal points remaining and whoever has the most
                     // successful codes (i.e. who earned the most arsenal items)
                     let p1 = arsenals.playerOne.salvo + arsenals.playerOne.missile + arsenals.playerOne.torpedo
                     let p2 = arsenals.playerTwo.salvo + arsenals.playerTwo.missile + arsenals.playerTwo.torpedo

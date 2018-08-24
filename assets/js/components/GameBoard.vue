@@ -307,6 +307,7 @@ export default {
                 radarCodesUsed: 0,
                 misses: 0,
                 hits: 0,
+                enemyHits: 0,
                 shipsDestroyed: 0,
                 ownShipsDestroyed: 0,
                 invalidCodes: 0,
@@ -581,7 +582,6 @@ export default {
                             item: vm.selectedItem,
                             player: player
                         }
-                        vm.statistics.hits += 1
                         if (hit.item === 'torpedo') {
                             vm.statistics.torpedoCodesUsed += 1
                         } else if (hit.item === 'salvo') {
@@ -914,6 +914,14 @@ export default {
                 }
                 // update the ship count on the board
                 vm.ships = vm.gameBoard.shipCount()
+
+                // update statistics
+                let player = data.hit.i < 9 ? 'playerOne' : 'playerTwo'
+                if (player === vm.longParticipantType) {
+                    vm.statistics.enemyHits += 1
+                } else if (data.hit.participantType < 3) {
+                    vm.statistics.hits += 1
+                }
 
 
                 // UPDATE the AI delay if appropriate
