@@ -291,6 +291,7 @@ export default {
             hoverGrid: [],
             hoverShape: 'one',
             hoverColor: '#fff',
+            lockInput: false,  // used to prevent players from quick double clicking
             boardMessage: '',
             gameTimer: new Timer(),
             arsenalLockTimer: new Timer(),
@@ -560,12 +561,13 @@ export default {
                         return
                     }
                     //If the weapon hit and we haven't already added this result, add it
-                    if (weaponHit > -1 && _.findIndex(vm.gameBoard.hitMissGrid, function (o) {
+                    if (weaponHit > -1 && !vm.lockInput && _.findIndex(vm.gameBoard.hitMissGrid, function (o) {
                         return o.i === square.i && o.j === square.j
                     }) === -1) {
                         let hitSquare = _.find(vm.gameBoard.boardObjects, function (o) {
                             return o.i === square.i && o.j === square.j
                         })
+                        vm.lockInput = true
                         let hit ={
                             type: 'hit',
                             style: {
@@ -627,8 +629,9 @@ export default {
                 setTimeout(function () {
                     vm.boardMessage = ''
                 }, 1000)
-            } else if (!vm.gameBoard.shipLimitExceeded(vm.selectedItem, vm.hoverGrid)){
+            } else if (!vm.gameBoard.shipLimitExceeded(vm.selectedItem, vm.hoverGrid) && !vm.lockInput){
                 let fullShip = []
+                vm.lockInput = true
                 vm.hoverGrid.map(function (square) {
                     let ship = {
                         type: vm.selectedItem,
@@ -883,6 +886,7 @@ export default {
         })
         socket.on('ship-placed', function (data) {
             if (data.gameId == vm.currentRoom) {
+                vm.lockInput = false
                 data.fullShip.map(function (ship) {
                     vm.gameBoard.boardObjects.push(ship)
                 })
@@ -979,6 +983,7 @@ export default {
                 // After every weapon hit, we need to check to see if the victory
                 // conditions have been acheived.
                 let winner = vm.gameBoard.checkVictoryConditions()
+                vm.lockInput = false
                 if (winner) {
                     socket.emit('end-game', {
                         id: vm.currentRoom,
