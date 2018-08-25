@@ -216,9 +216,6 @@ export default {
             'setChatRecipients'
         ])
     },
-    updated () {
-        this.$refs.chatbox.scrollTop = this.$refs.chatbox.scrollHeight
-    },
     computed: {
         ...mapGetters([
             'currentRoom',
