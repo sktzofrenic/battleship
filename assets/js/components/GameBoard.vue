@@ -264,7 +264,7 @@
                 {{ playerTwoName }}
             </div>
             <div class="ui action inverted huge input game-code">
-                <input type="text" :value="gameCode" maxlength="6" @input="gameCode = $event.target.value.toUpperCase()">
+                <input id="code-input" placeholder="enter code" type="text" :value="gameCode" maxlength="6" @input="gameCode = $event.target.value.toUpperCase()">
                 <button class="ui red huge labeled icon button" @click="verifyGameCode()">
                     <i class="crosshairs icon"></i>
                     Verify
@@ -307,6 +307,7 @@ export default {
             hoverColor: '#fff',
             lockInput: false,  // used to prevent players from quick double clicking
             boardMessage: '',
+            rightClickMsgDisplay: true,
             gameTimer: new Timer(),
             arsenalLockTimer: new Timer(),
             backgroundMusicStatus1: false,
@@ -564,10 +565,11 @@ export default {
                         shipCount += 1
                     }
                 })
-                vm.boardMessage = `There are ${shipCount} squares occupied by the enemy in this area.`
-                setTimeout(function () {
-                    vm.boardMessage = ''
-                }, 5000)
+                vm.systemMsg(`There are ${shipCount} squares occupied by the enemy in this area.`)
+                // vm.boardMessage = `There are ${shipCount} squares occupied by the enemy in this area.`
+                // setTimeout(function () {
+                //     vm.boardMessage = ''
+                // }, 5000)
                 vm.statistics.radarCodesUsed += 1
                 socket.emit('radar-used', {
                     gameId: vm.currentRoom,
@@ -596,17 +598,19 @@ export default {
                         return o.i === square.i && o.j === square.j
                     })
                     if (weaponHit > -1 && vm.gameBoard.boardObjects[weaponHit].type === 'submarine' && vm.selectedItem === 'missile') {
-                        vm.boardMessage = 'Enemy sub dodged your missile!'
-                        setTimeout(function () {
-                            vm.boardMessage = ''
-                        }, 5000)
+                        vm.systemMsg(`Enemy sub dodged your missile!`)
+                        // vm.boardMessage = 'Enemy sub dodged your missile!'
+                        // setTimeout(function () {
+                        //     vm.boardMessage = ''
+                        // }, 5000)
                         return
                     }
                     if (vm.selectedItem === 'torpedo' && _.some(vm.gameBoard.landCoords, {i: square.i, j: square.j})) {
-                        vm.boardMessage = 'Torpedoes can\'t target land!'
-                        setTimeout(function () {
-                            vm.boardMessage = ''
-                        }, 5000)
+                        vm.systemMsg(`Torpedoes can\'t target land!`)
+                        // vm.boardMessage = 'Torpedoes can\'t target land!'
+                        // setTimeout(function () {
+                        //     vm.boardMessage = ''
+                        // }, 5000)
                         return
                     }
                     //If the weapon hit and we haven't already added this result, add it
@@ -674,10 +678,11 @@ export default {
                 return
             }
             if (vm.gameBoard.areInvalid(vm.hoverGrid, vm.selectedItem, vm.participantType)) {
-                vm.boardMessage = 'Invalid placement'
-                setTimeout(function () {
-                    vm.boardMessage = ''
-                }, 1000)
+                vm.systemMsg(`Invalid placement`)
+                // vm.boardMessage = 'Invalid placement'
+                // setTimeout(function () {
+                //     vm.boardMessage = ''
+                // }, 1000)
             } else if (!vm.gameBoard.shipLimitExceeded(vm.selectedItem, vm.hoverGrid) && !vm.lockInput){
                 let fullShip = []
                 vm.lockInput = true
@@ -791,32 +796,36 @@ export default {
                     participantType: vm.participantType
                 })
                 vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-success', icon: 'checkmark icon'})
-                vm.boardMessage =`One ${item} added to your arsenal!`
-                setTimeout(function () {
-                    vm.boardMessage = ''
-                }, 2000)
+                vm.systemMsg(`One ${item} added to your arsenal!`)
+                // vm.boardMessage =`One ${item} added to your arsenal!`
+                // setTimeout(function () {
+                //     vm.boardMessage = ''
+                // }, 2000)
                 vm.gameBoard.usedGameCodes.push(vm.gameCode)
             } else if (_.includes(vm.gameBoard.usedGameCodes, vm.gameCode)) {
                 // game code is valid but has already been used
-                vm.boardMessage = 'You already used that game code!'
+                vm.systemMsg(`You already used that game code!`)
+                // vm.boardMessage = 'You already used that game code!'
                 vm.statistics.reusedCodes += 1
                 vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-dupe', icon: 'circle thin icon'})
-                setTimeout(function () {
-                    vm.boardMessage = ''
-                }, 2000)
+                // setTimeout(function () {
+                //     vm.boardMessage = ''
+                // }, 2000)
             } else {
                 // game code is not valid
                 if (vm.gameBoard.badGuesses < 2) {
-                    vm.boardMessage = 'Bad Code! Incorrect codes will give the enemy free arsenal items...'
+                    vm.systemMsg(`Bad Code! Incorrect codes will give the enemy free arsenal items...`)
+                    // vm.boardMessage = 'Bad Code! Incorrect codes will give the enemy free arsenal items...'
                     vm.gameBoard.badGuesses += 1
                     vm.statistics.invalidCodes += 1
                     vm.gameCodeHistory.unshift({name: vm.gameCode, result: 'gc-wrong-warn', icon: 'warning sign icon'})
-                    setTimeout(function () {
-                        vm.boardMessage = ''
-                    }, 2000)
+                    // setTimeout(function () {
+                    //     vm.boardMessage = ''
+                    // }, 2000)
                 } else {
                     let freeItem = vm.gameBoard.badGuesses % 2 ? 'torpedo' : 'missile'
-                    vm.boardMessage = `Bad Code! You just gave the enemy a free ${freeItem}`
+                    vm.systemMsg(`Bad Code! You just gave the enemy a free ${freeItem}`)
+                    // vm.boardMessage = `Bad Code! You just gave the enemy a free ${freeItem}`
                     vm.gameBoard.badGuesses += 1
                     vm.statistics.invalidCodes += 1
                     vm.statistics.itemsAwardedToOpponent += 1
@@ -828,9 +837,9 @@ export default {
                         gameCode: vm.gameCode,
                         participantType: vm.participantType
                     })
-                    setTimeout(function () {
-                        vm.boardMessage = ''
-                    }, 2000)
+                    // setTimeout(function () {
+                    //     vm.boardMessage = ''
+                    // }, 2000)
                 }
             }
             vm.gameCode = ''
@@ -873,14 +882,33 @@ export default {
                 })
             })
         },
+        systemMsg (msg) {
+            var vm = this
+            socket.emit('chat', {
+                message: msg,
+                name: vm.clientName,
+                room: vm.currentRoom,
+                recipients: [vm.participantType],
+                chatNumber: 99,
+                sender: 99
+            })
+        },
         selectItem (item) {
             var vm = this
             let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
             if (_.includes(['salvo', 'cruiser', 'carrier', 'destroyer'], item) && this.gameBoard.gameState === 'setup' && this.participantType < 3) {
-                vm.boardMessage =`Right click to rotate`
-                setTimeout(function () {
-                    vm.boardMessage = ''
-                }, 2000)
+                if (vm.rightClickMsgDisplay) {
+                   vm.systemMsg('Right click to rotate')
+                   vm.rightClickMsgDisplay = false
+                   setTimeout(() => {
+                       vm.rightClickMsgDisplay = true
+                   }, 60000); 
+                }
+                
+                // vm.boardMessage =`Right click to rotate`
+                // setTimeout(function () {
+                //     vm.boardMessage = ''
+                // }, 2000)
             }
             if (this.arsenals[player].lock) {
                 this.selectedItem = false
@@ -1012,7 +1040,8 @@ export default {
                         }
                         if (player === vm.longParticipantType || vm.participantType > 2) {
                             vm.statistics.ownShipsDestroyed += 1
-                            vm.boardMessage = 'Your arsenal is locked!'
+                            vm.systemMsg('Your arsenal is locked!')
+                            // vm.boardMessage = 'Your arsenal is locked!'
                             vm.selectedItem = false
                             vm.selectItem('cancel')
                             if (vm.isOffsite) {
@@ -1023,9 +1052,9 @@ export default {
                                 vm.gameBoard.arsenalTimerDisplay += vm.arsenalTimeout*1000
                                 vm.arsenalLockTimer.start(vm.gameBoard.arsenalTimerDisplay / 1000)
                             }
-                            setTimeout(function () {
-                                vm.boardMessage = ''
-                            }, 2000)
+                            // setTimeout(function () {
+                            //     vm.boardMessage = ''
+                            // }, 2000)
                         }
                     }
                 }
@@ -1216,10 +1245,11 @@ export default {
                         item: 'radar',
                         participantType: 1
                     })
-                    vm.boardMessage = `You have been gifted a free Radar!`
-                    setTimeout(function () {
-                        vm.boardMessage = ''
-                    }, 5000)
+                    vm.systemMsg('You have been gifted a free Radar!')
+                    // vm.boardMessage = `You have been gifted a free Radar!`
+                    // setTimeout(function () {
+                    //     vm.boardMessage = ''
+                    // }, 5000)
                 }
                 if (vm.secondsElapsed % (360 + vm.gameBoard.playerTwoRadarDelay) === 0 && vm.participantType === 2) {
                     socket.emit('arsenal-change', {
@@ -1228,10 +1258,11 @@ export default {
                         item: 'radar',
                         participantType: 2
                     })
-                    vm.boardMessage = `You have been gifted a free Radar!`
-                    setTimeout(function () {
-                        vm.boardMessage = ''
-                    }, 5000)
+                    vm.systemMsg('You have been gifted a free Radar!')
+                    // vm.boardMessage = `You have been gifted a free Radar!`
+                    // setTimeout(function () {
+                    //     vm.boardMessage = ''
+                    // }, 5000)
                 }
             }
             // Check to see if an AI player is playing
@@ -1342,6 +1373,9 @@ export default {
 </script>
 
 <style lang="css" scoped>
+#code-input::-webkit-input-placeholder {
+    font-size: 38px;
+}
 .new-chat {
     position: absolute;
     top: 430px;

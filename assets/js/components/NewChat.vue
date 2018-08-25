@@ -20,7 +20,10 @@
         <!-- <h2 class="chat-title" style="margin-top: 10px;">Chat ({{ currentRoom }})</h2> -->
         <div class="chat-box" ref="chatbox" id="style-3">
             <span v-for="msg in chatMessages" class="chat-message white" v-if="msg.room === currentRoom">
-                <strong :class="{'red': msg.sender == 1, 'blue': msg.sender == 2, 'white': msg.sender > 2}">{{msg.name}}:</strong> {{msg.message}}
+                <span v-if="msg.sender === 99" class="gray">(system): {{msg.message}}</span>
+                <span v-else>
+                    <strong :class="{'red': msg.sender == 1, 'blue': msg.sender == 2, 'white': msg.sender > 2}">{{msg.name}}:</strong> {{msg.message}}
+                </span>
             </span>
         </div>
         <div class="ui inverted transparent icon input chat-input">
@@ -101,11 +104,16 @@ export default {
 .red {
     color: #e22722;
 }
+.gray {
+    color: lightpink;
+}
 .blue {
     color: lightskyblue;
 }
 .white {
     color: white;
+    font-size: 20px;
+    line-height: 22px;
 }
 .chat-message {
     display: block;
@@ -133,6 +141,7 @@ export default {
     padding-top: 10px;
     padding-bottom: 10px;
     border-bottom: 1px solid #423e3e;
+    font-size: 20px;
 }
 .chat-title {
     font-family: 'Black Ops One', cursive;
