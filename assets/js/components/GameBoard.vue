@@ -694,7 +694,9 @@ export default {
                         let hitSquare = _.find(vm.gameBoard.boardObjects, function (o) {
                             return o.i === square.i && o.j === square.j
                         })
-                        vm.lockInput = true
+                        if (vm.selectedItem !== 'salvo') {
+                            vm.lockInput = true
+                        }
                         let hit ={
                             type: 'hit',
                             style: {

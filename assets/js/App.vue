@@ -13,12 +13,70 @@
                         <div class="ui container" style="width: 90%" v-if="statsReady">
                             <div class="ui two column grid">
                                 <div class="column">
-                                    <h3>{{ statistics.playerOne.clientName }}</h3>
+                                    <h2>{{ statistics.playerOne.clientName }}</h2>
                                     <div class="ui inverted segment">
-                                        <div class="ui inverted statistics">
+                                        <span style="float: left; padding: 20px">
+                                            <h1>
+                                                Enemy Units Destroyed: {{ statistics.playerOne.statistics.shipsDestroyed}}
+                                            </h1>
+                                            <h1>
+                                                Successful Targets Hit: {{ statistics.playerOne.statistics.hits}}
+                                            </h1>
+                                            <h1>
+                                                Firing Accuracy: <span class="value" v-if="statistics.playerOne.statistics.hits > 0">
+                                                        {{ (statistics.playerOne.statistics.hits / (statistics.playerOne.statistics.misses + statistics.playerOne.statistics.hits) * 100 ).toFixed(2)}}%
+                                                    </span>
+                                                    <span class="value" v-else>
+                                                        0%
+                                                    </span>
+                                            </h1>
+                                        </span>
+                                        <span style="float: right; padding: 20px">
+                                            <h1>
+                                                Puzzles solved: {{ playerOnePuzzlesSolved}}
+                                            </h1>
+                                            <h1>
+                                                Invalid Codes: {{ statistics.playerOne.statistics.invalidCodes }}
+                                            </h1>
+                                            <h1>
+                                                Duplicate Codes: {{ statistics.playerOne.statistics.reusedCodes }}
+                                            </h1>
+                                        </span>
+                                        <table class="ui inverted compact table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Arsenal</th>
+                                                    <th>Earned</th>
+                                                    <th>Used</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Missiles</td>
+                                                    <td>{{ statistics.playerOne.statistics.missileCodes}}</td>
+                                                    <td>{{ statistics.playerOne.statistics.missileCodesUsed}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Torpedoes</td>
+                                                    <td>{{ statistics.playerOne.statistics.torpedoCodes}}</td>
+                                                    <td>{{ statistics.playerOne.statistics.torpedoCodesUsed}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Salvos</td>
+                                                    <td>{{ statistics.playerOne.statistics.salvoCodes}}</td>
+                                                    <td>{{ statistics.playerOne.statistics.salvoCodesUsed}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Radars</td>
+                                                    <td>{{ statistics.playerOne.statistics.radarCodes}}</td>
+                                                    <td>{{ statistics.playerOne.statistics.radarCodesUsed}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- <div class="ui inverted statistics">
                                             <div class="statistic">
                                                 <div class="value">
-                                                    {{ statistics.playerOne.statistics.shipsDestroyed}}
+                                                    
                                                 </div>
                                                 <div class="label">
                                                     Enemy Units Destroyed
@@ -107,13 +165,71 @@
                                                     Arsenal Items Gifted to Opponent
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                                 <div class="column">
                                     <h3>{{ statistics.playerTwo.clientName }}</h3>
                                     <div class="ui inverted segment">
-                                        <div class="ui inverted statistics">
+                                        <span style="float: left; padding: 20px">
+                                            <h1>
+                                                Enemy Units Destroyed: {{ statistics.playerTwo.statistics.shipsDestroyed}}
+                                            </h1>
+                                            <h1>
+                                                Successful Targets Hit: {{ statistics.playerTwo.statistics.hits}}
+                                            </h1>
+                                            <h1>
+                                                Firing Accuracy: <span class="value" v-if="statistics.playerTwo.statistics.hits > 0">
+                                                        {{ (statistics.playerTwo.statistics.hits / (statistics.playerTwo.statistics.misses + statistics.playerTwo.statistics.hits) * 100 ).toFixed(2)}}%
+                                                    </span>
+                                                    <span class="value" v-else>
+                                                        0%
+                                                    </span>
+                                            </h1>
+                                        </span>
+                                        <span style="float: right; padding: 20px">
+                                            <h1>
+                                                Puzzles solved: {{ playerTwoPuzzlesSolved}}
+                                            </h1>
+                                            <h1>
+                                                Invalid Codes: {{ statistics.playerTwo.statistics.invalidCodes }}
+                                            </h1>
+                                            <h1>
+                                                Duplicate Codes: {{ statistics.playerTwo.statistics.reusedCodes }}
+                                            </h1>
+                                        </span>
+                                        <table class="ui inverted compact table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Arsenal</th>
+                                                    <th>Earned</th>
+                                                    <th>Used</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Missiles</td>
+                                                    <td>{{ statistics.playerTwo.statistics.missileCodes}}</td>
+                                                    <td>{{ statistics.playerTwo.statistics.missileCodesUsed}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Torpedoes</td>
+                                                    <td>{{ statistics.playerTwo.statistics.torpedoCodes}}</td>
+                                                    <td>{{ statistics.playerTwo.statistics.torpedoCodesUsed}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Salvos</td>
+                                                    <td>{{ statistics.playerTwo.statistics.salvoCodes}}</td>
+                                                    <td>{{ statistics.playerTwo.statistics.salvoCodesUsed}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Radars</td>
+                                                    <td>{{ statistics.playerTwo.statistics.radarCodes}}</td>
+                                                    <td>{{ statistics.playerTwo.statistics.radarCodesUsed}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- <div class="ui inverted statistics">
                                             <div class="statistic">
                                                 <div class="value">
                                                     {{ statistics.playerTwo.statistics.shipsDestroyed}}
@@ -205,7 +321,7 @@
                                                     Arsenal Items Gifted to Opponent
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
