@@ -11,6 +11,7 @@ export const store = new Vuex.Store({
         currentRoom: 'public',
         currentView: 'main',
         chatMessages: [],
+        enemyRecon: [],
         currentGame: new Game(),
         participantType: 4,
         chatRecipients: [1, 2, 3, 4],
@@ -28,6 +29,9 @@ export const store = new Vuex.Store({
         },
         currentGame: state => {
             return state.currentGame
+        },
+        enemyRecon: state => {
+            return state.enemyRecon
         },
         currentView: state => {
             return state.currentView
@@ -55,6 +59,9 @@ export const store = new Vuex.Store({
         pushMessage: (state, [data]) => {
             state.chatMessages.push(data)
         },
+        addRecon: (state, [data]) => {
+            state.enemyRecon.push(data)
+        },
         newGame: (state, [data]) => {
             state.currentGame = new Game()
         },
@@ -80,6 +87,9 @@ export const store = new Vuex.Store({
         },
         pushMessage: (context, payload) => {
             context.commit('pushMessage', payload)
+        },
+        addRecon: (context, payload) => {
+            context.commit('addRecon', payload)
         },
         newGame: (context, payload) => {
             context.commit('newGame', payload)

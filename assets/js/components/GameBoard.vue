@@ -349,6 +349,24 @@ export default {
             playerTwoName: '',
             gameCodeHistory: [],
             gameCodes: [],
+            letters: {
+                1: 'A',
+                2: 'B',
+                3: 'C',
+                4: 'D',
+                5: 'E',
+                6: 'F',
+                7: 'G',
+                8: 'H',
+                9: 'I',
+                10: 'J',
+                11: 'K',
+                12: 'L',
+                13: 'M',
+                14: 'N',
+                15: 'O',
+                16: 'P'
+            },
             arsenalTimeout: 10,
             secondsElapsed: 0,
             AIPlayerOne: false,
@@ -465,7 +483,8 @@ export default {
             'setParticipantType',
             'setChatRecipients',
             'changeView',
-            'setGameEndedDetails'
+            'setGameEndedDetails',
+            'addRecon'
         ]),
         addAI (player) {
             var vm = this
@@ -565,7 +584,11 @@ export default {
                         shipCount += 1
                     }
                 })
+                let radarSquares = vm.hoverGrid.map(function (square) {
+                    return `${vm.letters[square.i]}${square.j}`
+                })
                 vm.systemMsg(`There are ${shipCount} squares occupied by the enemy in this area.`)
+                vm.addRecon([`Radar scan on ${radarSquares[0]} showed ${shipCount} squares occupied by the enemy`])
                 // vm.boardMessage = `There are ${shipCount} squares occupied by the enemy in this area.`
                 // setTimeout(function () {
                 //     vm.boardMessage = ''
@@ -599,6 +622,7 @@ export default {
                     })
                     if (weaponHit > -1 && vm.gameBoard.boardObjects[weaponHit].type === 'submarine' && vm.selectedItem === 'missile') {
                         vm.systemMsg(`Enemy sub dodged your missile!`)
+                        vm.addRecon([`Enemy sub on ${vm.letters[vm.hoverGrid[0].i]}${vm.hoverGrid[0].j} dodged your missile!`])
                         // vm.boardMessage = 'Enemy sub dodged your missile!'
                         // setTimeout(function () {
                         //     vm.boardMessage = ''

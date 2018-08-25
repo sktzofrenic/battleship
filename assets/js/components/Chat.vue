@@ -30,6 +30,12 @@
         <div class="ui divider" v-if="participantType === 3">
 
         </div> -->
+        <div class="enemy-recon" v-if="participantType < 3">
+            <h2 class="recon-header">Enemy Recon</h2>
+            <div class="recon-msg-container" ref="recon">
+                <p class="recon-msg " v-for="r in enemyRecon">{{r}}</p>
+            </div>
+        </div>
         <div class="gm-controls" v-if="participantType === 3">
             <h2 class="chat-title">GM Controls</h2>
             <div class="ui inverted red vertical menu gm-control-menu">
@@ -216,6 +222,9 @@ export default {
             'setChatRecipients'
         ])
     },
+    updated () {
+        this.$refs.recon.scrollTop = this.$refs.recon.scrollHeight
+    },
     computed: {
         ...mapGetters([
             'currentRoom',
@@ -223,7 +232,8 @@ export default {
             'chatMessages',
             'participantType',
             'chatRecipients',
-            'chatNumber'
+            'chatNumber',
+            'enemyRecon'
         ])
     },
     mounted () {
@@ -253,6 +263,22 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.recon-msg-container {
+    height: 500px;
+    overflow-y: scroll;
+}
+.enemy-recon {
+    padding: 10px;
+}
+.recon-msg {
+    font-family: Inconsolata,monospace;
+    font-size: 18px;
+}
+.recon-header {
+    font-family: Black Ops One,cursive!important;
+    font-size: 30px;
+    color: #e22722;
+}
 .red {
     color: #e22722;
 }
