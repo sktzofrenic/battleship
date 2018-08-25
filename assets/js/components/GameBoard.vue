@@ -83,10 +83,20 @@
                                     Destroyer x{{ this.gameBoard.shipLimits.destroyer / 2 }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.destroyer / 2) === 0}">
-                                    {{ ships.playerOne.destroyer}}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 1 || participantType > 2)">
+                                            {{ ships.playerOne.destroyer}}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerOne.destroyer }}</span>
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.destroyer / 2) === 0}">
-                                    {{ ships.playerTwo.destroyer }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 2 || participantType > 2)">
+                                            {{ ships.playerTwo.destroyer}}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerTwo.destroyer }}</span>
                                 </td>
                             </tr>
                             <tr>
@@ -94,10 +104,20 @@
                                     Cruiser x{{ this.gameBoard.shipLimits.cruiser / 3 }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.cruiser / 3) === 0}">
-                                    {{ ships.playerOne.cruiser  }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 1 || participantType > 2)">
+                                            {{ ships.playerOne.cruiser }}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerOne.cruiser }}</span>
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.cruiser / 3) === 0}">
-                                    {{ ships.playerTwo.cruiser }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 2 || participantType > 2)">
+                                            {{ ships.playerTwo.cruiser }}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerTwo.cruiser }}</span>
                                 </td>
                             </tr>
                             <tr>
@@ -105,10 +125,20 @@
                                     Carrier x{{ this.gameBoard.shipLimits.carrier / 6 }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.carrier / 6) === 0}">
-                                    {{ ships.playerOne.carrier }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 1 || participantType > 2)">
+                                            {{ ships.playerOne.carrier }}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerOne.carrier }}</span>
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.carrier / 6) === 0}">
-                                    {{ ships.playerTwo.carrier  }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 2 || participantType > 2)">
+                                            {{ ships.playerTwo.carrier }}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerTwo.carrier }}</span>
                                 </td>
                             </tr>
                             <tr>
@@ -116,10 +146,20 @@
                                     Outpost x{{ this.gameBoard.shipLimits.outpost }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.outpost) === 0}">
-                                    {{ ships.playerOne.outpost }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 1 || participantType > 2)">
+                                            {{ ships.playerOne.outpost }}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerOne.outpost }}</span>
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.outpost) === 0}">
-                                    {{ ships.playerTwo.outpost }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 2 || participantType > 2)">
+                                            {{ ships.playerTwo.outpost }}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerTwo.outpost }}</span>
                                 </td>
                             </tr>
                             <tr>
@@ -127,10 +167,20 @@
                                     Submarine x{{ this.gameBoard.shipLimits.submarine }}
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerOne.submarine) === 0}">
-                                    {{ ships.playerOne.submarine }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 1 || participantType > 2)">
+                                            {{ ships.playerOne.submarine }}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerOne.submarine }}</span>
                                 </td>
                                 <td :class="{'highlight': Math.ceil(ships.playerTwo.submarine) === 0}">
-                                    {{ ships.playerTwo.submarine }}
+                                    <span v-if="gameBoard.gameState === 'setup'">
+                                        <span v-if="(participantType === 2 || participantType > 2)">
+                                            {{ ships.playerTwo.submarine }}
+                                        </span>
+                                    </span>
+                                    <span v-else>{{ ships.playerTwo.submarine }}</span>
                                 </td>
                             </tr>
                         </tbody>
