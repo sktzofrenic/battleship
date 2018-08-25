@@ -1,6 +1,22 @@
 <template lang="html">
     <div class="">
         <audio ref="chatSound" style="display:none;" id="menu_music" src="/static/build/audio/new-chat.wav" type="audio/mpeg"></audio>
+        <!-- <div class="chat-controls" v-if="participantType === 1">
+            <button class="ui red tiny inverted button" disabled>Chat ({{ currentRoom }})</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 8}" name="button" @click="setChatRecipients([[1, 3, 4]])">GM Chat</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}"  name="button" @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
+        </div>
+        <div class="chat-controls" v-if="participantType === 2">
+            <button class="ui red tiny inverted button" disabled>Chat ({{ currentRoom }})</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 9}"  name="button" @click="setChatRecipients([[2, 3, 4]])">GM Chat</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}" name="button" @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
+        </div>
+        <div class="chat-controls" v-if="participantType === 3">
+            <button class="ui red tiny inverted button" disabled>Chat ({{ currentRoom }})</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 8}"  @click="setChatRecipients([[1, 3, 4]])">P1</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 9}"  @click="setChatRecipients([[2, 3, 4]])">P2</button>
+            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}"  @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
+        </div>
         <h2 class="chat-title" style="margin-top: 10px;">Chat ({{ currentRoom }})</h2>
         <div class="chat-box" ref="chatbox" id="style-3">
             <span v-for="msg in chatMessages" class="chat-message" v-if="msg.room === currentRoom">
@@ -11,22 +27,9 @@
             <input type="text" placeholder="Chat..." v-model="clientMessage" @keyup.enter="send">
             <i class="comment outline icon"></i>
         </div>
-        <div class="chat-controls" v-if="participantType === 1">
-            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 8}" name="button" @click="setChatRecipients([[1, 3, 4]])">GM Chat</button>
-            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}"  name="button" @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
-        </div>
-        <div class="chat-controls" v-if="participantType === 2">
-            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 9}"  name="button" @click="setChatRecipients([[2, 3, 4]])">GM Chat</button>
-            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}" name="button" @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
-        </div>
-        <div class="chat-controls" v-if="participantType === 3">
-            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 8}"  @click="setChatRecipients([[1, 3, 4]])">P1</button>
-            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 9}"  @click="setChatRecipients([[2, 3, 4]])">P2</button>
-            <button class="ui red tiny inverted button" :class="{'active': chatNumber == 10}"  @click="setChatRecipients([[1, 2, 3, 4]])">All</button>
-        </div>
         <div class="ui divider" v-if="participantType === 3">
 
-        </div>
+        </div> -->
         <div class="gm-controls" v-if="participantType === 3">
             <h2 class="chat-title">GM Controls</h2>
             <div class="ui inverted red vertical menu gm-control-menu">
@@ -228,21 +231,21 @@ export default {
     },
     mounted () {
         var vm = this
-        socket.on('chat', function(msg) {
-            if (msg.recipients) {
-                if (_.includes(msg.recipients, vm.participantType)) {
-                    if (msg.chatNumber < 10) {
-                        msg.name = `${msg.name} (whispers)`
-                    }
-                    vm.pushMessage([msg])
-                }
-            } else {
-                vm.pushMessage([msg])
-            }
-            if (msg.sender != vm.participantType && _.includes(msg.recipients, vm.participantType)) {
-                vm.$refs.chatSound.play()
-            }
-        })
+        // socket.on('chat', function(msg) {
+        //     if (msg.recipients) {
+        //         if (_.includes(msg.recipients, vm.participantType)) {
+        //             if (msg.chatNumber < 10) {
+        //                 msg.name = `${msg.name} (whispers)`
+        //             }
+        //             vm.pushMessage([msg])
+        //         }
+        //     } else {
+        //         vm.pushMessage([msg])
+        //     }
+        //     if (msg.sender != vm.participantType && _.includes(msg.recipients, vm.participantType)) {
+        //         vm.$refs.chatSound.play()
+        //     }
+        // })
         socket.on('end-game', function (data) {
             if (data.id == vm.currentRoom) {
                 Object.assign(vm.$data, vm.$options.data())

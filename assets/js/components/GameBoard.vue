@@ -281,6 +281,9 @@
             <div class="board-message" v-if="boardMessage">
                 {{ boardMessage }}
             </div>
+            <div class="new-chat">
+                <NewChat/>
+            </div>
         </div>
     </div>
 </template>
@@ -288,6 +291,7 @@
 <script>
 import _ from 'lodash'
 import {GameBoard} from '../models/gameBoard.js'
+import NewChat from './NewChat'
 import {mapGetters, mapActions} from 'vuex'
 import {socket} from '../socket.js'
 import Timer from 'timer.js'
@@ -386,6 +390,9 @@ export default {
             selectedItem: false,
             participantType: 3 // 1 is player one, 2 is player two, 3 is game master, 4 is observer
         }
+    },
+    components: {
+        NewChat
     },
     computed: {
       	gb: function () {
@@ -1335,6 +1342,13 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.new-chat {
+    position: absolute;
+    top: 430px;
+    left: 478px;
+    height: 300px;
+    width: 695px;
+}
 .board-message {
     position: absolute;
     font-size: 30px;
