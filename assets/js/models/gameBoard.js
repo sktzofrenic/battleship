@@ -25,6 +25,8 @@ export function GameBoard (GameBoardData) {
     this.playerTwoRadarDelay = GameBoardData['teamTwoRadarDelay'] || 0
     this.shipIcons = GameBoardData['shipIcons'] || []
     this.usedGameCodes = GameBoardData['usedGameCodes'] || []
+    this.shipName = ''
+    this.shipDetail = ''
     this.badGuesses = GameBoardData['badGuesses'] || 0
     this.hitMissGrid = GameBoardData['hitMissGrid'] || []
     this.originalShips = GameBoardData['hitMissGrid'] || {
@@ -390,6 +392,93 @@ export function GameBoard (GameBoardData) {
                     return true
                 }
             })
+        }
+    })
+
+    Object.defineProperty(this, 'shipRemoveGrid', {
+        value: function (gridShape, rotate, coords) {
+            let icon = {
+                style: {
+                    background: 'url(static/build/img/remove-icon2.png) no-repeat',
+                    transform: `translate(${coords.i * 42}px, ${(coords.j * 42) + 11}px)`,
+                    height: '42px',
+                    width: '42px'
+                },
+                i: coords.i,
+                j: coords.j
+            }
+            if (_.some(this.boardObjects, {i: coords.i, j: coords.j})) {
+                return [
+                    icon
+                ]
+            } else {
+                return []
+            }
+            
+        }
+    })
+
+    Object.defineProperty(this, 'eraseShip', {
+        value: function (coords) {
+            // takes in coords and returns the name of the ship that was removed
+            let that = this
+            console.log(that.originalShips, that.boardObjects, that.shipIcons);
+            for (const player in that.originalShips) {
+                if (that.originalShips.hasOwnProperty(player)) {
+                    console.log('player', player);
+                    
+                    for (const shipType in that.originalShips[player]) {
+                        if (that.originalShips[player].hasOwnProperty(shipType)) {
+                            console.log('shipType', shipType);
+
+                            for (let shipIndex = 0; shipIndex < that.originalShips[player][shipType].length; shipIndex++) {
+                                console.log('shipIndex', shipIndex);
+                                
+                                for (let shipPiece = 0; shipPiece < that.originalShips[player][shipType][shipIndex].length; shipPiece++) {
+                                    const piece = that.originalShips[player][shipType][shipIndex][shipPiece];
+                                    console.log(piece, coords);
+                                    if (piece.i == coords.i && piece.j == coords.j) {
+                                        that.shipName = shipType
+                                        that.shipDetails = that.originalShips[player][shipType][shipIndex]
+                                        that.originalShips[player][shipType].splice(shipIndex, 1)
+                                        break
+                                    }
+                                }                        
+                            }
+                        }
+                    }
+                }
+            }
+            
+            console.log(that.shipName, that.shipDetails);
+            console.log('original ships', that.originalShips);
+            
+            
+            // need to find these coords in original ships and then use that data to 
+            // wipe the boardobject, shipIcons, and ship counters
+
+            for (let shipPieceIndex = 0; shipPieceIndex < that.shipDetails.length; shipPieceIndex++) {
+                const shipPiece = that.shipDetails[shipPieceIndex];
+                that.boardObjects.map(function (bObject, index) {
+                    if (bObject.i === shipPiece.i && bObject.j === shipPiece.j) {
+                        that.boardObjects.splice(index, 1)
+                    }
+                })
+                
+            }
+
+            for (let shipPieceIndex = 0; shipPieceIndex < that.shipDetails.length; shipPieceIndex++) {
+                const shipPiece = that.shipDetails[shipPieceIndex];
+                that.shipIcons.map(function (bObject, index) {
+                    if (bObject.i === shipPiece.i && bObject.j === shipPiece.j) {
+                        that.shipIcons.splice(index, 1)
+                    }
+                })
+                
+            }
+
+            return that.shipName
+            
         }
     })
 

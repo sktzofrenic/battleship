@@ -31,7 +31,7 @@
         </table>
         <div class="ui modal modal-margin" :class="{'active': showModal}">
             <div class="header">
-                {{ modalAction }} Gamecode Set
+                {{ modalAction }} Chat quick Codes
             </div>
             <div class="content">
                 <form class="ui large form">

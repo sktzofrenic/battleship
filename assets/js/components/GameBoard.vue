@@ -33,6 +33,11 @@
                     :style="o.style"
                     v-for="(o, index) in gameBoard.shipIcons">
                 </x-ship-icon>
+                <x-erase-icon
+                    class="erase-icon"
+                    :style="o.style"
+                    v-for="(o, index) in shipRemoveGrid">
+                </x-erase-icon>
                 <x-mask
                     class="participant-one-mask"
                     v-if="participantType === 1">
@@ -353,6 +358,7 @@ export default {
         return {
             gameBoard: new GameBoard(),
             hoverGrid: [],
+            shipRemoveGrid: [],
             hoverShape: 'one',
             hoverColor: '#fff',
             lockInput: false,  // used to prevent players from quick double clicking
@@ -622,6 +628,13 @@ export default {
         boardClick (event) {
             var vm = this
             let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
+            if (vm.shipRemoveGrid.length > 0) {
+                socket.emit('remove-one-ship', {
+                    gameId: vm.currentRoom,
+                    player: player,
+                    shipCoord: vm.shipRemoveGrid[0]
+                })
+            }
             if (vm.selectedItem === 'radar') {
                 if (!vm.arsenals[player][vm.selectedItem]) {
                     return
@@ -785,6 +798,7 @@ export default {
         },
         clearHoverGrid () {
             this.hoverGrid = []
+            this.shipRemoveGrid = []
         },
         leaveGame (clientName, participantType) {
             var vm = this
@@ -955,6 +969,11 @@ export default {
                             vm.gameBoard.boardObjects.push(shipTile)
                         })
                     }
+                    if (each.action.name === 'Remove One Ship') {
+                        var player = each.action.data.i > 8 ? 'playerTwo' : 'playerOne'
+                        let shipName = vm.gameBoard.eraseShip(each.action.data, player)
+                        vm.ships[player][shipName] -= 1
+                    }
                 })
             })
         },
@@ -1025,6 +1044,9 @@ export default {
         squareMouseOver (coords, rotate) {
             if (rotate) {
                 this.rotate = !this.rotate
+            }
+            if (!this.selectedItem && this.gameBoard.gameState == 'setup') {
+                this.shipRemoveGrid = this.gameBoard.shipRemoveGrid(this.hoverShap, this.rotate, coords)
             }
             this.hoverGrid = this.gameBoard.hoverGrid(this.hoverShape, this.rotate, coords)
         }
@@ -1241,6 +1263,11 @@ export default {
                     }
                 }
             }
+        })
+        socket.on('remove-one-ship', function (data) {
+            let player = data.participantType == 1 ? 'playerOne' : 'playerTwo'
+            let shipName = vm.gameBoard.eraseShip(data.shipCoord, player)
+            vm.ships[player][shipName] -= 1
         })
         socket.on('reset-ships', function (data) {
             if (data.id == vm.currentRoom) {
@@ -1492,6 +1519,10 @@ export default {
 }
 
 .ship-icon {
+    position: absolute;
+}
+
+.erase-icon {
     position: absolute;
 }
 

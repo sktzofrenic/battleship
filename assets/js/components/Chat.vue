@@ -223,7 +223,9 @@ export default {
         ])
     },
     updated () {
-        this.$refs.recon.scrollTop = this.$refs.recon.scrollHeight
+        if (this.$refs.recon) {
+            this.$refs.recon.scrollTop = this.$refs.recon.scrollHeight
+        }
     },
     computed: {
         ...mapGetters([

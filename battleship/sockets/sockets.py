@@ -89,6 +89,16 @@ def reset_ships(json):
     emit('reset-ships', json, broadcast=True)
 
 
+@socketio.on('remove-one-ship')
+def reset_ship(json):
+    game = Game.query.filter_by(id=json['gameId']).first()
+    action = Action.create(name='Remove One Ship', type_='26', data=js.dumps(json['shipCoord']))
+    game_event = GameEvent.create(created_on=dt.datetime.utcnow(),
+                                  game_id=game.id,
+                                  action_id=action.id)
+    emit('remove-one-ship', json, broadcast=True)
+
+
 @socketio.on('arsenal-change')
 def arsenal_change(json):
     game = Game.query.filter_by(id=json['gameId']).first()
