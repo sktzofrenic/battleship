@@ -78,6 +78,7 @@ export default {
     },
     mounted () {
         var vm = this
+        socket.off('chat')
         socket.on('chat', function(msg) {
             if (msg.recipients) {
                 if (_.includes(msg.recipients, vm.participantType)) {
