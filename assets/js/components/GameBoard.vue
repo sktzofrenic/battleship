@@ -294,12 +294,12 @@
                 <span @click="toggleBackgroundMusic3()" style="cursor:pointer">
                     Track 3 <i class="music icon" :class="{'active-bg-music': backgroundMusicStatus3}"></i>
                 </span>
-                <audio ref="backgroundMusic1" style="display:none;" id="menu_music" src="/static/build/audio/energy.m4a" type="audio/mpeg"></audio>
-                <audio ref="backgroundMusic2" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/strategize.m4a" type="audio/mpeg" loop></audio>
-                <audio ref="backgroundMusic3" style="display:none;" id="menu_music" src="/static/build/audio/tech_mystique.m4a" type="audio/mpeg"></audio>
-                <audio ref="win_sound" style="display:none;" id="win_sound" src="/static/build/audio/win_jingle.wav" type="audio/mpeg"></audio>
-                <audio ref="lose_sound" style="display:none;" id="lose_sound" src="/static/build/audio/lose_jingle.wav" type="audio/mpeg"></audio>
-                <audio ref="ship_destroy_sound" style="display:none;" id="ship_destroy_sound" src="/static/build/audio/destroyed.wav" type="audio/mpeg"></audio>
+                <audio preload="auto" ref="backgroundMusic1" style="display:none;" id="menu_music" src="/static/build/audio/energy.m4a" type="audio/mpeg"></audio>
+                <audio preload="auto" ref="backgroundMusic2" autoplay="true" style="display:none;" id="menu_music" src="/static/build/audio/strategize.m4a" type="audio/mpeg" loop></audio>
+                <audio preload="auto" ref="backgroundMusic3" style="display:none;" id="menu_music" src="/static/build/audio/tech_mystique.m4a" type="audio/mpeg"></audio>
+                <audio preload="auto" ref="win_sound" style="display:none;" id="win_sound" src="/static/build/audio/win_jingle.wav" type="audio/mpeg"></audio>
+                <audio preload="auto" ref="lose_sound" style="display:none;" id="lose_sound" src="/static/build/audio/lose_jingle.wav" type="audio/mpeg"></audio>
+                <audio preload="auto" ref="ship_destroy_sound" style="display:none;" id="ship_destroy_sound" src="/static/build/audio/destroyed.wav" type="audio/mpeg"></audio>
             </div>
             <div class="player-one-name">
                 <span class="highlight">P1:</span>
