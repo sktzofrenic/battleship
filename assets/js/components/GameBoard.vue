@@ -629,6 +629,7 @@ export default {
             var vm = this
             let player = vm.participantType === 1 ? 'playerOne' : 'playerTwo'
             if (vm.shipRemoveGrid.length > 0) {
+                let player = vm.shipRemoveGrid[0].i > 8 ? 'playerTwo' : 'playerOne'
                 socket.emit('remove-one-ship', {
                     gameId: vm.currentRoom,
                     player: player,
@@ -1265,9 +1266,9 @@ export default {
             }
         })
         socket.on('remove-one-ship', function (data) {
-            let player = data.participantType == 1 ? 'playerOne' : 'playerTwo'
-            let shipName = vm.gameBoard.eraseShip(data.shipCoord, player)
-            vm.ships[player][shipName] -= 1
+            //let player = data.participantType == 1 ? 'playerOne' : 'playerTwo'
+            let shipName = vm.gameBoard.eraseShip(data.shipCoord, data.player)
+            vm.ships[data.player][shipName] -= 1
         })
         socket.on('reset-ships', function (data) {
             if (data.id == vm.currentRoom) {
