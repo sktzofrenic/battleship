@@ -1,5 +1,5 @@
 <template lang="html">
-    <div class="row">
+    <div class="row hot-fix">
         <div class="sub header">
             <button style="padding:10px;" class="ui labeled inverted icon button" @click="toggleModal('Add')">
               <i class="plus icon"></i>
@@ -22,7 +22,7 @@
                 <tr v-for="(gc, index) in chatCodes">
                     <td> {{ gc.id }} </td>
                     <td> {{ gc.code }} </td>
-                    <td> {{ gc.text }} </td>
+                    <td :title="gc.text"> {{ gc.text.substring(0, 120) }} <span v-if="gc.text.length > 120">...</span> </td>
                     <td>
                         <a class="cursor" @click="deleteChatCode(index)"><i class="close icon"></i> Delete</a>
                     </td>
@@ -120,6 +120,11 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.hot-fix {
+    overflow-x: scroll;
+    overflow-y: scroll;
+    max-height: 80vh;
+}
 .modal-margin {
     margin-top: -230px;
 }
